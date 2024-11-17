@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.2 (12043) - http://www.bohemiancoding.com/sketch -->
+    <title>ic_energized_3_small</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="ic_energized_3_small" sketch:type="MSArtboardGroup">
+            <g id="dining_room" sketch:type="MSLayerGroup" transform="translate(2.000000, 1.000000)">
+                <path d="M10,12 L17.3,19.3" id="Shape" stroke="#FFFFFF" stroke-width="2" sketch:type="MSShapeGroup"></path>
+                <path d="M13.4,8.6 L2.7,19.3" id="Shape" stroke="#FFFFFF" stroke-width="2" sketch:type="MSShapeGroup"></path>
+                <path d="M6.3,12.5 L1,7.3 C-0.3,5.9 -0.3,3.7 1,2.4 L1.4,2 L9.1,9.7 L6.3,12.5 L6.3,12.5 Z" id="Shape" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
+                <ellipse id="Oval" fill="#FFFFFF" sketch:type="MSShapeGroup" transform="translate(15.511500, 6.527700) rotate(45.000000) translate(-15.511500, -6.527700) " cx="15.5115" cy="6.5277" rx="3.99996164" ry="4.99995205"></ellipse>
+            </g>
+        </g>
+    </g>
+</svg>

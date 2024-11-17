@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg  viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.2 (12043) - http://www.bohemiancoding.com/sketch -->
+    <title>ic_write_journal</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="ic_write_journal" sketch:type="MSArtboardGroup" fill="#FFFFFF">
+            <path d="M14.6875,2 C9.6747788,2 10.31182,6.1141278 9.125,7.40625 C8.904947,7.1512707 8.5507334,7 8.1875,7 C7.5247583,7 7,7.5247583 7,8.1875 C7,8.8502417 7.5247583,9.40625 8.1875,9.40625 C8.431406,9.40625 8.6543612,9.3125102 8.84375,9.1875 C8.9570303,9.2198495 9.05425,9.227 9.09375,9.1875 C11.69375,6.5875 10.50625,3.6875 14.40625,3.6875 L15.5,2.5 L15.1875,2.1875 C15.0875,2.0875 14.8875,2 14.6875,2 L14.6875,2 Z M18.40625,2 C18.15625,2 17.8875,2.1125 17.6875,2.3125 L15,5.09375 L19,9.09375 L21.8125,6.3125 C22.1125,5.9125 22.0875,5.20625 21.6875,4.90625 L19.09375,2.3125 C18.89375,2.1125 18.65625,2 18.40625,2 L18.40625,2 Z M13.90625,6.09375 L13.875,6.125 L13.84375,6.125 L4.96875,15.03125 L4.9375,15.03125 L3,17 L2,22 L7,21 L17.90625,10.09375 L13.90625,6.09375 L13.90625,6.09375 Z M6.375,16.4375 L7.53125,17.625 L6,19.1875 L4.59375,19.5 L4.8125,18 L6.375,16.4375 L6.375,16.4375 Z" id="Shape" sketch:type="MSShapeGroup"></path>
+        </g>
+    </g>
+</svg>
