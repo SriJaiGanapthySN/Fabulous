@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fab/services/task_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,7 +18,7 @@ class _RoutinelistState extends State<Routinelist> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
       height: MediaQuery.of(context).size.height * 0.6, // Set a specific height
-      child: StreamBuilder(
+      child: StreamBuilder<QuerySnapshot>(
           stream: TaskServices().getdailyTasks(),
           builder: (context, snapshot) {
             return ListView(
@@ -31,20 +32,20 @@ class _RoutinelistState extends State<Routinelist> {
                 }
                 if (snapshot.hasData) {
                   bool isChecked = document['iscompleted'];
-                  String iconPath;
-                  switch (document['name']) {
-                    case 'Eat a Great Breakfast':
-                      iconPath = 'assets/images/breakfast.svg';
-                      break;
-                    case 'Write in My Journal':
-                      iconPath = 'assets/images/journal.svg';
-                      break;
-                    case 'Yoga':
-                      iconPath = 'assets/images/yoga.svg';
-                      break;
-                    default:
-                      iconPath = 'assets/images/breakfast.svg';
-                  }
+                  String iconPath=document['iconLink']?? '';
+                  // switch (document['name']) {
+                  //   case 'Eat a Great Breakfast':
+                  //     iconPath = 'assets/images/breakfast.svg';
+                  //     break;
+                  //   case 'Write in My Journal':
+                  //     iconPath = 'assets/images/journal.svg';
+                  //     break;
+                  //   case 'Yoga':
+                  //     iconPath = 'assets/images/yoga.svg';
+                  //     break;
+                  //   default:
+                  //     iconPath = 'assets/images/breakfast.svg';
+                  // }
                   return Column(
                     children: [
                       Row(
@@ -52,7 +53,7 @@ class _RoutinelistState extends State<Routinelist> {
                         children: [
                           Row(
                             children: [
-                              SvgPicture.asset(
+                              SvgPicture.network(
                                 iconPath,
                                 width: 24,
                                 height: 24,

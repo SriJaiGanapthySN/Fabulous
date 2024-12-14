@@ -87,21 +87,7 @@ class _AddrotinelistscreenState extends State<Addrotinelistscreen> {
             return ListView(
               children: snapshot.data!.docs.map<Widget>((document) {
                 bool isAdded = document["isdailyroutine"];
-                String iconPath;
-                switch (document['name']) {
-                  case 'Eat a Great Breakfast':
-                    iconPath = 'assets/images/breakfast.svg';
-                    break;
-                  case 'Write in My Journal':
-                    iconPath = 'assets/images/journal.svg';
-                    break;
-                  case 'Yoga':
-                    iconPath = 'assets/images/yoga.svg';
-                    break;
-                  default:
-                    iconPath = 'assets/images/breakfast.svg';
-                }
-
+                String iconPath=document['iconLink']?? '';
                 return Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -110,7 +96,7 @@ class _AddrotinelistscreenState extends State<Addrotinelistscreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          SvgPicture.asset(
+                          SvgPicture.network(
                             iconPath,
                             width: 24,
                             height: 24,
@@ -137,7 +123,14 @@ class _AddrotinelistscreenState extends State<Addrotinelistscreen> {
                                     document['name'],
                                     document['descriptionHtml'],
                                     document['objectID'],
-                                    document['iscompleted'],
+                                    document[
+                                        'animationLink'], // Add animation link
+                                    document['audioLink'], // Add audio link
+                                    document[
+                                        'backgroundLink'], // Add background link
+                                    document['iconLink'], // Add icon link
+                                    document['isdailyroutine'], // Add isAdded
+                                    document['iscompleted'], // Add iscompleted
                                   );
                                   await TaskServices().updateTasks(
                                       !isAdded, document["objectID"]);

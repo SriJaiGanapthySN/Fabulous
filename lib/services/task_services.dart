@@ -7,14 +7,28 @@ class TaskServices {
     return _firestore.collection('predefinedTasks').snapshots();
   }
 
-  Future<void> addTask(String name, String description, String objectID,
-      bool iscompleted) async {
-    Task newtask = Task(
-      name: name,
-      description: description,
-      objectID: objectID,
-      iscompleted: iscompleted,
-    );
+  Future<void> addTask(
+  String name,
+  String descriptionHtml,
+  String objectID,
+  String animationLink,
+  String audioLink,
+  String backgroundLink,
+  String iconLink,
+  bool isdailyroutine,
+  bool iscompleted,
+) async {
+  Task newtask = Task(
+    name: name,
+    descriptionHtml: descriptionHtml,
+    objectID: objectID,
+    animationLink: animationLink,
+    audioLink: audioLink,
+    backgroundLink: backgroundLink,
+    iconLink: iconLink,
+    isdailyroutine: isdailyroutine,
+    iscompleted: iscompleted,
+  );
 
     await _firestore.collection('userTasks').add(newtask.toMap());
   }

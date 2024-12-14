@@ -1,1 +1,41 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"mental-health-tracking-d5b49","appId":"1:229193580396:android:cde8ce234f9be760a03d49","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"mental-health-tracking-d5b49","appId":"1:229193580396:ios:7e4ba6100b9b97eca03d49","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"mental-health-tracking-d5b49","appId":"1:229193580396:ios:7e4ba6100b9b97eca03d49","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"mental-health-tracking-d5b49","configurations":{"android":"1:229193580396:android:cde8ce234f9be760a03d49","ios":"1:229193580396:ios:7e4ba6100b9b97eca03d49","macos":"1:229193580396:ios:7e4ba6100b9b97eca03d49","web":"1:229193580396:web:91e23e60a6e8ba0da03d49","windows":"1:229193580396:web:91e23e60a6e8ba0da03d49"}}}}}}
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "mental-health-tracking-d5b49",
+                    "appId": "1:229193580396:android:cde8ce234f9be760a03d49",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "ios": {
+                "default": {
+                    "projectId": "mental-health-tracking-d5b49",
+                    "appId": "1:229193580396:ios:7e4ba6100b9b97eca03d49",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "ios/Runner/GoogleService-Info.plist"
+                }
+            },
+            "macos": {
+                "default": {
+                    "projectId": "mental-health-tracking-d5b49",
+                    "appId": "1:229193580396:ios:7e4ba6100b9b97eca03d49",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "macos/Runner/GoogleService-Info.plist"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "mental-health-tracking-d5b49",
+                    "configurations": {
+                        "android": "1:229193580396:android:cde8ce234f9be760a03d49",
+                        "ios": "1:229193580396:ios:7e4ba6100b9b97eca03d49",
+                        "macos": "1:229193580396:ios:7e4ba6100b9b97eca03d49",
+                        "web": "1:229193580396:web:91e23e60a6e8ba0da03d49",
+                        "windows": "1:229193580396:web:91e23e60a6e8ba0da03d49"
+                    }
+                }
+            }
+        }
+    }
+}

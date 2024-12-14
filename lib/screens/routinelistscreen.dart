@@ -12,7 +12,7 @@ class Routinelistscreen extends StatefulWidget {
 }
 
 class _RoutinelistscreenState extends State<Routinelistscreen> {
-  List<String> _habits = ['Drink Water', 'Exercise', 'Read a Book'];
+  List<String> _habits = [];
   TimeOfDay _selectedTime = TimeOfDay.now();
   bool _isAnimating = false;
 
@@ -116,7 +116,7 @@ class _RoutinelistscreenState extends State<Routinelistscreen> {
             Container(
               alignment: Alignment.bottomRight,
               child: Lottie.asset(
-                'assets/animations/buttonanimation.json', // Replace with your animation file
+                'assets/animations/water.json', // Replace with your animation file
                 width: 200,
                 height: 200,
                 repeat: false,
