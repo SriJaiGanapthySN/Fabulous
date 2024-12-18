@@ -1,3 +1,4 @@
+import 'package:fab/screens/audio.dart';
 import 'package:fab/firebase_options.dart';
 import 'package:fab/screens/homepage.dart';
 import 'package:fab/screens/routinelistscreen.dart';
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
           child: child!),
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      home: PlayAudio(),
     );
   }
 }

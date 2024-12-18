@@ -77,6 +77,8 @@ flutter:
     - "assets/images/sample.jpg"
     - "assets/images/sample2.jpg"
     - "assets/images/sample3.jpg"
+    - "assets/audio/sample.m4a"
+    - "assets/animations/audio.json"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
