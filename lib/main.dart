@@ -1,6 +1,7 @@
 import 'package:fab/screens/audio.dart';
 import 'package:fab/firebase_options.dart';
 import 'package:fab/screens/homepage.dart';
+import 'package:fab/screens/logingupinterfacescreen.dart';
 import 'package:fab/screens/routinelistscreen.dart';
 import 'package:fab/screens/taskreveal.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
           child: child!),
       debugShowCheckedModeBanner: false,
-      home: PlayAudio(),
+      home: Logingupinterfacescreen(),
     );
   }
 }
