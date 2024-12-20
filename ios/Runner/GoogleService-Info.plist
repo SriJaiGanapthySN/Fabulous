@@ -2,18 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>399515824553-1bli2e82n1b5e76b271tos31r2htje3t.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyCv9zbIxOeG5A0yVG0youJJdME6uRBpgsw</string>
+	<string>AIzaSyDd3hn1R2zz3r8piZo1ymkYu6uUA9WLonw</string>
 	<key>GCM_SENDER_ID</key>
-	<string>229193580396</string>
+	<string>399515824553</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.example.fab</string>
 	<key>PROJECT_ID</key>
-	<string>mental-health-tracking-d5b49</string>
+	<string>hawai-52704</string>
 	<key>STORAGE_BUCKET</key>
-	<string>mental-health-tracking-d5b49.firebasestorage.app</string>
+	<string>hawai-52704.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +27,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:229193580396:ios:7e4ba6100b9b97eca03d49</string>
+	<string>1:399515824553:ios:e965c108e46d66d3bc54b8</string>
 </dict>
 </plist>

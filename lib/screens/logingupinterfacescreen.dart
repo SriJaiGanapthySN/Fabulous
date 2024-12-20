@@ -8,38 +8,49 @@ class Logingupinterfacescreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-            image: DecorationImage(
-          image: AssetImage('assets/images/login.jpg'),
-          fit: BoxFit.cover,
-        )),
-        child: Column(
-          children: [
-            SizedBox(height: 100),
-            Container(
-              margin: EdgeInsets.only(left: 30, right: 30),
-              child: Center(
-                child: Text(
-                  "Habbit building  made easy",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                  ),
+      body: Stack(
+        children: [
+          // Background image
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/login.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          
+          // Title Text
+          Positioned(
+            top: 100,
+            left: 30,
+            right: 30,
+            child: Center(
+              child: Text(
+                "Habbit building made easy",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            SizedBox(height: 440),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
+          ),
+          
+          // Sign-in Buttons
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.7, // 70% from top
+            left: 20,
+            right: 20,
+            child: Column(
               children: [
+                // Google Sign-In Button
                 Container(
                   height: 50,
                   width: 350,
-                  margin: EdgeInsets.only(left: 20, right: 20),
+                  margin: EdgeInsets.only(bottom: 20),
                   child: ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
@@ -68,9 +79,10 @@ class Logingupinterfacescreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                
+                // Email Sign-In Button
                 Container(
-                  margin: EdgeInsets.only(left: 20, right: 20),
+                  width: 350,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.push(context,
@@ -80,8 +92,7 @@ class Logingupinterfacescreen extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
-                      padding:
-                          EdgeInsets.symmetric(vertical: 16, horizontal: 40),
+                      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -105,8 +116,8 @@ class Logingupinterfacescreen extends StatelessWidget {
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

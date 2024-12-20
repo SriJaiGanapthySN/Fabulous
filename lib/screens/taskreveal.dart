@@ -6,7 +6,8 @@ import 'package:fab/services/task_services.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class Taskreveal extends StatefulWidget {
-  const Taskreveal({super.key});
+  final String email;
+  const Taskreveal({super.key, required this.email, });
 
   @override
   State<Taskreveal> createState() => _TaskrevealState();
@@ -43,7 +44,7 @@ class _TaskrevealState extends State<Taskreveal> {
     });
 
     // Update task status
-    TaskServices().updateTaskStatus(true, taskID);
+    TaskServices().updateTaskStatus(true, taskID,widget.email);
 
     // Play the animation
     Lottie.network(animationLink, repeat: false);
@@ -91,7 +92,7 @@ class _TaskrevealState extends State<Taskreveal> {
     return Scaffold(
       appBar: null,  // Hide the app bar
       body: StreamBuilder<QuerySnapshot>(
-        stream: TaskServices().getdailyTasks(),
+        stream: TaskServices().getdailyTasks(widget.email),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
@@ -106,7 +107,8 @@ class _TaskrevealState extends State<Taskreveal> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Routinelistscreen(),
+                  
+                  builder: (context) => Routinelistscreen(email: widget.email),
                 ),
               );
             });

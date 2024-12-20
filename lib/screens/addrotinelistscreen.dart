@@ -6,9 +6,13 @@ import 'package:flutter_svg/svg.dart';
 class Addrotinelistscreen extends StatefulWidget {
   final List<String> habits;
   final Function(List<String>) updateHabits;
+  final String email;
 
   const Addrotinelistscreen(
-      {super.key, required this.habits, required this.updateHabits});
+      {super.key,
+      required this.habits,
+      required this.updateHabits,
+      required this.email});
 
   @override
   State<Addrotinelistscreen> createState() => _AddrotinelistscreenState();
@@ -19,7 +23,7 @@ class _AddrotinelistscreenState extends State<Addrotinelistscreen> {
 
   // Method to fetch the task count
   Future<void> updateTaskCount() async {
-    int count = await TaskServices().getTotalUserTasks();
+    int count = await TaskServices().getTotalUserTasks(widget.email);
     setState(() {
       taskCount = count;
     });
@@ -84,6 +88,7 @@ class _AddrotinelistscreenState extends State<Addrotinelistscreen> {
         stream: TaskServices().getTasks(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            // List<DocumentSnapshot> tasks = snapshot.data!;
             return ListView(
               children: snapshot.data!.docs.map<Widget>((document) {
                 bool isAdded = document["isdailyroutine"];
@@ -112,14 +117,15 @@ class _AddrotinelistscreenState extends State<Addrotinelistscreen> {
                               setState(() async {
                                 if (isAdded) {
                                   await TaskServices()
-                                      .deleteTask(document["objectID"]);
+                                      .deleteTask(document["objectID"],widget.email);
 
                                   await TaskServices().updateTasks(
                                       !isAdded,
                                       document[
-                                          "objectID"]); // Update local state
+                                          "objectID"],widget.email); // Update local state
                                 } else {
                                   await TaskServices().addTask(
+                                    widget.email,
                                     document['name'],
                                     document['descriptionHtml'],
                                     document['objectID'],
@@ -133,7 +139,7 @@ class _AddrotinelistscreenState extends State<Addrotinelistscreen> {
                                     document['iscompleted'], // Add iscompleted
                                   );
                                   await TaskServices().updateTasks(
-                                      !isAdded, document["objectID"]);
+                                      !isAdded, document["objectID"],widget.email);
                                 }
                                 updateTaskCount();
                               });
@@ -152,6 +158,75 @@ class _AddrotinelistscreenState extends State<Addrotinelistscreen> {
                 );
               }).toList(),
             );
+            // return ListView(
+            //   children: tasks.map<Widget>((document) {
+            //     bool isAdded = document["isdailyroutine"];
+            //     print(isAdded);
+            //     String iconPath = document['iconLink'] ?? '';
+            //     return Padding(
+            //       padding:
+            //           const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            //       child: Column(
+            //         children: [
+            //           Row(
+            //             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //             children: [
+            //               SvgPicture.network(
+            //                 iconPath,
+            //                 width: 24,
+            //                 height: 24,
+            //                 // ignore: deprecated_member_use
+            //                 color: isAdded ? Colors.green : Colors.red,
+            //               ),
+            //               SizedBox(width: 20),
+            //               Expanded(
+            //                 child: Text(
+            //                   document['name'] ?? 'Unnamed Task',
+            //                   textAlign: TextAlign.start,
+            //                 ),
+            //               ),
+            //               TextButton(
+            //                 onPressed: () async {
+            //                   bool isAdded = document["isdailyroutine"];
+            //                   if (isAdded) {
+            //                     await TaskServices().deleteTask(
+            //                         document["objectID"], widget.email);
+            //                     await TaskServices().updateTasks(!isAdded,
+            //                         document["objectID"], widget.email);
+            //                   } else {
+            //                     await TaskServices().addTask(
+            //                       widget.email,
+            //                       document['name'],
+            //                       document['descriptionHtml'],
+            //                       document['objectID'],
+            //                       document['animationLink'],
+            //                       document['audioLink'],
+            //                       document['backgroundLink'],
+            //                       document['iconLink'],
+            //                       document['isdailyroutine'],
+            //                       document['iscompleted'],
+            //                     );
+            //                     await TaskServices().updateTasks(!isAdded,
+            //                         document["objectID"], widget.email);
+            //                   }
+            //                   // Updating the task count synchronously after async operation
+            //                   updateTaskCount();
+            //                 },
+            //                 child: Text(
+            //                   isAdded ? 'Remove' : 'Add',
+            //                   style: TextStyle(
+            //                     color: isAdded ? Colors.red : Colors.green,
+            //                   ),
+            //                 ),
+            //               ),
+            //             ],
+            //           ),
+            //           Divider(), // A divider between task items
+            //         ],
+            //       ),
+            //     );
+            //   }).toList(),
+            // );
           } else {
             return const Center(child: CircularProgressIndicator());
           }
