@@ -1,11 +1,14 @@
 import 'package:fab/compenents/routinelist.dart';
 import 'package:fab/compenents/routinelistheader.dart';
 import 'package:fab/screens/taskreveal.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 class Routinelistscreen extends StatefulWidget {
-  const Routinelistscreen({super.key});
+  final String email; // Add this field
+
+  const Routinelistscreen({Key? key, required this.email}) : super(key: key); // Update constructor
 
   @override
   State<Routinelistscreen> createState() => _RoutinelistscreenState();
@@ -105,10 +108,12 @@ class _RoutinelistscreenState extends State<Routinelistscreen> {
                 number: _habits.length,
                 updateHabits: _updateHabits,
                 habits: _habits,
+                email: widget.email
               ),
               const Divider(),
               Routinelist(
                 habbit: _habits,
+                email: widget.email
               ),
             ],
           ),
@@ -130,7 +135,7 @@ class _RoutinelistscreenState extends State<Routinelistscreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => Taskreveal()),
+              MaterialPageRoute(builder: (context) => Taskreveal(email:widget.email)),
             );
           },
           label: const Text(

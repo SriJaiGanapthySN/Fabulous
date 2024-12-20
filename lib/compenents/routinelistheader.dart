@@ -5,12 +5,14 @@ class Routinelistheader extends StatefulWidget {
   final int number;
   final List<String> habits;
   final Function(List<String>) updateHabits;
+  final String email;
 
   const Routinelistheader(
       {super.key,
       required this.number,
       required this.habits,
-      required this.updateHabits});
+      required this.updateHabits,
+      required this.email});
 
   @override
   State<Routinelistheader> createState() => _RoutinelistheaderState();
@@ -52,6 +54,7 @@ class _RoutinelistheaderState extends State<Routinelistheader> {
                       builder: (context) => Addrotinelistscreen(
                         habits: widget.habits,
                         updateHabits: widget.updateHabits,
+                        email: widget.email
                       ),
                     ),
                   );

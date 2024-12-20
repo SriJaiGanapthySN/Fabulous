@@ -41,49 +41,51 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyC9pmTmwiS7rx0s-7w0Q80O2Z-cVJtP8YY',
-    appId: '1:229193580396:web:91e23e60a6e8ba0da03d49',
-    messagingSenderId: '229193580396',
-    projectId: 'mental-health-tracking-d5b49',
-    authDomain: 'mental-health-tracking-d5b49.firebaseapp.com',
-    storageBucket: 'mental-health-tracking-d5b49.firebasestorage.app',
-    measurementId: 'G-LNRX9SM6WD',
+    apiKey: 'AIzaSyCfP6rgNzXrKDN3gjh9jd0okHgXow4-Saw',
+    appId: '1:399515824553:web:79522d9bb9902c48bc54b8',
+    messagingSenderId: '399515824553',
+    projectId: 'hawai-52704',
+    authDomain: 'hawai-52704.firebaseapp.com',
+    storageBucket: 'hawai-52704.appspot.com',
+    measurementId: 'G-VZ2QHPWYX9',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDvnS6voGu3dzJouZLAZRnGrNB649d9Sig',
-    appId: '1:229193580396:android:cde8ce234f9be760a03d49',
-    messagingSenderId: '229193580396',
-    projectId: 'mental-health-tracking-d5b49',
-    storageBucket: 'mental-health-tracking-d5b49.firebasestorage.app',
+    apiKey: 'AIzaSyCXJGUZCAtV5fVBnj1NfJrjW4BeYiso8IY',
+    appId: '1:399515824553:android:d9db21fee11eed39bc54b8',
+    messagingSenderId: '399515824553',
+    projectId: 'hawai-52704',
+    storageBucket: 'hawai-52704.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCv9zbIxOeG5A0yVG0youJJdME6uRBpgsw',
-    appId: '1:229193580396:ios:7e4ba6100b9b97eca03d49',
-    messagingSenderId: '229193580396',
-    projectId: 'mental-health-tracking-d5b49',
-    storageBucket: 'mental-health-tracking-d5b49.firebasestorage.app',
+    apiKey: 'AIzaSyDd3hn1R2zz3r8piZo1ymkYu6uUA9WLonw',
+    appId: '1:399515824553:ios:e965c108e46d66d3bc54b8',
+    messagingSenderId: '399515824553',
+    projectId: 'hawai-52704',
+    storageBucket: 'hawai-52704.appspot.com',
+    androidClientId: '399515824553-1bli2e82n1b5e76b271tos31r2htje3t.apps.googleusercontent.com',
     iosBundleId: 'com.example.fab',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCv9zbIxOeG5A0yVG0youJJdME6uRBpgsw',
-    appId: '1:229193580396:ios:7e4ba6100b9b97eca03d49',
-    messagingSenderId: '229193580396',
-    projectId: 'mental-health-tracking-d5b49',
-    storageBucket: 'mental-health-tracking-d5b49.firebasestorage.app',
+    apiKey: 'AIzaSyDd3hn1R2zz3r8piZo1ymkYu6uUA9WLonw',
+    appId: '1:399515824553:ios:e965c108e46d66d3bc54b8',
+    messagingSenderId: '399515824553',
+    projectId: 'hawai-52704',
+    storageBucket: 'hawai-52704.appspot.com',
+    androidClientId: '399515824553-1bli2e82n1b5e76b271tos31r2htje3t.apps.googleusercontent.com',
     iosBundleId: 'com.example.fab',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyC9pmTmwiS7rx0s-7w0Q80O2Z-cVJtP8YY',
-    appId: '1:229193580396:web:91e23e60a6e8ba0da03d49',
-    messagingSenderId: '229193580396',
-    projectId: 'mental-health-tracking-d5b49',
-    authDomain: 'mental-health-tracking-d5b49.firebaseapp.com',
-    storageBucket: 'mental-health-tracking-d5b49.firebasestorage.app',
-    measurementId: 'G-LNRX9SM6WD',
+    apiKey: 'AIzaSyA5eDSIiB7D5DFk5ekIo6mTSY2Nojjh-rk',
+    appId: '1:399515824553:web:cf16ea55f743a1a9bc54b8',
+    messagingSenderId: '399515824553',
+    projectId: 'hawai-52704',
+    authDomain: 'hawai-52704.firebaseapp.com',
+    storageBucket: 'hawai-52704.appspot.com',
+    measurementId: 'G-V6L3HDV2WW',
   );
 
 }
