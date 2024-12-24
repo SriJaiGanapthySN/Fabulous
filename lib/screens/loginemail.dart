@@ -38,8 +38,10 @@ class _LoginScreenEmailState extends State<LoginScreenEmail> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-    builder: (context) => Routinelistscreen(email: userEmail!), // Pass email here
-  ),        );
+            builder: (context) =>
+                Routinelistscreen(email: userEmail!), // Pass email here
+          ),
+        );
       }
     } catch (e) {
       // Handle errors
@@ -98,7 +100,8 @@ class _LoginScreenEmailState extends State<LoginScreenEmail> {
                       ),
                       style: ElevatedButton.styleFrom(
                         // primary: Colors.orange,
-                        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 40, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
