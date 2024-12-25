@@ -36,7 +36,7 @@ class Notesscreen extends StatelessWidget {
               TextField(
                 cursorColor: Colors.red,
                 style: const TextStyle(color: Colors.white, fontSize: 18),
-                maxLines: 25, // Makes the input box bigger
+                maxLines: 25,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color.fromARGB(255, 0, 0, 0),
