@@ -1,5 +1,8 @@
 import 'package:fab/screens/audio.dart';
 import 'package:fab/firebase_options.dart';
+import 'package:fab/screens/guidedcoachingmenu.dart';
+import 'package:fab/screens/guidedcoachingrevealscreen.dart';
+import 'package:fab/screens/guidedcoachingsecondlevel.dart';
 import 'package:fab/screens/homepage.dart';
 import 'package:fab/screens/journeyscreen.dart';
 import 'package:fab/screens/journeyscreenrevealtype1.dart';
@@ -31,10 +34,6 @@ class MyApp extends StatelessWidget {
             data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
             child: child!),
         debugShowCheckedModeBanner: false,
-        home: Notesscreen(
-          title: "What's for breakfast today?",
-          items: ["First", "Second"],
-          timestamp: "43 sec. ago",
-        ));
+        home: Guidedcoachingsecondlevel());
   }
 }
