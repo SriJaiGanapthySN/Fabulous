@@ -42,63 +42,66 @@ class _GuidedcoachingsecondlevelState extends State<Guidedcoachingsecondlevel> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Background Image
-        Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/sample.jpg'),
-              fit: BoxFit.cover,
+    return Material(
+      type: MaterialType.transparency,
+      child: Stack(
+        children: [
+          // Background Image
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/sample.jpg'),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-        ),
-        // CustomScrollView with a pinned SliverAppBar
-        CustomScrollView(
-          physics: BouncingScrollPhysics(),
-          slivers: [
-            // Pinned SliverAppBar
-            SliverAppBar(
-              pinned: true,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              expandedHeight: 100,
-              flexibleSpace: FlexibleSpaceBar(
-                title: const Text(
-                  "Exercise",
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+          // CustomScrollView with a pinned SliverAppBar
+          CustomScrollView(
+            physics: BouncingScrollPhysics(),
+            slivers: [
+              // Pinned SliverAppBar
+              SliverAppBar(
+                pinned: true,
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                expandedHeight: 100,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: const Text(
+                    "Exercise",
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-            // Content List
-            SliverPadding(
-              padding: const EdgeInsets.only(top: 200),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    final tile = tilesData[index];
-                    return Column(
-                      children: [
-                        Guidedcoachingtile(
-                          url: tile['url']!,
-                          title: tile['title']!,
-                          timestamp: tile['time']!,
-                        ),
-                        SizedBox(height: 20),
-                      ],
-                    );
-                  },
-                  childCount: tilesData.length,
+              // Content List
+              SliverPadding(
+                padding: const EdgeInsets.only(top: 200),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (BuildContext context, int index) {
+                      final tile = tilesData[index];
+                      return Column(
+                        children: [
+                          Guidedcoachingtile(
+                            url: tile['url']!,
+                            title: tile['title']!,
+                            timestamp: tile['time']!,
+                          ),
+                          SizedBox(height: 20),
+                        ],
+                      );
+                    },
+                    childCount: tilesData.length,
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
