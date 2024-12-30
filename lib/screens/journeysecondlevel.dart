@@ -33,14 +33,6 @@ class _JourneysecondlevelState extends State<Journeysecondlevel> {
               children: [
                 Icon(Icons.water_drop, size: 50, color: Colors.white),
                 SizedBox(height: 10),
-                Text(
-                  'Small Change, Big Impact',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
               ],
             ),
           ),
@@ -101,7 +93,8 @@ class _JourneysecondlevelState extends State<Journeysecondlevel> {
                             // Text Section
                             Expanded(
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
                                     cardData['title'] as String? ?? '',
@@ -119,7 +112,6 @@ class _JourneysecondlevelState extends State<Journeysecondlevel> {
                                     ),
                                   ),
                                   SizedBox(height: 12),
-                                  // Completion Status
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [

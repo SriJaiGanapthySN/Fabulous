@@ -19,7 +19,7 @@ class Guidedcoachingmenu extends StatelessWidget {
             crossAxisCount: 2,
           ),
           children: [
-            Mygridtile(url: "assets/images/login.jpg", title: "Exersice"),
+            Mygridtile(url: "assets/images/login.jpg", title: "Exercise"),
             Mygridtile(url: "assets/images/sample.jpg", title: "Meditation"),
             Mygridtile(url: "assets/images/sample2.jpg", title: "Yoga"),
             Mygridtile(url: "assets/images/sample3.jpg", title: "Diet"),
