@@ -1,6 +1,7 @@
 import 'package:fab/screens/audio.dart';
 import 'package:fab/firebase_options.dart';
 import 'package:fab/screens/challengerevealscreen.dart';
+
 import 'package:fab/screens/challengesscreen.dart';
 import 'package:fab/screens/guidedcoachingmenu.dart';
 import 'package:fab/screens/guidedcoachingrevealscreen.dart';
@@ -36,6 +37,6 @@ class MyApp extends StatelessWidget {
             data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
             child: child!),
         debugShowCheckedModeBanner: false,
-        home: Journeysecondlevel());
+        home: JourneySecondLevel());
   }
 }
