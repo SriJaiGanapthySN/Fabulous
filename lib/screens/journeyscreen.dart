@@ -7,7 +7,8 @@ class Journeyscreen extends StatefulWidget {
   State<Journeyscreen> createState() => _JourneyscreenState();
 }
 
-class _JourneyscreenState extends State<Journeyscreen> {
+class _JourneyscreenState extends State<Journeyscreen>
+    with SingleTickerProviderStateMixin {
   final List<Map<String, dynamic>> journeyItems = [
     {
       'title': 'Small Change, Big Impact',
@@ -40,6 +41,21 @@ class _JourneyscreenState extends State<Journeyscreen> {
       'isCompleted': false,
     },
   ];
+
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1500),
+  )..repeat();
+  late final Animation<double> _scaleAnimation =
+      Tween<double>(begin: 0.6, end: 1.2).animate(_controller);
+  late final Animation<double> _fadeAnimation =
+      Tween<double>(begin: 1, end: 0.2).animate(_controller);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,17 +114,44 @@ class _JourneyscreenState extends State<Journeyscreen> {
                   children: [
                     Column(
                       children: [
-                        CircleAvatar(
-                          backgroundColor: item['isCompleted']
-                              ? const Color.fromARGB(255, 102, 179, 55)
-                              : const Color.fromARGB(255, 203, 195, 195),
-                          child: Icon(
-                            item['icon'],
-                            size: 20,
-                            color: item['isCompleted']
-                                ? const Color.fromARGB(255, 252, 252, 252)
-                                : const Color.fromARGB(255, 102, 101, 101),
-                          ),
+                        Stack(
+                          children: [
+                            FadeTransition(
+                              opacity: _fadeAnimation,
+                              child: ScaleTransition(
+                                scale: _scaleAnimation,
+                                child: Container(
+                                  width: 45,
+                                  height: 45,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: item['isCompleted']
+                                        ? const Color.fromARGB(
+                                            255, 121, 186, 80)
+                                        : const Color.fromARGB(
+                                            255, 255, 255, 255),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              margin: EdgeInsets.only(left: 3, top: 2),
+                              child: CircleAvatar(
+                                backgroundColor: item['isCompleted']
+                                    ? const Color.fromARGB(255, 102, 179, 55)
+                                    : const Color.fromARGB(255, 203, 195, 195),
+                                child: Icon(
+                                  item['icon'],
+                                  size: 20,
+                                  color: item['isCompleted']
+                                      ? const Color.fromARGB(255, 252, 252, 252)
+                                      : const Color.fromARGB(
+                                          255, 102, 101, 101),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         if (index != journeyItems.length - 1)
                           DottedLineNearIcon(),
