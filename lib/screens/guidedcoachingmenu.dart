@@ -1,52 +1,3 @@
-// import 'package:fab/compenents/mygridtile.dart';
-// import 'package:fab/screens/guidedcoachingsecondlevel.dart';
-// import 'package:fab/services/guided_activities.dart';
-// import 'package:flutter/material.dart';
-
-// class Guidedcoachingmenu extends StatelessWidget {
-//   final String email;
-//   final GuidedActivities _GuidedActivities = GuidedActivities();
-//   final List<Map<String, dynamic>> categoryData=[];
-
-//   @override
-//   void init() {
-//     _GuidedActivities.fetchCategories();
-//   }
-  
-//   const Guidedcoachingmenu({super.key, required this.email});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//         appBar: AppBar(
-//           title: const Text(
-//             'Guides',
-//             style: TextStyle(
-//                 fontSize: 25, fontWeight: FontWeight.bold, color: Colors.pink),
-//           ),
-//         ),
-//         body: GridView(
-//           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//             crossAxisCount: 2,
-//           ),
-//           children: [
-//             Mygridtile(url: "assets/images/login.jpg", title: "Exersice",onTap: () {
-//                       Navigator.push(
-//                         context,
-//                         MaterialPageRoute(
-//                           builder: (context) => Guidedcoachingsecondlevel(email: email),
-//                         ),
-//                       );
-//                     },),
-//             Mygridtile(url: "assets/images/sample.jpg", title: "Meditation"),
-//             Mygridtile(url: "assets/images/sample2.jpg", title: "Yoga"),
-//             Mygridtile(url: "assets/images/sample3.jpg", title: "Diet"),
-//           ],
-//         ));
-//   }
-// }
-
-
 import 'package:fab/compenents/mygridtile.dart';
 import 'package:fab/screens/guidedcoachingsecondlevel.dart';
 import 'package:fab/services/guided_activities.dart';
@@ -81,23 +32,39 @@ class _GuidedcoachingmenuState extends State<Guidedcoachingmenu> {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen size using MediaQuery
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Dynamically calculate the crossAxisCount based on screen width
+    final int crossAxisCount = screenWidth > 600
+        ? 3 // Tablets or larger screens
+        : 2; // Phones
+
+    // Calculate tile height based on available screen height
+    final double tileHeight = screenHeight * 0.25;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Guides',
           style: TextStyle(
-              fontSize: 25, fontWeight: FontWeight.bold, color: Colors.pink),
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: Colors.pink,
+          ),
         ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 5,
+                childAspectRatio: screenWidth / (tileHeight * crossAxisCount),
               ),
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(5),
               itemCount: categoryData.length,
               itemBuilder: (context, index) {
                 final category = categoryData[index];
@@ -108,8 +75,10 @@ class _GuidedcoachingmenuState extends State<Guidedcoachingmenu> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            Guidedcoachingsecondlevel(email: widget.email,category:category),
+                        builder: (context) => Guidedcoachingsecondlevel(
+                          email: widget.email,
+                          category: category,
+                        ),
                       ),
                     );
                   },

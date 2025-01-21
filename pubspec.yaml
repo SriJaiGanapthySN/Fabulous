@@ -48,6 +48,8 @@ dependencies:
   flutter_html: ^3.0.0-beta.2
   http: ^1.2.2
   pretty_animated_text: ^2.0.0
+  video_player: ^2.9.2
+  animated_loading_border: ^0.0.2
 
 dev_dependencies:
   flutter_test:
@@ -89,6 +91,7 @@ flutter:
     - "assets/audio/bgm_task_reveal.m4a"
     - "assets/audio/drag_task_reveal.m4a"
     - "assets/images/meditation.jpg"
+    - "assets/videos/chatBg.mp4"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

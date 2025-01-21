@@ -2,6 +2,7 @@ import 'package:fab/compenents/custombutton.dart';
 import 'package:fab/compenents/custombuttondiscover.dart';
 import 'package:fab/screens/addJourneyScreen.dart';
 import 'package:fab/screens/challengesscreen.dart';
+import 'package:fab/screens/coachingfirstlevel.dart';
 import 'package:fab/screens/guidedcoachingmenu.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -98,6 +99,14 @@ class Discoverscreen extends StatelessWidget {
                   child: CustomButtonDiscover(
                     url: "assets/images/RoutinesList.png",
                     routineName: "Coaching Series",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CoachingFirstLevel(email: email,),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],

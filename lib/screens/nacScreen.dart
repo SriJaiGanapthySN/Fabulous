@@ -108,7 +108,7 @@ class _MainScreenState extends State<MainScreen> {
             _currentIndex = index; // Update the selected tab
           });
         },
-        backgroundColor: _currentIndex == 0 ? Colors.grey[300] : Colors.white, // Set background color
+        backgroundColor: _currentIndex == 0 ? Colors.transparent: Colors.white, // Set background color
         selectedItemColor: _currentIndex == 0 ? Colors.black : Colors.blue, // Active icon/text color
         unselectedItemColor: _currentIndex == 0 ? Colors.black54 : Colors.grey, // Inactive icon/text color
         items: const [

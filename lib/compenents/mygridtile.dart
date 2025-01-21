@@ -11,7 +11,7 @@ class Mygridtile extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           decoration: BoxDecoration(
             image: DecorationImage(
               image: NetworkImage(url),
