@@ -41,8 +41,11 @@ class _ChatScreenState extends State<ChatScreen> {
         title: const Text("Chat"),
         backgroundColor: Colors.teal,
       ),
+      backgroundColor: Colors.blueGrey,
       body: Column(
+        
         children: [
+        
           Expanded(
             child: ListView.builder(
               itemCount: messages.length,
@@ -105,7 +108,7 @@ class CombinedAnimatedText extends StatelessWidget {
           type: AnimationType.word,
           slideType: SlideAnimationType.bottomTop,
           // overlapFactor: 0.05,
-          textStyle: const TextStyle(fontSize: 15, color: Colors.black),
+          textStyle: const TextStyle(fontSize: 15, color: Colors.white),
         ),
       ],
     );
