@@ -1,21 +1,22 @@
+import 'package:fab/screens/habitPlay.dart';
+import 'package:fab/services/task_services.dart';
+import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:fab/compenents/routinelist.dart';
 import 'package:fab/compenents/routinelistheader.dart';
 import 'package:fab/screens/taskreveal.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 
 class Routinelistscreen extends StatefulWidget {
-  final String email; // Add this field
+  final String email;
 
-  const Routinelistscreen({Key? key, required this.email}) : super(key: key); // Update constructor
+  const Routinelistscreen({Key? key, required this.email}) : super(key: key);
 
   @override
   State<Routinelistscreen> createState() => _RoutinelistscreenState();
 }
 
 class _RoutinelistscreenState extends State<Routinelistscreen> {
-  List<String> _habits = [];
+  List<Map<String, dynamic>> _habits = [];
   TimeOfDay _selectedTime = TimeOfDay.now();
   bool _isAnimating = false;
 
@@ -31,11 +32,28 @@ class _RoutinelistscreenState extends State<Routinelistscreen> {
     }
   }
 
-  void _updateHabits(List<String> updatedHabits) {
-    setState(() {
-      _habits = updatedHabits;
+  @override
+  void initState() {
+    super.initState();
+    
+    TaskServices().getUserHabits(widget.email).then((userHabits) {
+      setState(() {
+        _habits = userHabits;
+      });
     });
   }
+
+  Future<void> _loadHabits() async {
+    final userHabits = await TaskServices().getUserHabits(widget.email);
+    setState(() {
+      _habits = userHabits;
+    });
+  }
+  // void _updateHabits(List<String> updatedHabits) {
+  //   setState(() {
+  //     _habits = updatedHabits;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +61,7 @@ class _RoutinelistscreenState extends State<Routinelistscreen> {
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
+          children: [
             const Text(
               'Wake Up Routine',
               style: TextStyle(fontSize: 25, color: Colors.white),
@@ -52,16 +70,14 @@ class _RoutinelistscreenState extends State<Routinelistscreen> {
             Row(
               children: [
                 const Opacity(
-                  opacity: 0.5, // Set the desired opacity value here
+                  opacity: 0.5,
                   child: Icon(
                     Icons.alarm,
                     size: 32,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(
-                  width: 40,
-                ),
+                const SizedBox(width: 40),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -73,8 +89,7 @@ class _RoutinelistscreenState extends State<Routinelistscreen> {
                       onTap: () => _selectTime(context),
                       child: Text(
                         _selectedTime.format(context),
-                        style:
-                            const TextStyle(fontSize: 18, color: Colors.white),
+                        style: const TextStyle(fontSize: 18, color: Colors.white),
                       ),
                     ),
                   ],
@@ -100,54 +115,53 @@ class _RoutinelistscreenState extends State<Routinelistscreen> {
         ),
         backgroundColor: Colors.transparent,
       ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Routinelistheader(
-                number: _habits.length,
-                updateHabits: _updateHabits,
-                habits: _habits,
-                email: widget.email
-              ),
-              const Divider(),
-              Routinelist(
-                habbit: _habits,
-                email: widget.email
-              ),
-            ],
-          ),
-          if (_isAnimating)
-            Container(
-              alignment: Alignment.bottomRight,
-              child: Lottie.asset(
-                'assets/animations/water.json', // Replace with your animation file
-                width: 200,
-                height: 200,
-                repeat: false,
-              ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Routinelistheader(
+                  number: _habits.length,
+                  updateHabits: _habits,
+                  habits: _habits,
+                  email: widget.email,
+                  onHabitChanged: _loadHabits,
+                ),
+                const Divider(),
+                Expanded(
+                  child: Routinelist(
+                    habit: _habits,
+                    email: widget.email,
+                  ),
+                ),
+              ],
             ),
-        ],
-      ),
-      floatingActionButton: Container(
-        margin: EdgeInsets.only(right: 20),
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Taskreveal(email:widget.email)),
-            );
-          },
-          label: const Text(
-            'Play',
-            style: TextStyle(color: Colors.white),
-          ),
-          icon: const Icon(
-            Icons.rocket,
-            color: Colors.white,
-          ),
-          backgroundColor: const Color.fromARGB(255, 143, 110, 239),
+            if (_isAnimating)
+              Positioned(
+                bottom: 20,
+                right: 20,
+                child: Lottie.asset(
+                  'assets/animations/water.json',
+                  width: 200,
+                  height: 200,
+                  repeat: false,
+                ),
+              ),
+          ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            // MaterialPageRoute(builder: (context) => Taskreveal(email: widget.email)),
+            MaterialPageRoute(builder: (context) => habitPlay(email: widget.email)),
+
+          );
+        },
+        label: const Text('Play', style: TextStyle(color: Colors.white)),
+        icon: const Icon(Icons.rocket, color: Colors.white),
+        backgroundColor: const Color.fromARGB(255, 143, 110, 239),
       ),
     );
   }

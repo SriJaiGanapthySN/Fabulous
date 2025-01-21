@@ -1,9 +1,15 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_html/flutter_html.dart';
 
 class PlayAudio extends StatefulWidget {
-  const PlayAudio({super.key});
+  final String email;
+  final QueryDocumentSnapshot couching;
+
+  const PlayAudio({super.key, required this.email, required this.couching});
 
   @override
   State<PlayAudio> createState() => _PlayAudioState();
@@ -11,7 +17,7 @@ class PlayAudio extends StatefulWidget {
 
 class _PlayAudioState extends State<PlayAudio> {
   final AudioPlayer audioPlayer = AudioPlayer();
-
+  String htmlContent = '';
   bool isPlaying = false;
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
@@ -43,6 +49,23 @@ class _PlayAudioState extends State<PlayAudio> {
         position = newPosition;
       });
     });
+
+    _fetchContent(widget.couching["contentUrl"]);
+  }
+
+  Future<void> _fetchContent(String url) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        setState(() {
+          htmlContent = response.body; // Set the HTML content
+        });
+      } else {
+        print("Failed to load content: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error fetching content: $e");
+    }
   }
 
   void toggle() {
@@ -51,9 +74,10 @@ class _PlayAudioState extends State<PlayAudio> {
     });
   }
 
-  void _playSound() async {
+  void _playSound(String audioLink) async {
     try {
-      await audioPlayer.play(AssetSource('audio/sample.m4a'));
+      // await audioPlayer.play(AssetSource('audio/sample.m4a'));
+      await audioPlayer.play(UrlSource(audioLink));
     } catch (e) {
       print("Error playing sound: $e");
     }
@@ -160,7 +184,7 @@ class _PlayAudioState extends State<PlayAudio> {
                   child: IconButton(
                       onPressed: () {
                         if (!isPlaying) {
-                          _playSound();
+                          _playSound(widget.couching["audioLink"]);
                           toggle();
                         } else {
                           _stopSound();
@@ -178,44 +202,84 @@ class _PlayAudioState extends State<PlayAudio> {
             ),
             Row(
               children: [
-                Container(
-                    margin: EdgeInsets.only(left: 20),
-                    height: 40,
-                    decoration: BoxDecoration(
+                // Conditionally display the Share Button
+                if (widget.couching["isdailyroutine"])
+                  Expanded(
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      height: 40,
+                      decoration: BoxDecoration(
                         color: Colors.red,
-                        borderRadius: BorderRadius.circular(5)),
-                    child: IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.share,
-                          color: Colors.white,
-                          size: 26,
-                        ))),
-                SizedBox(
-                  width: 20,
-                ),
-                Container(
-                  width: 270,
-                  child: ElevatedButton.icon(
-                    onPressed: () {},
-                    label: Text(
-                      "Add to Morning Routine",
-                      style: TextStyle(
-                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5),
                       ),
-                    ),
-                    icon: Icon(
-                      Icons.add,
-                      color: Colors.white,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.share,
+                            color: Colors.white,
+                            size: 26,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            "Share",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                )
+
+                // Conditionally display the Share Icon + Add to Morning Routine Button
+                if (!widget.couching["isdailyroutine"])
+                  Row(
+                    children: [
+                      // Share Icon Button
+                      Container(
+                        margin: EdgeInsets.only(left: 20),
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: Icon(
+                            Icons.share,
+                            color: Colors.white,
+                            size: 26,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      // Add to Morning Routine Button
+                      Container(
+                        width: 270,
+                        child: ElevatedButton.icon(
+                          onPressed: () {},
+                          label: Text(
+                            "Add to Morning Routine",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                          icon: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
             SizedBox(
@@ -231,11 +295,36 @@ class _PlayAudioState extends State<PlayAudio> {
             SizedBox(
               height: 20,
             ),
-            Text("Lyrics",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                )),
+            Expanded(
+              child: htmlContent.isNotEmpty
+                  ? SingleChildScrollView(
+                      child: Html(
+                        data: htmlContent,
+                        style: {
+                          "body": Style(
+                            fontSize: FontSize(18), // Increased font size
+                            lineHeight: LineHeight(
+                                1.5), // Adjust line height for better readability
+                          ),
+                          "p": Style(
+                            fontSize:
+                                FontSize(18), // Apply font size to paragraphs
+                          ),
+                          "h1": Style(
+                            fontSize: FontSize(
+                                22), // Apply larger font size to headings
+                            fontWeight: FontWeight.bold,
+                          ),
+                          "h2": Style(
+                            fontSize:
+                                FontSize(20), // Apply font size to subheadings
+                            fontWeight: FontWeight.bold,
+                          ),
+                        },
+                      ),
+                    )
+                  : Center(child: CircularProgressIndicator()),
+            ),
           ],
         ),
       ),

@@ -1,6 +1,8 @@
 import 'package:fab/compenents/mytextfield.dart';
+import 'package:fab/screens/nacScreen.dart';
 import 'package:fab/screens/routinelistscreen.dart';
 import 'package:fab/screens/signinscreen.dart';
+import 'package:fab/screens/stackcard.dart';
 import 'package:fab/services/task_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +41,10 @@ class _LoginScreenEmailState extends State<LoginScreenEmail> {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                Routinelistscreen(email: userEmail!), // Pass email here
+                // Routinelistscreen(email: userEmail!), // Pass email here
+                // VerticalStackedCardScreen()
+                // VerticalStackedCardScreen()
+                MainScreen(email: userEmail!)
           ),
         );
       }

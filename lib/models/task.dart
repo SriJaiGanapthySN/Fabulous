@@ -31,6 +31,7 @@ class Task {
   final String iconLink;
   final bool isdailyroutine;
   final bool iscompleted;
+  final String category;
 
   Task({
     required this.name,
@@ -42,6 +43,7 @@ class Task {
     required this.iconLink,
     this.isdailyroutine = false,
     this.iscompleted = false,
+    required this.category
   });
 
   Map<String, dynamic> toMap() {
@@ -55,6 +57,7 @@ class Task {
       'iconLink': iconLink,
       'isdailyroutine': isdailyroutine,
       'iscompleted': iscompleted,
+      'category':category,
     };
   }
 
@@ -69,6 +72,7 @@ class Task {
       iconLink: map['iconLink'] ?? '',
       isdailyroutine: map['isdailyroutine'] ?? false,
       iscompleted: map['iscompleted'] ?? false,
+      category: map['category']?? '',
     );
   }
 }

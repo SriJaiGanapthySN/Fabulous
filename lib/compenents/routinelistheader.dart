@@ -1,24 +1,32 @@
 import 'package:fab/screens/addrotinelistscreen.dart';
+// import 'package:fab/screens/ADDR.dart';
 import 'package:flutter/material.dart';
 
 class Routinelistheader extends StatefulWidget {
   final int number;
-  final List<String> habits;
-  final Function(List<String>) updateHabits;
+  final List<Map<String, dynamic>> habits;
+  final List<Map<String, dynamic>> updateHabits;
   final String email;
+  final VoidCallback onHabitChanged;
 
   const Routinelistheader(
       {super.key,
       required this.number,
       required this.habits,
       required this.updateHabits,
-      required this.email});
+      required this.email,
+      required this.onHabitChanged});
 
   @override
   State<Routinelistheader> createState() => _RoutinelistheaderState();
 }
 
 class _RoutinelistheaderState extends State<Routinelistheader> {
+  void habitUpdate(){
+    widget.onHabitChanged();
+  }
+
+  
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -54,7 +62,8 @@ class _RoutinelistheaderState extends State<Routinelistheader> {
                       builder: (context) => Addrotinelistscreen(
                         habits: widget.habits,
                         updateHabits: widget.updateHabits,
-                        email: widget.email
+                        email: widget.email,
+                        onHabitUpdate: widget.onHabitChanged
                       ),
                     ),
                   );

@@ -14,9 +14,9 @@ class _Guidedcoachingrevealscreen extends State<Guidedcoachingrevealscreen> {
   bool isPlaying = false;
 
   final List<Map<String, String>> exercises = [
-    {"name": "Jumping Jacks", "time": "30s"},
-    {"name": "Breathe", "time": "10s"},
-    {"name": "Push-ups", "time": "20s"},
+    {"name": "Jumping Jacks", "time": "30s", "image": "assets/images/login.jpg"},
+    {"name": "Breathe", "time": "10s", "image": "assets/images/login.jpg"},
+    {"name": "Push-ups", "time": "20s", "image": "assets/images/login.jpg"},
   ];
 
   void nextStep() {
@@ -27,15 +27,7 @@ class _Guidedcoachingrevealscreen extends State<Guidedcoachingrevealscreen> {
     });
   }
 
-  void previousStep() {
-    setState(() {
-      if (currentStep > 0) {
-        currentStep--;
-      }
-    });
-  }
-
-  void toggle() {
+  void togglePlayPause() {
     setState(() {
       isPlaying = !isPlaying;
     });
@@ -44,123 +36,158 @@ class _Guidedcoachingrevealscreen extends State<Guidedcoachingrevealscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/login.jpg'),
-              fit: BoxFit.cover,
+      body: Stack(
+        children: [
+          // Background Image
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/login.jpg'),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-        ),
-        Column(
-          children: [
-            AppBar(
-              backgroundColor: Colors.transparent,
-              leading: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.volume_up, color: Colors.white),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-            if (isPlaying)
-              Container(
-                margin: EdgeInsets.only(left: 40),
-                alignment: Alignment.topLeft,
-                child: Text("7-MIN\nWorkout",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 50,
-                        fontWeight: FontWeight.bold)),
-              ),
-            Container(
-              margin: EdgeInsets.only(
-                  top: isPlaying ? 350 : 500, left: isPlaying ? 0 : 50),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: isPlaying ? 50 : 40,
-                    backgroundColor: isPlaying
-                        ? const Color.fromARGB(255, 31, 203, 203)
-                        : Colors.pink,
-                    child: IconButton(
-                        onPressed: () {
-                          toggle();
-                        },
-                        icon: isPlaying
-                            ? Icon(Icons.play_arrow,
-                                color: Colors.white, size: 50)
-                            : Icon(Icons.pause, color: Colors.white, size: 40)),
-                  ),
-                  if (!isPlaying)
+          // Safe Area Content
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // AppBar
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     IconButton(
-                      icon: const Icon(Icons.skip_next,
-                          color: Colors.white, size: 40),
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.volume_up, color: Colors.white),
                       onPressed: () {},
                     ),
-                ],
-              ),
-            ),
-            Spacer(),
-            Container(
-              alignment: Alignment.topLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: exercises.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final exercise = entry.value;
-
-                  final isActive = index == currentStep;
-
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 25),
-                    child: GestureDetector(
-                      onTap: () {
-                        nextStep();
-                      },
-                      onDoubleTap: () {
-                        previousStep();
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            exercise['name'] ?? '',
-                            style: TextStyle(
-                              color: isActive ? Colors.white : Colors.white54,
-                              fontSize: 25,
-                              fontWeight: isActive
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                          Text(
-                            exercise['time'] ?? '',
-                            style: TextStyle(
-                              color: isActive ? Colors.white : Colors.white54,
-                              fontSize: 25,
-                            ),
-                          ),
-                        ],
+                  ],
+                ),
+                // Title
+                if (isPlaying)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 40, top: 20),
+                    child: Text(
+                      "7-MIN\nWorkout",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 50,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+                // Play/Pause Button
+                Expanded(
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: isPlaying ? 50 : 40,
+                      backgroundColor: isPlaying
+                          ? const Color.fromARGB(255, 31, 203, 203)
+                          : Colors.pink,
+                      child: IconButton(
+                        onPressed: togglePlayPause,
+                        icon: Icon(
+                          isPlaying ? Icons.pause : Icons.play_arrow,
+                          color: Colors.white,
+                          size: isPlaying ? 50 : 40,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Exercise Cards
+                Stack(
+                  alignment: Alignment.center,
+                  children: exercises.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final exercise = entry.value;
+
+                    final positionOffset = (index - currentStep) * 30.0;
+
+                    return AnimatedPositioned(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      bottom: positionOffset + 50,
+                      left: positionOffset.abs() + 20,
+                      right: positionOffset.abs() + 20,
+                      child: GestureDetector(
+                        onTap: () {
+                          if (currentStep == index) {
+                            nextStep();
+                          }
+                        },
+                        child: Opacity(
+                          opacity: index == currentStep ? 1.0 : 0.5,
+                          child: Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Container(
+                              height: 250,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                image: DecorationImage(
+                                  image: AssetImage(exercise['image']!),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.black.withOpacity(0.6),
+                                      Colors.transparent,
+                                    ],
+                                    begin: Alignment.bottomCenter,
+                                    end: Alignment.topCenter,
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        exercise['name']!,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 25,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        exercise['time']!,
+                                        style: const TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 20),
+              ],
             ),
-            SizedBox(height: 20),
-          ],
-        )
-      ],
-    ));
+          ),
+        ],
+      ),
+    );
   }
 }

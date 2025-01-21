@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 class Mygridtile extends StatelessWidget {
-  const Mygridtile({super.key, required this.url, required this.title});
+  const Mygridtile({super.key, required this.url, required this.title,this.onTap});
   final String url;
   final String title;
+  final VoidCallback? onTap;
+  
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -12,14 +14,14 @@ class Mygridtile extends StatelessWidget {
           margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage(url),
+              image: NetworkImage(url),
               fit: BoxFit.cover,
             ),
             borderRadius: BorderRadius.circular(20),
           ),
         ),
         InkWell(
-          onTap: () {},
+          onTap: onTap,
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
             alignment: Alignment.topLeft,

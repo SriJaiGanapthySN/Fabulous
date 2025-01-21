@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 
 class Joinchallengetile extends StatelessWidget {
-  const Joinchallengetile({super.key, required this.url, required this.title});
+  const Joinchallengetile({super.key, required this.url, required this.title,this.onTap});
 
   final String url;
   final String title;
+  final VoidCallback? onTap;
+  
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         InkWell(
-          onTap: () {},
+          onTap: onTap,
           child: Container(
             margin: EdgeInsets.only(left: 10),
             height: 110,

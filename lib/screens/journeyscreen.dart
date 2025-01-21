@@ -1,46 +1,24 @@
+import 'package:fab/models/skill.dart';
+import 'package:fab/models/skillTrack.dart';
+import 'package:fab/screens/journeysecondlevel.dart';
+import 'package:fab/services/journey_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class Journeyscreen extends StatefulWidget {
-  const Journeyscreen({super.key});
+  final String email;
+  const Journeyscreen({super.key, required this.email});
 
   @override
   State<Journeyscreen> createState() => _JourneyscreenState();
 }
 
-class _JourneyscreenState extends State<Journeyscreen>
-    with SingleTickerProviderStateMixin {
-  final List<Map<String, dynamic>> journeyItems = [
-    {
-      'title': 'Small Change, Big Impact',
-      'progress': '3/5 achieved',
-      'icon': Icons.water_drop,
-      'isCompleted': true,
-    },
-    {
-      'title': 'Meet Your Future Self',
-      'progress': '2/5 achieved',
-      'icon': Icons.sailing,
-      'isCompleted': true,
-    },
-    {
-      'title': 'The Secrets of Self-Compassion',
-      'progress': '1/5 achieved',
-      'icon': Icons.hiking,
-      'isCompleted': false,
-    },
-    {
-      'title': 'Your Feelings Matter',
-      'progress': 'Not yet unlocked',
-      'icon': Icons.diamond,
-      'isCompleted': false,
-    },
-    {
-      'title': 'Celebrate Your Steps to Success',
-      'progress': 'Not yet unlocked',
-      'icon': Icons.assignment,
-      'isCompleted': false,
-    },
-  ];
+class _JourneyscreenState extends State<Journeyscreen> with SingleTickerProviderStateMixin{
+  final JourneyService _journeyService = JourneyService();
+  skillTrack? skilltrack;
+  bool _isLoading = true;
+  String skillTrackID = '';
+  List<Skill> skills = [];
 
   late final AnimationController _controller = AnimationController(
     vsync: this,
@@ -56,6 +34,62 @@ class _JourneyscreenState extends State<Journeyscreen>
     _controller.dispose();
     super.dispose();
   }
+  
+  @override
+  void initState() {
+    super.initState();
+    print("object_________________");
+    _fetchJourney();
+  }
+
+  Future<void> fetchSkill() async {
+    try {
+      final result = await _journeyService.getSkills(skillTrackID, widget.email);
+      setState(() {
+        skills = result;
+      });
+      // _addskillLevel();
+    } catch (e) {
+      print('Error adding skill: $e');
+    }
+  }
+
+  Future<void> _fetchJourney() async {
+    try {
+      final journey = await _journeyService.fetchUnreleasedJourney(widget.email);
+      if (journey != null) {
+        setState(() {
+          skilltrack = journey;
+          _isLoading = false;
+          skillTrackID = skilltrack!.objectId;
+        });
+        fetchSkill();
+      } else {
+        print('No unreleased journey found.');
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching journey: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Color colorFromString(String colorString) {
+  // Remove the '#' if it's there and parse the hex color code
+  String hexColor = colorString.replaceAll('#', '');
+  
+  // Ensure the string has the correct length (6 digits)
+  if (hexColor.length == 6) {
+    // Parse the color string to an integer and return it as a Color
+    return Color(int.parse('0xFF$hexColor')); // Adding 0xFF to indicate full opacity
+  } else {
+    throw FormatException('Invalid color string format');
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -64,14 +98,17 @@ class _JourneyscreenState extends State<Journeyscreen>
         title: Text('Journey'),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.person,
-            ),
+            icon: Icon(Icons.person),
             onPressed: () {},
           ),
         ],
       ),
-      body: Column(
+      body:_isLoading
+        ? Center(child: CircularProgressIndicator())
+        : skilltrack == null
+            ? Center(child: Text("No journey found"))
+            :
+       Column(
         children: [
           Container(
             margin: EdgeInsets.symmetric(horizontal: 12),
@@ -80,14 +117,14 @@ class _JourneyscreenState extends State<Journeyscreen>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               image: DecorationImage(
-                  image: AssetImage("assets/images/sample2.jpg"),
+                  image: NetworkImage(skilltrack!.imageUrl),
                   fit: BoxFit.cover),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '6/25 events achieved',
+                  '6/${skilltrack!.skillLevelCount} events achieved',
                   style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
                 SizedBox(height: 4),
@@ -103,18 +140,44 @@ class _JourneyscreenState extends State<Journeyscreen>
           ),
           SizedBox(height: 46),
           Expanded(
-              child: ListView.builder(
-            itemCount: journeyItems.length,
-            itemBuilder: (context, index) {
-              final item = journeyItems[index];
-              return Container(
-                margin: EdgeInsets.symmetric(horizontal: 25),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      children: [
-                        Stack(
+            child: ListView.builder(
+              itemCount: skills.length,
+              itemBuilder: (context, index) {
+                final skill = skills[index];
+                return GestureDetector(
+                  onTap: () {
+          // Navigate to the SkillDetailScreen and pass skill.objective
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Journeysecondlevel(skill: skill,email: widget.email,skilltrack: skilltrack!),
+            ),
+          );
+        },
+                
+        child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 25),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        children: [
+                          // CircleAvatar(
+                          //   backgroundColor:colorFromString(skill.color),
+                          //   child: skill.iconUrl != null
+                          //       ? SvgPicture.network(
+                          //           skill.iconUrl,
+                          //           width: 20,
+                          //           height: 20,
+                          //           fit: BoxFit.contain,
+                          //         )
+                          //       : Icon(
+                          //           Icons.help_outline,
+                          //           size: 20,
+                          //           color: Colors.white,
+                          //         ),
+                          // ),
+                          Stack(
                           children: [
                             FadeTransition(
                               opacity: _fadeAnimation,
@@ -125,11 +188,13 @@ class _JourneyscreenState extends State<Journeyscreen>
                                   height: 45,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: item['isCompleted']
-                                        ? const Color.fromARGB(
-                                            255, 121, 186, 80)
-                                        : const Color.fromARGB(
-                                            255, 255, 255, 255),
+                                    color: 
+                                    // item['isCompleted']
+                                        // ? 
+                                        const Color.fromARGB(
+                                            255, 121, 186, 80),
+                                        // : const Color.fromARGB(
+                                        //     255, 255, 255, 255),
                                   ),
                                 ),
                               ),
@@ -138,48 +203,64 @@ class _JourneyscreenState extends State<Journeyscreen>
                               alignment: Alignment.center,
                               margin: EdgeInsets.only(left: 3, top: 2),
                               child: CircleAvatar(
-                                backgroundColor: item['isCompleted']
-                                    ? const Color.fromARGB(255, 102, 179, 55)
-                                    : const Color.fromARGB(255, 203, 195, 195),
-                                child: Icon(
-                                  item['icon'],
-                                  size: 20,
-                                  color: item['isCompleted']
-                                      ? const Color.fromARGB(255, 252, 252, 252)
-                                      : const Color.fromARGB(
-                                          255, 102, 101, 101),
-                                ),
+                                backgroundColor: colorFromString(skill.color),
+                                // item['isCompleted']
+                                    // ? const Color.fromARGB(255, 102, 179, 55)
+                                    // : const Color.fromARGB(255, 203, 195, 195),
+                                // child: Icon(
+                                //   item['icon'],
+                                //   size: 20,
+                                //   color: item['isCompleted']
+                                //       ? const Color.fromARGB(255, 252, 252, 252)
+                                //       : const Color.fromARGB(
+                                //           255, 102, 101, 101),
+                                // ),
+                                child: skill.iconUrl != null
+                                ? SvgPicture.network(
+                                    skill.iconUrl,
+                                    width: 20,
+                                    height: 20,
+                                    fit: BoxFit.contain,
+                                  )
+                                : Icon(
+                                    Icons.help_outline,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
                               ),
                             ),
                           ],
                         ),
-                        if (index != journeyItems.length - 1)
-                          DottedLineNearIcon(),
-                      ],
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item['title'],
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            item['progress'],
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
+                          if (index != skills.length - 1)
+                            DottedLineNearIcon(),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          )),
+                      
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              skill.title,
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Progress info not available',
+                              style: TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

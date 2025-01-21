@@ -1,12 +1,17 @@
+import 'package:fab/screens/notesscreen.dart';
 import 'package:flutter/material.dart';
 
 class GeneralComponentScreen extends StatelessWidget {
+  final String email;
+  final String taskID;
   final String title;
-  final List<String> items;
+  final String items;
   final String timestamp;
 
   const GeneralComponentScreen({
     super.key,
+    required this.email,
+    required this.taskID,
     required this.title,
     required this.items,
     required this.timestamp,
@@ -32,13 +37,28 @@ class GeneralComponentScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ...items.map((item) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text(
-                    item,
-                    style: const TextStyle(color: Colors.white, fontSize: 18),
+            GestureDetector(
+              onTap: () {
+                // Navigate to another page when the text is clicked
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Notesscreen(
+                      email: email,
+                      taskID:taskID,
+                      title: title,
+                      items: items,
+                      timestamp: timestamp,
+                    ),
                   ),
-                )),
+                );
+              },
+              child: Text(
+                items,
+                style: const TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            ),
+            const SizedBox(height: 10),
             Text(
               timestamp,
               style: const TextStyle(color: Colors.grey, fontSize: 14),

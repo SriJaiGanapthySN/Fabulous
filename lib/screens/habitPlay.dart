@@ -1,26 +1,29 @@
 import 'package:fab/screens/audio.dart';
 import 'package:fab/screens/generalcompenentfornotes.dart';
+import 'package:fab/screens/nacScreen.dart';
 import 'package:fab/screens/notesscreen.dart';
 import 'package:fab/screens/routinelistscreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fab/services/task_services.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-class Taskreveal extends StatefulWidget {
+class habitPlay extends StatefulWidget {
   final String email;
-  
-  const Taskreveal({
+
+  const habitPlay({
     super.key,
     required this.email,
   });
 
   @override
-  State<Taskreveal> createState() => _TaskrevealState();
+  State<habitPlay> createState() => _TaskrevealState();
 }
 
-class _TaskrevealState extends State<Taskreveal> {
+class _TaskrevealState extends State<habitPlay> {
   bool _isAnimationVisible = false;
   int _currentIndex = 0; // Track the current task
   bool _isSnoozed = false; // Track snooze state
@@ -29,10 +32,7 @@ class _TaskrevealState extends State<Taskreveal> {
   AudioPlayer _audioPlayerBgm = AudioPlayer(); // Audio player instance
   AudioPlayer _audioPlayerDrag = AudioPlayer(); // Audio player instance
   late ScrollController _scrollController;
-    bool _isPlayingAudio = false;
-
-
-    
+  bool _isPlayingAudio = false;
 
   String items = '';
   var timestamp = "";
@@ -48,24 +48,28 @@ class _TaskrevealState extends State<Taskreveal> {
 
   // Play audio if snooze is not active
   void _playAudio(String audioLink) async {
-    
     if (!_isSnoozed) {
       await _audioPlayer.play(UrlSource(audioLink));
     }
   }
 
-  void _playBgm() async{
-      await _audioPlayerBgm.play(AssetSource("audio/bgm_task_reveal.m4a"));
+  void _playBgm() async {
+     if (!_isSnoozed) {
+    await _audioPlayerBgm.play(AssetSource("audio/bgm_task_reveal.m4a"));
+     }
   }
 
-  void _stopBgm() async{
+  void _stopBgm() async {
     await _audioPlayerBgm.stop();
   }
 
-  void _playDragAudio() async{
+  void _playDragAudio() async {
+    if (!_isSnoozed) {
     await _audioPlayerDrag.play(AssetSource("audio/drag_task_reveal.m4a"));
+    }
   }
 
+  // void noteData(QueryDocumentSnapshot currentTask) {
   void noteData(QueryDocumentSnapshot currentTask) {
     Map<String, dynamic> taskData = currentTask.data() as Map<String, dynamic>;
 
@@ -89,7 +93,7 @@ class _TaskrevealState extends State<Taskreveal> {
   void _stopAudio() async {
     await _audioPlayer.stop();
   }
-  
+
   @override
   void dispose() {
     _scrollController.removeListener(_onScroll);
@@ -120,10 +124,12 @@ class _TaskrevealState extends State<Taskreveal> {
     });
 
     // Update task status
-    TaskServices().updateTaskStatus(true, taskID, widget.email);
+    TaskServices().updateHabitStatus(true, taskID, widget.email);
 
     // Play the animation
-    Lottie.network(animationLink, repeat: false);
+    if (animationLink != "") {
+      Lottie.network(animationLink, repeat: false);
+    }
 
     // Move to the next task after the animation
     Future.delayed(const Duration(seconds: 2), () {
@@ -136,19 +142,20 @@ class _TaskrevealState extends State<Taskreveal> {
     });
   }
 
-  void _coachingPlay(QueryDocumentSnapshot task) {
+  // void _coachingPlay(QueryDocumentSnapshot task) {
+  void _coachingPlay(Map<String, dynamic> task) {
     print("In COACHING");
     _stopAudio();
     _stopBgm();
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => PlayAudio(
-                email: widget.email,
-                couching: task,
-              )),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //       builder: (context) => PlayAudio(
+    //             email: widget.email,
+    //             couching: task,
+    //           )),
+    // );
   }
 
   // Handle skip button press
@@ -176,10 +183,15 @@ class _TaskrevealState extends State<Taskreveal> {
 
     // Stop the audio when snooze is pressed
     _stopAudio();
+    _stopBgm();
   }
 
   double _calculateDynamicMaxChildSize(
-      BuildContext context, QueryDocumentSnapshot currentTask, String items) {
+      // BuildContext context, QueryDocumentSnapshot currentTask, String items) {
+
+      BuildContext context,
+      Map<String, dynamic> currentTask,
+      String items) {
     // Get screen height
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -196,8 +208,8 @@ class _TaskrevealState extends State<Taskreveal> {
     double notepadBoxHeight = 100; // Fixed height of the notepad box
 
     // Add additional height for "Coaching" tasks (Play button, subtitle, etc.)
-    double coachingAdditionalHeight =
-        currentTask['category'] == 'Coaching' ? 100 : 0;
+    double coachingAdditionalHeight = 100;
+    // currentTask['category'] == 'Coaching' ? 100 : 0;
 
     // Total content height
     double totalContentHeight = descriptionHeight +
@@ -217,11 +229,15 @@ class _TaskrevealState extends State<Taskreveal> {
 
 // Custom function to calculate the dynamic height of the description box based on content
   double getDescriptionHeight(
-      BuildContext context, QueryDocumentSnapshot currentTask) {
+      // BuildContext context, QueryDocumentSnapshot currentTask) {
+      BuildContext context,
+      Map<String, dynamic> currentTask) {
     // This can be based on the content of the description. For now, assuming average content height.
-    String descriptionText = currentTask['category'] == 'Coaching'
-        ? currentTask['subtitle'] ?? ''
-        : currentTask['descriptionHtml'] ?? '';
+    // String descriptionText = currentTask['category'] == 'Coaching'
+    //     ? currentTask['subtitle'] ?? ''
+    //     : currentTask['descriptionHtml'] ?? '';
+
+    String descriptionText = currentTask['descriptionHtml'] ?? '';
 
     double textHeight = (descriptionText.length / 50).ceil() *
         24.0; // Approximation: 50 characters per line, 24px per line
@@ -246,62 +262,112 @@ class _TaskrevealState extends State<Taskreveal> {
     return NotepadContentHeight;
   }
 
+  Color colorFromString(String colorString) {
+    try {
+      String hexColor = colorString.replaceAll('#', '');
+      if (hexColor.length == 6) {
+        return Color(int.parse('0xFF$hexColor'));
+      }
+    } catch (e) {
+      print("Invalid color string: $e");
+    }
+    return Colors.orange; // Default to orange on error
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: null, // Hide the app bar
       body: GestureDetector(
         onPanUpdate: (details) {
-        // Detect drag and play audio
-        _playDragAudio();
-      },
-        child: StreamBuilder<QuerySnapshot>(
-          stream: TaskServices().getdailyTasks(widget.email),
+          // Detect drag and play audio
+          _playDragAudio();
+        },
+        // child: StreamBuilder<QuerySnapshot>(
+        //   stream: TaskServices().getdailyTasks(widget.email),
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: TaskServices().getUserHabits(widget.email),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return Center(child: CircularProgressIndicator());
             }
-        
-            var tasks = snapshot.data!.docs;
-        
+
+            var tasks = snapshot.data!;
+            // var tasks = snapshot.data!.docs;
+
             // Navigate back when all tasks are completed
             if (_currentIndex >= tasks.length) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _stopAudio();
                 _stopBgm();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Routinelistscreen(email: widget.email),
-                  ),
-                );
+                // Navigator.pushReplacement(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) =>
+                //         // Routinelistscreen(email: widget.email),
+                //         MainScreen(email: widget.email),
+                //   ),
+                // );
+
+Navigator.pushAndRemoveUntil(
+  context,
+  MaterialPageRoute(
+    builder: (context) => MainScreen(email: widget.email),
+  ),
+  (route) => false, // Removes all previous routes
+);
+
               });
               return SizedBox.shrink();
             }
-        
+
             var currentTask = tasks[_currentIndex];
-        
-            noteData(currentTask);
-        
+
+            // noteData(currentTask);
+
             // Play audio when background is shown
             if (!_isSnoozed) {
-              _playAudio(currentTask['audioLink']);
+              // _playAudio(currentTask['audioLink']);
+              if (currentTask.containsKey('voiceUrl')) {
+                _playAudio(currentTask['voiceUrl']);
+              }
             }
-        
+
             // Stop audio when the last task's animation finishes
             if (_currentIndex == tasks.length - 1 && _isAnimationVisible) {
               _stopAudio();
             }
-        
+
             return Stack(
               children: [
                 // Background Image
+                // Positioned.fill(
+                //   child: Image.network(
+                //     currentTask['backgroundLink'],
+                //     fit: BoxFit.cover,
+                //   ),
+                // ),
+
                 Positioned.fill(
-                  child: Image.network(
-                    currentTask['backgroundLink'],
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                    child: (currentTask.containsKey('backgroundLink') &&
+                            currentTask['backgroundLink'] != null &&
+                            currentTask['backgroundLink'].isNotEmpty)
+                        ? Image.network(
+                            currentTask['backgroundLink'],
+                            fit: BoxFit.cover,
+                          )
+                        : Container(
+                            color: colorFromString(currentTask[
+                                'color']), // Dynamic background color
+                            child: Center(
+                              child: SvgPicture.network(
+                                currentTask["iconUrl"],
+                                width: 100,
+                                height: 100,
+                              ),
+                            ),
+                          )),
+
                 // Title Positioned 20% from the Top
                 Positioned(
                   top: MediaQuery.of(context).size.height * 0.2,
@@ -322,18 +388,32 @@ class _TaskrevealState extends State<Taskreveal> {
                           ),
                         ],
                       ),
+                      textAlign: TextAlign.center, // Center align the text
+                      softWrap: true,
                     ),
                   ),
                 ),
+
+                Positioned(
+                top: 20,
+                right: 20,
+                child: IconButton(
+                  icon: Icon(
+                    _isSnoozed ? Icons.volume_off : Icons.volume_up,
+                    color: Colors.white,
+                    size: 35,
+                  ),
+                  onPressed: _onSnoozePressed,
+                ),
+              ),
                 // DraggableScrollableSheet
                 DraggableScrollableSheet(
-                
                   initialChildSize: 0.3,
                   minChildSize: 0.2,
                   maxChildSize: _calculateDynamicMaxChildSize(
                       context, currentTask, items), // Use dynamic maxChildSize
                   builder: (context, scrollController) {
-                     _scrollController = scrollController;
+                    _scrollController = scrollController;
 
                     return Container(
                       decoration: const BoxDecoration(
@@ -357,8 +437,9 @@ class _TaskrevealState extends State<Taskreveal> {
                               LayoutBuilder(
                                 builder: (context, constraints) {
                                   final boxWidth = constraints.maxWidth * 1;
-                                  var notepadTitle = "NOTEPAD";
-        
+                                  var notepadTitle =
+                                      currentTask["noteQuestion"];
+
                                   return Column(
                                     children: [
                                       // Description Box - Height depends on content
@@ -367,10 +448,11 @@ class _TaskrevealState extends State<Taskreveal> {
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
                                           color: Colors.black.withOpacity(0.6),
-                                          borderRadius: BorderRadius.circular(15),
+                                          borderRadius:
+                                              BorderRadius.circular(15),
                                         ),
-                                        child: currentTask['category'] ==
-                                                'Coaching'
+                                        child: currentTask['name']
+                                                .contains('Coaching')
                                             ? Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment
@@ -388,7 +470,8 @@ class _TaskrevealState extends State<Taskreveal> {
                                                         Text(
                                                           currentTask['name'] ??
                                                               '',
-                                                          style: const TextStyle(
+                                                          style:
+                                                              const TextStyle(
                                                             color: Colors.white,
                                                             fontSize: 20,
                                                             fontWeight:
@@ -397,12 +480,14 @@ class _TaskrevealState extends State<Taskreveal> {
                                                           textAlign:
                                                               TextAlign.left,
                                                         ),
-                                                        const SizedBox(height: 8),
+                                                        const SizedBox(
+                                                            height: 8),
                                                         Text(
                                                           currentTask[
                                                                   'subtitle'] ??
                                                               '',
-                                                          style: const TextStyle(
+                                                          style:
+                                                              const TextStyle(
                                                             color: Colors.white,
                                                             fontSize: 18,
                                                           ),
@@ -423,8 +508,10 @@ class _TaskrevealState extends State<Taskreveal> {
                                                         _coachingPlay(
                                                             currentTask),
                                                     style: IconButton.styleFrom(
-                                                      backgroundColor: Colors.red,
-                                                      shape: const CircleBorder(),
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                      shape:
+                                                          const CircleBorder(),
                                                       padding: EdgeInsets.zero,
                                                       minimumSize: Size(50, 50),
                                                     ),
@@ -433,129 +520,266 @@ class _TaskrevealState extends State<Taskreveal> {
                                               )
                                             : Column(
                                                 children: [
-                                                  Text(
-                                                    currentTask[
+                                                  Html(
+                                                    data: currentTask[
                                                             'descriptionHtml'] ??
-                                                        '',
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 18,
-                                                    ),
-                                                    textAlign: TextAlign.center,
+                                                        '', // Pass HTML content here
+                                                    style: {
+                                                      "html": Style(
+                                                        color: Colors
+                                                            .white, // Text color
+                                                        fontSize: FontSize(
+                                                            18), // Font size
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                    },
+                                                    // Text alignment
                                                   ),
                                                 ],
                                               ),
                                       ),
                                       const SizedBox(height: 20),
                                       // Buttons Box
-                                      Container(
-                                        width: boxWidth,
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.6),
-                                          borderRadius: BorderRadius.circular(15),
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            const Text(
-                                              "Today",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const Divider(
-                                              color: Colors.white,
-                                              thickness: 1,
-                                            ),
-                                            Wrap(
-                                              spacing: 20,
-                                              alignment: WrapAlignment.center,
-                                              children: [
-                                                // Skip Button
-                                                Column(
-                                                  children: [
-                                                    IconButton(
-                                                      onPressed: _onSkipPressed,
-                                                      icon: const Icon(
-                                                        Icons.skip_next,
-                                                        color: Colors.white,
-                                                        size: 35,
-                                                      ),
-                                                    ),
-                                                    const Text(
-                                                      "Skip",
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 18,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                // Check Button with Animation
-                                                Stack(
-                                                  alignment: Alignment.center,
-                                                  children: [
-                                                    SizedBox(
-                                                      height: 100,
-                                                      width: 100,
-                                                      child: Visibility(
-                                                        visible:
-                                                            _isAnimationVisible,
-                                                        child: Lottie.network(
-                                                          currentTask[
-                                                              'animationLink'],
-                                                          repeat: false,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    IconButton(
-                                                      icon: const Icon(
-                                                        Icons.check,
-                                                        color: Colors.white,
-                                                        size: 45,
-                                                      ),
-                                                      onPressed: () =>
-                                                          _onCheckPressed(
-                                                              currentTask[
-                                                                  'animationLink'],
-                                                              currentTask[
-                                                                  'objectID']),
-                                                      style: IconButton.styleFrom(
-                                                        backgroundColor:
-                                                            Colors.pink,
-                                                        shape:
-                                                            const CircleBorder(),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                // Snooze Button
-                                                Column(
-                                                  children: [
-                                                    IconButton(
-                                                      onPressed: _onSnoozePressed,
-                                                      icon: const Icon(
-                                                        Icons.repeat,
-                                                        color: Colors.white,
-                                                        size: 35,
-                                                      ),
-                                                    ),
-                                                    const Text(
-                                                      "Snooze",
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 18,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                      // Container(
+                                      //   width: boxWidth,
+                                      //   padding: const EdgeInsets.all(12),
+                                      //   decoration: BoxDecoration(
+                                      //     color: Colors.black.withOpacity(0.6),
+                                      //     borderRadius:
+                                      //         BorderRadius.circular(15),
+                                      //   ),
+                                      //   child: Column(
+                                      //     children: [
+                                      //       const Text(
+                                      //         "Today",
+                                      //         style: TextStyle(
+                                      //           color: Colors.white,
+                                      //           fontSize: 18,
+                                      //           fontWeight: FontWeight.bold,
+                                      //         ),
+                                      //       ),
+                                      //       const Divider(
+                                      //         color: Colors.white,
+                                      //         thickness: 1,
+                                      //       ),
+                                      //       Wrap(
+                                      //         spacing: 20,
+                                      //         alignment: WrapAlignment.center,
+                                      //         children: [
+                                      //           // Skip Button
+                                      //           Column(
+                                      //             children: [
+                                      //               IconButton(
+                                      //                 onPressed: _onSkipPressed,
+                                      //                 icon: const Icon(
+                                      //                   Icons.skip_next,
+                                      //                   color: Colors.white,
+                                      //                   size: 35,
+                                      //                 ),
+                                      //               ),
+                                      //               const Text(
+                                      //                 "Skip",
+                                      //                 style: TextStyle(
+                                      //                   color: Colors.white,
+                                      //                   fontSize: 18,
+                                      //                 ),
+                                      //               ),
+                                      //             ],
+                                      //           ),
+                                      //           // Check Button with Animation
+                                      //           Stack(
+                                      //             alignment: Alignment.center,
+                                      //             children: [
+                                                    
+                                      //               IconButton(
+                                      //                 icon: const Icon(
+                                      //                   Icons.check,
+                                      //                   color: Colors.white,
+                                      //                   size: 45,
+                                      //                 ),
+                                      //                 onPressed: () =>
+                                      //                     _onCheckPressed(
+                                      //                         // currentTask[
+                                      //                         //     'animationLink'],
+                                      //                         currentTask.containsKey(
+                                      //                                 "completionLottieUrl")
+                                      //                             ? currentTask[
+                                      //                                 'completionLottieUrl']
+                                      //                             : "",
+                                      //                         // currentTask[
+                                      //                         //     'objectID']),
+                                      //                         currentTask[
+                                      //                             'objectId']),
+                                      //                 style:
+                                      //                     IconButton.styleFrom(
+                                      //                   backgroundColor:
+                                      //                       Colors.pink,
+                                      //                   shape:
+                                      //                       const CircleBorder(),
+                                      //                 ),
+                                      //               ),
+                                      //               SizedBox(
+                                      //                 height: 150,
+                                      //                 width: 100,
+                                      //                 child: Visibility(
+                                      //                   visible:
+                                      //                       _isAnimationVisible,
+                                      //                   child: currentTask
+                                      //                           .containsKey(
+                                      //                               "completionLottieUrl")
+                                      //                       ? Lottie.network(
+                                      //                           currentTask[
+                                      //                               'completionLottieUrl'],
+                                      //                           repeat: false,
+                                      //                           width:
+                                      //                               500, // Adjust size as needed
+                                      //                           height: 500,
+                                      //                         )
+                                      //                       : Container(), // Empty container if no Lottie URL exists
+                                      //                 ),
+                                      //               ),
+                                      //             ],
+                                      //           ),
+                                      //           // Snooze Button
+                                      //           Column(
+                                      //             children: [
+                                      //               IconButton(
+                                      //                 onPressed:
+                                      //                     _onSnoozePressed,
+                                      //                 icon: const Icon(
+                                      //                   Icons.repeat,
+                                      //                   color: Colors.white,
+                                      //                   size: 35,
+                                      //                 ),
+                                      //               ),
+                                      //               const Text(
+                                      //                 "Snooze",
+                                      //                 style: TextStyle(
+                                      //                   color: Colors.white,
+                                      //                   fontSize: 18,
+                                      //                 ),
+                                      //               ),
+                                      //             ],
+                                      //           ),
+                                      //         ],
+                                      //       ),
+                                      //     ],
+                                      //   ),
+                                      // ),
+
+Container(
+  width: boxWidth,
+  padding: const EdgeInsets.all(12),
+  decoration: BoxDecoration(
+    color: Colors.black.withOpacity(0.6),
+    borderRadius: BorderRadius.circular(15),
+  ),
+  child: Column(
+    children: [
+      const Text(
+        "Today",
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      const Divider(
+        color: Colors.white,
+        thickness: 1,
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center, // Center the buttons horizontally
+        children: [
+          // Skip Button
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: _onSkipPressed,
+                icon: const Icon(
+                  Icons.skip_next,
+                  color: Colors.white,
+                  size: 35,
+                ),
+              ),
+              const Text(
+                "Skip",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+
+          // Check Button with Animation
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.check,
+                  color: Colors.white,
+                  size: 45,
+                ),
+                onPressed: () => _onCheckPressed(
+                  currentTask.containsKey("completionLottieUrl")
+                      ? currentTask['completionLottieUrl']
+                      : "",
+                  currentTask['objectId'],
+                ),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.pink,
+                  shape: const CircleBorder(),
+                ),
+              ),
+              SizedBox(
+                height: 150,
+                width: 150,
+                child: Visibility(
+                  visible: _isAnimationVisible,
+                  child: currentTask.containsKey("completionLottieUrl")
+                      ? Lottie.network(
+                          currentTask['completionLottieUrl'],
+                          repeat: false,
+                          width: 150, // Adjust size as needed
+                          height: 150,
+                        )
+                      : Container(),
+                ),
+              ),
+            ],
+          ),
+
+          // Snooze Button
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: _onSnoozePressed,
+                icon: const Icon(
+                  Icons.repeat,
+                  color: Colors.white,
+                  size: 35,
+                ),
+              ),
+              const Text(
+                "Snooze",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  ),
+),
+                                      
                                       const SizedBox(height: 20),
                                       Container(
                                         width: boxWidth,
@@ -563,7 +787,8 @@ class _TaskrevealState extends State<Taskreveal> {
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
                                           color: Colors.black.withOpacity(0.8),
-                                          borderRadius: BorderRadius.circular(15),
+                                          borderRadius:
+                                              BorderRadius.circular(15),
                                         ),
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment
@@ -571,7 +796,8 @@ class _TaskrevealState extends State<Taskreveal> {
                                           children: [
                                             Row(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment.spaceBetween,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               crossAxisAlignment: CrossAxisAlignment
                                                   .start, // Align text to the top if it's multiline
                                               children: [
@@ -584,7 +810,7 @@ class _TaskrevealState extends State<Taskreveal> {
                                                             Notesscreen(
                                                           email: widget.email,
                                                           taskID: currentTask[
-                                                              'objectID'],
+                                                              'objectId'],
                                                           title: notepadTitle,
                                                           timestamp: "",
                                                           items: items,
@@ -604,7 +830,8 @@ class _TaskrevealState extends State<Taskreveal> {
                                                     style: TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 18,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                     overflow: TextOverflow
                                                         .visible, // Make sure it wraps correctly
@@ -624,10 +851,10 @@ class _TaskrevealState extends State<Taskreveal> {
                                                             MaterialPageRoute(
                                                               builder: (context) =>
                                                                   GeneralComponentScreen(
-                                                                email:
-                                                                    widget.email,
+                                                                email: widget
+                                                                    .email,
                                                                 taskID: currentTask[
-                                                                    'objectID'],
+                                                                    'objectId'],
                                                                 title:
                                                                     notepadTitle,
                                                                 timestamp:
