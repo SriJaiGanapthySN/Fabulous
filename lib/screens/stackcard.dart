@@ -14,14 +14,13 @@ class VerticalStackedCardScreen extends StatefulWidget {
 
 class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
   final GuidedActivities _guidedActivities = GuidedActivities();
-  AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioPlayer _audioPlayer = AudioPlayer();
   int currentCardIndex = 0;
   bool isPlaying = false;
   double progress = 1.0;
   Timer? timer;
   double remainingSeconds = 0; // Tracks remaining time
   double totalDuration = 0; // Total duration of the exercise
-  // List<Map<String,dynamic>> stepData=[];
   List<Map<String, dynamic>> exercises = [];
 
   Color colorFromString(String colorString) {
@@ -52,7 +51,6 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
   void loadStepData() async {
     List<Map<String, dynamic>> steps = await _fetchSteps();
     setState(() {
-      // stepData = steps;  // Update stepData after fetching
       exercises = steps; // Update stepData after fetching
     });
     // stepData.add(widget.training);
@@ -62,24 +60,6 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
   Future<List<Map<String, dynamic>>> _fetchSteps() async {
     return await _guidedActivities.fetchSteps(widget.training["objectId"]);
   }
-
-  // void startTimer(int seconds) {
-  //   setState(() {
-  //     progress = 1.0;
-  //     isPlaying = true;
-  //   });
-
-  //   timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
-  //     setState(() {
-  //       progress -= 0.1 / seconds;
-
-  //       if (progress <= 0) {
-  //         timer.cancel();
-  //         nextCard();
-  //       }
-  //     });
-  //   });
-  // }
 
   void startTimer(double seconds) {
     setState(() {
@@ -116,13 +96,6 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
     _audioPlayer.stop();
   }
 
-  // void stopTimer() {
-  //   timer?.cancel();
-  //   setState(() {
-  //     isPlaying = false;
-  //   });
-  // }
-
   void stopTimer() {
     timer?.cancel();
     setState(() {
@@ -145,6 +118,9 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
           startTimer(seconds);
           _playAudio(exercises[currentCardIndex]["soundUrl"]);
         }
+      } else {
+        _stopAudio();
+        Navigator.pop(context);
       }
     });
   }
@@ -249,6 +225,25 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
                                 ),
                               ),
                             ),
+                            Positioned(
+                              top: 10,
+                              right: 10,
+                              child: GestureDetector(
+                                onTap: () {
+                                  // Logic to handle cross icon tap (e.g., stopping audio, navigating back)
+
+                                  _audioPlayer.pause(); // Stop audio if playing
+
+                                  Navigator.pop(context); // Navigate back
+                                },
+                                child: Icon(
+                                  Icons.close,
+                                  size: 30, // Adjust the size of the icon
+                                  color:
+                                      Colors.black, // Set the color of the icon
+                                ),
+                              ),
+                            ),
                             // Title on top for the introductory card
                             if (!exercise.containsKey('duration'))
                               Positioned(
@@ -339,75 +334,96 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
                             // Play/Pause Button with Circular Progress for current card
                             if (index == currentCardIndex &&
                                 exercise.containsKey('duration'))
-                              Align(
-                                alignment: Alignment
-                                    .bottomCenter, // Center horizontally, bottom vertically
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                      bottom: cardHeight *
-                                          0.15), // Adjust vertical position
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      if (!isPlaying) {
-                                        if (exercise.containsKey('duration')) {
-                                          double seconds =
-                                              exercise['duration'] * 1.0;
-                                          startTimer(seconds);
-                                          _playAudio(exercise["soundUrl"]);
+                              Stack(children: [
+                                Align(
+                                  alignment: Alignment
+                                      .bottomCenter, // Center horizontally, bottom vertically
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                        bottom: cardHeight *
+                                            0.15), // Adjust vertical position
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        if (!isPlaying) {
+                                          if (exercise
+                                              .containsKey('duration')) {
+                                            double seconds =
+                                                exercise['duration'] * 1.0;
+                                            startTimer(seconds);
+                                            _playAudio(exercise["soundUrl"]);
+                                          }
+                                        } else {
+                                          stopTimer();
+                                          _audioPlayer.pause();
                                         }
-                                      } else {
-                                        stopTimer();
-                                        _audioPlayer.pause();
-                                      }
-                                    },
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        // Circular Progress Indicator
-                                        SizedBox(
-                                          width: cardWidth / 4.5,
-                                          height: cardWidth / 4.5,
-                                          // child: CircularProgressIndicator(
-                                          //   value: progress,
-                                          //   color: Colors.pink,
-                                          //   strokeWidth: 4,
-                                          //   backgroundColor: Colors.white24,
-                                          // ),
-
-                                          child: Transform(
-                                            transform: Matrix4.identity()
-                                              ..scale(-1.0, 1.0,
-                                                  1.0), // Mirror the widget horizontally
-                                            alignment: Alignment.center,
-                                            child: CircularProgressIndicator(
-                                              value: progress,
-                                              color: Colors.pink,
-                                              strokeWidth: 4,
-                                              // backgroundColor: Colors.white24,
+                                      },
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          // Circular Progress Indicator
+                                          SizedBox(
+                                            width: cardWidth / 4.5,
+                                            height: cardWidth / 4.5,
+                                            child: Transform(
+                                              transform: Matrix4.identity()
+                                                ..scale(-1.0, 1.0,
+                                                    1.0), // Mirror the widget horizontally
+                                              alignment: Alignment.center,
+                                              child: CircularProgressIndicator(
+                                                value: progress,
+                                                color: Colors.pink,
+                                                strokeWidth: 4,
+                                                // backgroundColor: Colors.white24,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        // Play/Pause Button
-                                        Container(
-                                          width: cardWidth / 5.5,
-                                          height: cardWidth / 5.5,
-                                          decoration: BoxDecoration(
-                                            color: Colors.pink,
-                                            shape: BoxShape.circle,
+                                          // Play/Pause Button
+                                          Container(
+                                            width: cardWidth / 5.5,
+                                            height: cardWidth / 5.5,
+                                            decoration: BoxDecoration(
+                                              color: Colors.pink,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              isPlaying
+                                                  ? Icons.pause
+                                                  : Icons.play_arrow,
+                                              size: cardWidth / 12,
+                                              color: Colors.white,
+                                            ),
                                           ),
-                                          child: Icon(
-                                            isPlaying
-                                                ? Icons.pause
-                                                : Icons.play_arrow,
-                                            size: cardWidth / 12,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              )
+                                Align(
+                                  alignment: Alignment
+                                      .bottomRight, // Place it at the bottom-right
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                        bottom: cardHeight * 0.18,
+                                        right:
+                                            cardWidth / 5), // Adjust position
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        // Implement skip logic here
+                                        progress = 1;
+                                        remainingSeconds = 0;
+                                        stopTimer();
+
+                                        nextCard();
+                                      },
+                                      child: Icon(
+                                        Icons.double_arrow,
+                                        size: cardWidth / 8,
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ]),
                           ],
                         ),
                       ),

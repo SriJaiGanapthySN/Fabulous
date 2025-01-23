@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 class Guidedcoachingtile extends StatefulWidget {
-  const Guidedcoachingtile(
-      {super.key,
-      required this.url,
-      required this.title,
-      required this.timestamp,
-       this.subtitle,
-       required this.color,
-      this.onTap});
+  const Guidedcoachingtile({
+    super.key,
+    required this.url,
+    required this.title,
+    required this.timestamp,
+    this.subtitle,
+    required this.color,
+    this.onTap,
+  });
+
   final String url;
   final String title;
   final String timestamp;
@@ -16,15 +18,11 @@ class Guidedcoachingtile extends StatefulWidget {
   final VoidCallback? onTap;
   final String color;
 
-
   @override
   _Guidedcoachingtile createState() => _Guidedcoachingtile();
 }
 
 class _Guidedcoachingtile extends State<Guidedcoachingtile> {
-  final GlobalKey _subtitleKey = GlobalKey(); // Key to measure subtitle widget
-  double _subtitleHeight = 0;
-
   Color colorFromString(String colorString) {
     String hexColor = colorString.replaceAll('#', '');
     if (hexColor.length == 6) {
@@ -34,27 +32,62 @@ class _Guidedcoachingtile extends State<Guidedcoachingtile> {
     }
   }
 
+  double calculateTextHeight(String text, TextStyle style, double maxWidth) {
+    final TextPainter textPainter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+      maxLines: 3, // Limit to 3 lines
+    )..layout(maxWidth: maxWidth);
+    return textPainter.size.height;
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    final double tileHeight = screenHeight * 0.5; // 50% of screen height
-    final double horizontalMargin = screenWidth * 0.00;
-    final double titleFontSize = screenWidth * 0.065; // 6.5% of screen width
-    final double subtitleFontSize = screenWidth * 0.05; // 5% of screen width
+    final double tileHeight = screenHeight * 0.19; // 19% of screen height
+    final double titleFontSize = screenWidth * 0.065; // Title font size
+    final double subtitleFontSize = screenWidth * 0.05; // Subtitle font size
+    final double timestampFontSize = screenWidth * 0.05; // Subtitle font size
 
-    // Adjust title position based on subtitle height
-    double titlePosition = tileHeight * 0.1;
+    // Define text styles
+    final TextStyle titleStyle = TextStyle(
+      fontSize: titleFontSize,
+      fontWeight: FontWeight.bold,
+      height: 1.15,
+    );
+
+    final TextStyle subtitleStyle = TextStyle(
+      fontSize: subtitleFontSize,
+      fontWeight: FontWeight.normal,
+      height: 1.15,
+    );
+
+    // Calculate text heights
+    final double subtitleHeight = widget.subtitle != null
+        ? calculateTextHeight(widget.subtitle!, subtitleStyle, screenWidth - 65)
+        : 0.0;
+
+    final double titleHeight = calculateTextHeight(widget.title, titleStyle, screenWidth - 60);
+
+    // Calculate positions
+    final double subtitleBottomMargin = tileHeight * 0.1; // 10% margin from bottom
+    final double subtitleTopOffset = tileHeight - subtitleBottomMargin - subtitleHeight;
+    final double titleTopOffset = subtitleTopOffset - titleHeight;
+
+    // Timestamp position using MediaQuery for dynamic screen adjustments
+    final double timestampTopOffset = screenHeight * 0.01; // 5% from the top of the screen
+    final double timestampRightOffset = screenWidth * 0.02; // 5% from the top of the screen
 
     return GestureDetector(
       onTap: widget.onTap,
       child: Stack(
         children: [
+          // Background image with rounded corners
           Container(
             height: tileHeight,
             decoration: BoxDecoration(
-              // color: Colors.white,
               borderRadius: BorderRadius.circular(10),
               image: DecorationImage(
                 image: NetworkImage(widget.url),
@@ -62,123 +95,52 @@ class _Guidedcoachingtile extends State<Guidedcoachingtile> {
               ),
             ),
           ),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colorFromString(widget.color),
-                    Colors.transparent,
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
+          // Title
           Positioned(
-            left: horizontalMargin + 10,
-            top: titlePosition, // Adjusted title position
+            left: 20,
+            right: 20,
+            top: titleTopOffset,
             child: Text(
               widget.title,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: titleFontSize,
-                fontWeight: FontWeight.bold,
-                // shadows: [
-                //   Shadow(
-                //     offset: const Offset(1, 1),
-                //     blurRadius: 4,
-                //     color: Colors.black.withOpacity(0.7),
-                //   ),
-                // ],
-              ),
+              style: titleStyle.copyWith(color: Colors.white),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
+          // Subtitle
           if (widget.subtitle != null)
             Positioned(
-              left: horizontalMargin + 10,
-              right: horizontalMargin + 10,
-              top: tileHeight * 0.2,
+              left: 20,
+              right: 20,
+              top: subtitleTopOffset,
               child: Text(
                 widget.subtitle!,
-                key: _subtitleKey, // Attach the key to subtitle text
-                style: TextStyle(
-                  height: 1.15,
-                  color: Colors.white,
-                  fontSize: subtitleFontSize,
-                  fontWeight: FontWeight.normal,
-                  // shadows: [
-                  //   Shadow(
-                  //     offset: const Offset(1, 1),
-                  //     blurRadius: 4,
-                  //     color: Colors.black.withOpacity(0.7),
-                  //   ),
-                  // ],
-                ),
+                style: subtitleStyle.copyWith(color: Colors.white),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+          // Timestamp badge with dynamic top position
+          Positioned(
+            right: timestampRightOffset,
+            top: timestampTopOffset,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.4),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                widget.timestamp,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: timestampFontSize,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Stack(
-//         children: [
-//           Container(
-//             margin: EdgeInsets.symmetric(horizontal: 20),
-//             height: 130,
-//             decoration: BoxDecoration(
-//               color: Colors.white,
-//               borderRadius: BorderRadius.circular(10),
-//               image: DecorationImage(
-//                 image: NetworkImage(url),
-//                 fit: BoxFit.cover,
-//               ),
-//             ),
-//           ),
-//           Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Container(
-//                 alignment: Alignment.center,
-//                 margin: const EdgeInsets.only(left: 300, top: 20),
-//                 height: 40,
-//                 width: 80,
-//                 decoration: BoxDecoration(
-//                   color: const Color.fromARGB(120, 0, 0, 0),
-//                   borderRadius: BorderRadius.circular(10),
-//                 ),
-//                 child: Text(
-//                   timestamp,
-//                   style: const TextStyle(
-//                     color: Colors.white,
-//                     fontSize: 20,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//                 ),
-//               ),
-//               Container(
-//                 margin: const EdgeInsets.only(left: 40, top: 10),
-//                 child: Text(
-//                   title,
-//                   style: const TextStyle(
-//                     color: Colors.white,
-//                     fontSize: 32,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

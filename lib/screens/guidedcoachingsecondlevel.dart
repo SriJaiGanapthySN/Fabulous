@@ -51,88 +51,6 @@ class _GuidedcoachingsecondlevelState extends State<Guidedcoachingsecondlevel> {
     }
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Material(
-  //     type: MaterialType.transparency,
-  //     child: Stack(
-  //       children: [
-  //         // Background Image
-  //         Container(
-  //           decoration: BoxDecoration(
-  //             image: DecorationImage(
-  //               image: NetworkImage(widget.category["bigImageUrl"]),
-  //               fit: BoxFit.cover,
-  //             ),
-  //           ),
-  //         ),
-  //         // Loading Indicator
-  //         if (_isLoading)
-  //           const Center(
-  //             child: CircularProgressIndicator(color: Colors.pink),
-  //           )
-  //         else
-  //           // CustomScrollView with a pinned SliverAppBar
-  //           CustomScrollView(
-  //             physics: const BouncingScrollPhysics(),
-  //             slivers: [
-  //               // Pinned SliverAppBar
-  //               SliverAppBar(
-  //                 pinned: true,
-  //                 backgroundColor: Colors.transparent,
-  //                 elevation: 0,
-  //                 expandedHeight: 100,
-  //                 flexibleSpace: FlexibleSpaceBar(
-  //                   title: Text(
-  //                     widget.category["name"],
-  //                     style: const TextStyle(
-  //                       fontSize: 25,
-  //                       fontWeight: FontWeight.bold,
-  //                       color: Colors.white,
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ),
-  //               // Content List
-  //               SliverPadding(
-  //                 padding: const EdgeInsets.only(top: 200),
-  //                 sliver: SliverList(
-  //                   delegate: SliverChildBuilderDelegate(
-  //                     (BuildContext context, int index) {
-  //                       final training = trainingData[index];
-  //                       return Column(
-  //                         children: [
-  //                           Guidedcoachingtile(
-  //                             url: training['imageUrl'] ??
-  //                                 'assets/images/default.jpg', // Fallback image
-  //                             title: training['name'] ?? 'No Title',
-  //                             timestamp:
-  //                                 '${5 ?? 'N/A'} min', // Duration from data
-  //                             onTap: () {
-  //                               Navigator.push(
-  //                                 context,
-  //                                 MaterialPageRoute(
-  //                                   builder: (context) =>
-  //                                       VerticalStackedCardScreen(training:  training),
-  //                                 ),
-  //                               );
-  //                             },
-  //                           ),
-  //                           const SizedBox(height: 20),
-  //                         ],
-  //                       );
-  //                     },
-  //                     childCount: trainingData.length,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -147,138 +65,125 @@ class _GuidedcoachingsecondlevelState extends State<Guidedcoachingsecondlevel> {
           ? const Center(
               child: CircularProgressIndicator(color: Colors.pink),
             )
-          : CustomScrollView(
-              slivers: [
-                // SliverAppBar with title at the top
-                SliverAppBar(
-                  pinned: true,
-                  floating: false,
-                  expandedHeight: screenHeight * 0.25, // 25% of screen height
-                  backgroundColor:
-                      colorFromString(widget.category["color"]), // AppBar background color
-                  title: Text(
-                    widget.category["name"],
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+          : Container(
+            decoration: BoxDecoration(
+              color: colorFromString(widget.category["color"]),
+
+            ),
+            child: CustomScrollView(
+                slivers: [
+                  // SliverAppBar with title at the top
+                  SliverAppBar(
+                    pinned: true,
+                    floating: false,
+                    expandedHeight: screenHeight * 0.25, // 25% of screen height
+                    backgroundColor:
+                        colorFromString(widget.category["color"]), // AppBar background color
+                    title: Text(
+                      widget.category["name"],
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  flexibleSpace: FlexibleSpaceBar(
-                    collapseMode: CollapseMode.pin,
-                    background: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        // Background image
-                        Image.asset(
-                          "assets/images/RoutinesList.png",
-                          fit: BoxFit.cover,
-                        ),
-                        // Applying blur effect only on the lower part of the image
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            height: screenHeight *
-                                0.1, // Height of the blurred edge
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.transparent,
-                                  colorFromString(widget.category["color"]).withOpacity(0.7),
-                                ],
-                                stops: [0.6, 1.0], // Creates the fade effect
+                    flexibleSpace: FlexibleSpaceBar(
+                      collapseMode: CollapseMode.pin,
+                      background: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // Background image
+                          Image.network(
+                            widget.category["bigImageUrl"],
+                            fit: BoxFit.cover,
+                          ),
+                          // Applying blur effect only on the lower part of the image
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: screenHeight *
+                                  0.1, // Height of the blurred edge
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    colorFromString(widget.category["color"]),
+                                  ],
+                                  stops: [0.6, 1.0], // Creates the fade effect
+                                ),
                               ),
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Body content with blue background
+                  SliverToBoxAdapter(
+                    child: Container(
+                      color: colorFromString(widget.category["color"]), // Page background color
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: tilePadding,
+                          vertical: tilePadding,
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Body content with blue background
-                SliverToBoxAdapter(
-                  child: Container(
-                    color: colorFromString(widget.category["color"]), // Page background color
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: tilePadding,
-                        vertical: tilePadding,
-                      ),
-                      child: Column(
-                        children: List.generate(trainingData.length, (index) {
-                          final training = trainingData[index];
-                          return Column(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.symmetric(
-                                    vertical:
-                                        tilePadding), // Optional spacing between tiles
-                                child: Material(
-                                  elevation: 8, // Controls the shadow intensity
-                                  borderRadius: BorderRadius.circular(
-                                      10), // Matches the tile's border radius
-                                  shadowColor: Colors.black.withOpacity(
-                                      0.4), // Shadow color and transparency
-                                  child: Container(
-                                      height: tileHeight,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
-                                            10), // Ensure shadow follows rounded corners
-                                      ),
-                                      child: Guidedcoachingtile(
-                                          url: training['imageUrl'] ??
-                                              'assets/images/default.jpg', // Fallback image
-                                          title: training['name'] ?? 'No Title',
-                                          timestamp:
-                                              '${5 ?? 'N/A'} min', // Duration from data
-                                            color: training["color"],
-                                      subtitle: training["subtitle"],
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    VerticalStackedCardScreen(
-                                                        training: training),
-                                              ),
-                                            );
-                                          })
-
-                                      // CoachingFirstTile(
-                                      //   url: training['imageUrl'] ??
-                                      //       'assets/images/default.jpg', // Fallback image
-                                      //   title: training['title'] ?? 'No Title',
-                                      //   color: training["color"],
-                                      //   subtitle: training["subtitle"],
-                                      //   onTap: () {
-                                      //     Navigator.push(
-                                      //       context,
-                                      //       MaterialPageRoute(
-                                      //         builder: (context) =>
-                                      //             VerticalStackedCardScreen(
-                                      //           training: training,
-                                      //         ),
-                                      //       ),
-                                      //     );
-                                      //   },
-                                      // ),
-                                      ),
+                        child: Column(
+                          children: List.generate(trainingData.length, (index) {
+                            final training = trainingData[index];
+                            return Column(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.symmetric(
+                                      vertical:
+                                          tilePadding), // Optional spacing between tiles
+                                  child: Material(
+                                    elevation: 8, // Controls the shadow intensity
+                                    borderRadius: BorderRadius.circular(
+                                        10), // Matches the tile's border radius
+                                    shadowColor: Colors.black.withOpacity(
+                                        0.4), // Shadow color and transparency
+                                    child: Container(
+                                        height: tileHeight,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                              10), // Ensure shadow follows rounded corners
+                                        ),
+                                        child: Guidedcoachingtile(
+                                            url: training['imageUrl'] ??
+                                                'assets/images/default.jpg', // Fallback image
+                                            title: training['name'] ?? 'No Title',
+                                            timestamp:
+                                                '${5 ?? 'N/A'} min', // Duration from data
+                                              color: training["color"],
+                                        subtitle: training["subtitle"],
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      VerticalStackedCardScreen(
+                                                          training: training),
+                                                ),
+                                              );
+                                            })
+            
+                                        
+                                        ),
+                                  ),
                                 ),
-                              ),
-                              // SizedBox(
-                              //     height: tilePadding), // Spacing between tiles
-                            ],
-                          );
-                        }),
+                                
+                              ],
+                            );
+                          }),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+          ),
     );
   }
 }
