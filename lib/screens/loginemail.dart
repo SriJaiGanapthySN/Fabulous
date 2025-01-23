@@ -40,12 +40,11 @@ class _LoginScreenEmailState extends State<LoginScreenEmail> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                // Routinelistscreen(email: userEmail!), // Pass email here
-                // VerticalStackedCardScreen()
-                // VerticalStackedCardScreen()
-                MainScreen(email: userEmail!)
-          ),
+              builder: (context) =>
+                  // Routinelistscreen(email: userEmail!), // Pass email here
+                  // VerticalStackedCardScreen()
+                  // VerticalStackedCardScreen()
+                  MainScreen(email: userEmail!)),
         );
       }
     } catch (e) {
@@ -99,10 +98,6 @@ class _LoginScreenEmailState extends State<LoginScreenEmail> {
                     // Sign In Button
                     ElevatedButton(
                       onPressed: _signInWithEmailPassword,
-                      child: Text(
-                        "Log In",
-                        style: TextStyle(fontSize: 16),
-                      ),
                       style: ElevatedButton.styleFrom(
                         // primary: Colors.orange,
                         padding:
@@ -110,6 +105,10 @@ class _LoginScreenEmailState extends State<LoginScreenEmail> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
+                      ),
+                      child: Text(
+                        "Log In",
+                        style: TextStyle(fontSize: 16),
                       ),
                     ),
                     SizedBox(height: 20),

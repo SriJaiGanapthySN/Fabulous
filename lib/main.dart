@@ -39,6 +39,6 @@ class MyApp extends StatelessWidget {
             child: child!),
         debugShowCheckedModeBanner: false,
         // home: Discoverscreen());
-        home:  Logingupinterfacescreen());
+        home: Logingupinterfacescreen());
   }
 }

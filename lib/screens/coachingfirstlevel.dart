@@ -1,6 +1,7 @@
 import 'dart:ui'; // Import for the BackdropFilter
 
 import 'package:fab/compenents/coachingfirstleveltile.dart';
+import 'package:fab/screens/coachingscreenreveal.dart';
 import 'package:fab/screens/stackcard.dart';
 import 'package:fab/services/coaching_service.dart';
 import 'package:flutter/material.dart';
@@ -146,18 +147,18 @@ class _CoachingFirstLevelState extends State<CoachingFirstLevel> {
                                     ),
                                     child: CoachingFirstTile(
                                       url: training['imageUrl'] ??
-                                          'assets/images/default.jpg', // Fallback image
+                                          'assets/images/default.jpg',
                                       title: training['title'] ?? 'No Title',
-                                      color: training["color"],
-                                      subtitle: training["subtitle"],
+                                      color: training["color"] ??
+                                          Colors.blue, // Default color
+                                      subtitle: training["subtitle"] ?? '',
                                       onTap: () {
+                                        // Navigate to the next screen on tile tap
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                VerticalStackedCardScreen(
-                                              training: training,
-                                            ),
+                                                Coachingscreenreveal(),
                                           ),
                                         );
                                       },
