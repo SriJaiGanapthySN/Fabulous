@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 class Mygridtile extends StatelessWidget {
-  const Mygridtile({super.key, required this.url, required this.title,this.onTap});
+  const Mygridtile(
+      {super.key, required this.url, required this.title, this.onTap});
   final String url;
   final String title;
   final VoidCallback? onTap;
-  
+
   @override
   Widget build(BuildContext context) {
     return Stack(

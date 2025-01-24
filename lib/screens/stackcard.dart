@@ -13,6 +13,7 @@ class VerticalStackedCardScreen extends StatefulWidget {
 }
 
 class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
+  bool isMuted = false;
   final GuidedActivities _guidedActivities = GuidedActivities();
   final AudioPlayer _audioPlayer = AudioPlayer();
   int currentCardIndex = 0;
@@ -217,44 +218,63 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
                                 borderRadius: BorderRadius.circular(15),
                                 gradient: LinearGradient(
                                   colors: [
-                                    // Colors.black.withOpacity(0.6),
-                                    Colors.transparent,
+                                    Colors.black
+                                        .withOpacity(0.6), // Starting color
+                                    Colors.transparent, // Ending color
                                   ],
                                   begin: Alignment.bottomCenter,
                                   end: Alignment.topCenter,
                                 ),
                               ),
                             ),
-                            Positioned(
-                              top: 10,
-                              right: 10,
-                              child: GestureDetector(
-                                onTap: () {
-                                  // Logic to handle cross icon tap (e.g., stopping audio, navigating back)
-
-                                  _audioPlayer.pause(); // Stop audio if playing
-
-                                  Navigator.pop(context); // Navigate back
-                                },
-                                child: Icon(
-                                  Icons.close,
-                                  size: 30, // Adjust the size of the icon
-                                  color:
-                                      Colors.black, // Set the color of the icon
+                            if (!exercise.containsKey('duration'))
+                              Positioned(
+                                right: 20,
+                                top: 20,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.4),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    "5-min",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
                             // Title on top for the introductory card
                             if (!exercise.containsKey('duration'))
                               Positioned(
-                                top: 20,
+                                top: 70,
                                 left: 20,
-                                right: 20,
+                                right: 80,
                                 child: Text(
                                   exercise['name']!,
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 28,
+                                    fontSize: 48,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 2,
+                                  softWrap: true,
+                                ),
+                              ),
+                            // subtitle on top for the introductory card
+                            if (!exercise.containsKey('duration'))
+                              Positioned(
+                                top: 210,
+                                left: 25,
+                                right: 80,
+                                child: Text(
+                                  exercise['name']!,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
                                   maxLines: 2,
@@ -319,7 +339,7 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
                                     ),
                                     Text(
                                       //  exercise['duration']!,
-                                      exercise['duration'].toString() + "s",
+                                      "${exercise['duration']}s",
                                       style: TextStyle(
                                         color:
                                             exercise.containsKey("isTextWhite")
@@ -331,6 +351,40 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
                                   ],
                                 ),
                               ),
+                            //cross button
+                            Positioned(
+                              left: 20,
+                              top: 20,
+                              child: IconButton(
+                                onPressed: () {},
+                                icon: Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 32,
+                                ),
+                              ),
+                            ),
+                            //mute button
+                            if (exercise.containsKey('duration'))
+                              Positioned(
+                                right: 20,
+                                top: 20,
+                                child: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isMuted = !isMuted; // Toggle mute state
+                                    });
+                                  },
+                                  icon: Icon(
+                                    isMuted
+                                        ? Icons.volume_off_outlined
+                                        : Icons.volume_up_outlined,
+                                    color: Colors.pink,
+                                    size: 32,
+                                  ),
+                                ),
+                              ),
+
                             // Play/Pause Button with Circular Progress for current card
                             if (index == currentCardIndex &&
                                 exercise.containsKey('duration'))
@@ -416,7 +470,7 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
                                         nextCard();
                                       },
                                       child: Icon(
-                                        Icons.double_arrow,
+                                        Icons.fast_forward_rounded,
                                         size: cardWidth / 8,
                                         color: Colors.white70,
                                       ),

@@ -54,6 +54,7 @@ class _GuidedcoachingmenuState extends State<Guidedcoachingmenu> {
             color: Colors.pink,
           ),
         ),
+        iconTheme: const IconThemeData(color: Colors.pink),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

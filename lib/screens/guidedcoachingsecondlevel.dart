@@ -66,19 +66,26 @@ class _GuidedcoachingsecondlevelState extends State<Guidedcoachingsecondlevel> {
               child: CircularProgressIndicator(color: Colors.pink),
             )
           : Container(
-            decoration: BoxDecoration(
-              color: colorFromString(widget.category["color"]),
-
-            ),
-            child: CustomScrollView(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    colorFromString(widget.category["color"]),
+                    Colors.transparent, // Add a second color
+                  ],
+                  stops: [0.6, 1.0], // Now matches the length of 'colors'
+                ),
+              ),
+              child: CustomScrollView(
                 slivers: [
                   // SliverAppBar with title at the top
                   SliverAppBar(
                     pinned: true,
                     floating: false,
                     expandedHeight: screenHeight * 0.25, // 25% of screen height
-                    backgroundColor:
-                        colorFromString(widget.category["color"]), // AppBar background color
+                    backgroundColor: colorFromString(
+                        widget.category["color"]), // AppBar background color
                     title: Text(
                       widget.category["name"],
                       style: TextStyle(
@@ -86,6 +93,7 @@ class _GuidedcoachingsecondlevelState extends State<Guidedcoachingsecondlevel> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    iconTheme: const IconThemeData(color: Colors.white),
                     flexibleSpace: FlexibleSpaceBar(
                       collapseMode: CollapseMode.pin,
                       background: Stack(
@@ -123,7 +131,8 @@ class _GuidedcoachingsecondlevelState extends State<Guidedcoachingsecondlevel> {
                   // Body content with blue background
                   SliverToBoxAdapter(
                     child: Container(
-                      color: colorFromString(widget.category["color"]), // Page background color
+                      color: colorFromString(
+                          widget.category["color"]), // Page background color
                       child: Padding(
                         padding: EdgeInsets.symmetric(
                           horizontal: tilePadding,
@@ -139,7 +148,8 @@ class _GuidedcoachingsecondlevelState extends State<Guidedcoachingsecondlevel> {
                                       vertical:
                                           tilePadding), // Optional spacing between tiles
                                   child: Material(
-                                    elevation: 8, // Controls the shadow intensity
+                                    elevation:
+                                        8, // Controls the shadow intensity
                                     borderRadius: BorderRadius.circular(
                                         10), // Matches the tile's border radius
                                     shadowColor: Colors.black.withOpacity(
@@ -153,11 +163,12 @@ class _GuidedcoachingsecondlevelState extends State<Guidedcoachingsecondlevel> {
                                         child: Guidedcoachingtile(
                                             url: training['imageUrl'] ??
                                                 'assets/images/default.jpg', // Fallback image
-                                            title: training['name'] ?? 'No Title',
+                                            title:
+                                                training['name'] ?? 'No Title',
                                             timestamp:
                                                 '${5 ?? 'N/A'} min', // Duration from data
-                                              color: training["color"],
-                                        subtitle: training["subtitle"],
+                                            color: training["color"],
+                                            subtitle: training["subtitle"],
                                             onTap: () {
                                               Navigator.push(
                                                 context,
@@ -167,13 +178,9 @@ class _GuidedcoachingsecondlevelState extends State<Guidedcoachingsecondlevel> {
                                                           training: training),
                                                 ),
                                               );
-                                            })
-            
-                                        
-                                        ),
+                                            })),
                                   ),
                                 ),
-                                
                               ],
                             );
                           }),
@@ -183,7 +190,7 @@ class _GuidedcoachingsecondlevelState extends State<Guidedcoachingsecondlevel> {
                   ),
                 ],
               ),
-          ),
+            ),
     );
   }
 }

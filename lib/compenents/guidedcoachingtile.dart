@@ -69,16 +69,21 @@ class _Guidedcoachingtile extends State<Guidedcoachingtile> {
         ? calculateTextHeight(widget.subtitle!, subtitleStyle, screenWidth - 65)
         : 0.0;
 
-    final double titleHeight = calculateTextHeight(widget.title, titleStyle, screenWidth - 60);
+    final double titleHeight =
+        calculateTextHeight(widget.title, titleStyle, screenWidth - 60);
 
     // Calculate positions
-    final double subtitleBottomMargin = tileHeight * 0.1; // 10% margin from bottom
-    final double subtitleTopOffset = tileHeight - subtitleBottomMargin - subtitleHeight;
+    final double subtitleBottomMargin =
+        tileHeight * 0.1; // 10% margin from bottom
+    final double subtitleTopOffset =
+        tileHeight - subtitleBottomMargin - subtitleHeight;
     final double titleTopOffset = subtitleTopOffset - titleHeight;
 
     // Timestamp position using MediaQuery for dynamic screen adjustments
-    final double timestampTopOffset = screenHeight * 0.01; // 5% from the top of the screen
-    final double timestampRightOffset = screenWidth * 0.02; // 5% from the top of the screen
+    final double timestampTopOffset =
+        screenHeight * 0.01; // 5% from the top of the screen
+    final double timestampRightOffset =
+        screenWidth * 0.02; // 5% from the top of the screen
 
     return GestureDetector(
       onTap: widget.onTap,

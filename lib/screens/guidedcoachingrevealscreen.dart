@@ -14,7 +14,11 @@ class _Guidedcoachingrevealscreen extends State<Guidedcoachingrevealscreen> {
   bool isPlaying = false;
 
   final List<Map<String, String>> exercises = [
-    {"name": "Jumping Jacks", "time": "30s", "image": "assets/images/login.jpg"},
+    {
+      "name": "Jumping Jacks",
+      "time": "30s",
+      "image": "assets/images/login.jpg"
+    },
     {"name": "Breathe", "time": "10s", "image": "assets/images/login.jpg"},
     {"name": "Push-ups", "time": "20s", "image": "assets/images/login.jpg"},
   ];

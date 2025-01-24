@@ -210,7 +210,6 @@ class Journeyplayscreen extends StatelessWidget {
       try {
         // Fetch unreleased journey
         final data = await _journeyService.fetchUnreleaseJourney(email);
-
         if (data != null) {
           // Extract document ID properly
           final String docId = data['objectId'];
@@ -239,6 +238,8 @@ class Journeyplayscreen extends StatelessWidget {
       } catch (e) {
         print('Error updating journey: $e');
       }
+      //for closing the dialog box
+      Navigator.of(context).pop();
     }
 
     return Scaffold(
@@ -336,8 +337,88 @@ class Journeyplayscreen extends StatelessWidget {
             bottom: screenHeight * 0.1, // 10% from the bottom
             left: (screenWidth - screenWidth * 0.25) / 2, // Center horizontally
             child: GestureDetector(
-              onTap: () async {
-                await updateJourney(email);
+              onTap: () {
+                showDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0),
+                      ),
+                      child: Container(
+                        height: 580,
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              'assets/images/sample3.jpg',
+                              height: 170,
+                              width: 350,
+                              fit: BoxFit.cover,
+                            ),
+                            SizedBox(height: 10),
+                            Container(
+                              margin: EdgeInsets.only(left: 20),
+                              child: Text(
+                                'Rolling the dice randomly selects a ?',
+                                style: TextStyle(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.green),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Container(
+                              margin: EdgeInsets.only(left: 20),
+                              child: Text(
+                                'remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum .e ',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 40,
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(left: 110),
+                              child: Column(
+                                children: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      await updateJourney(email);
+                                    },
+                                    child: Text(
+                                      'SWITCH JOURNEY',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 36, 173, 173),
+                                          fontSize: 20),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'DONT SWITCH',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 156, 149, 149),
+                                          fontSize: 20),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+
                 print('Play button tapped!');
               },
               child: Container(

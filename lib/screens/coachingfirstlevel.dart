@@ -80,6 +80,7 @@ class _CoachingFirstLevelState extends State<CoachingFirstLevel> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  iconTheme: const IconThemeData(color: Colors.white),
                   flexibleSpace: FlexibleSpaceBar(
                     collapseMode: CollapseMode.pin,
                     background: Stack(
