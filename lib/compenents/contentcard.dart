@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class ContentCard extends StatefulWidget {
-  final String title;
-  final String duration;
-  final String type;
+  final Map<String, dynamic> coaching;
+  final Map<String, dynamic> coachingSeries;
+  // final String title;
+  // final String duration;
+  // final String type;
   const ContentCard({
     super.key,
-    required this.title,
-    required this.duration,
-    required this.type,
+    // required this.title,
+    // required this.duration,
+    // required this.type,
+    required this.coaching,
+    required this.coachingSeries,
   });
 
   @override
@@ -35,12 +39,26 @@ class _ContentCardState extends State<ContentCard> {
 //     _controller.dispose();
 //   }
 
+  Color colorFromString(String colorString) {
+    // Remove the '#' if it's there and parse the hex color code
+    String hexColor = colorString.replaceAll('#', '');
+
+    // Ensure the string has the correct length (6 digits)
+    if (hexColor.length == 6) {
+      // Parse the color string to an integer and return it as a Color
+      return Color(
+          int.parse('0xFF$hexColor')); // Adding 0xFF to indicate full opacity
+    } else {
+      throw FormatException('Invalid color string format');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF002A73),
+        color: colorFromString(widget.coachingSeries["color"]),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -72,7 +90,7 @@ class _ContentCardState extends State<ContentCard> {
                     //   },
                     // ),
                     Text(
-                      widget.title,
+                      widget.coaching['subtitle'],
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -88,9 +106,11 @@ class _ContentCardState extends State<ContentCard> {
                                 size: 14, color: Colors.grey),
                             const SizedBox(width: 4),
                             Text(
-                              widget.duration,
+                              "${(widget.coaching["duration"] / 60).round()} min",
                               style: const TextStyle(
-                                  color: Colors.grey, fontSize: 14),
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
                             ),
                           ],
                         ),
@@ -101,7 +121,9 @@ class _ContentCardState extends State<ContentCard> {
                                 size: 14, color: Colors.grey),
                             const SizedBox(width: 4),
                             Text(
-                              widget.type,
+                              widget.coaching["videoOrientation"] == "UNKNOWN"
+                                  ? "Audio"
+                                  : "Video",
                               style: const TextStyle(
                                   color: Colors.grey, fontSize: 14),
                             ),

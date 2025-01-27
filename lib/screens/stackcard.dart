@@ -74,7 +74,7 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
 
     timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       setState(() {
-        remainingSeconds -= 0.1;
+        remainingSeconds -= 0.0975;
 
         // Update progress correctly
         progress = remainingSeconds / totalDuration;
@@ -356,7 +356,10 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
                               left: 20,
                               top: 20,
                               child: IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  _stopAudio();
+                                  Navigator.pop(context);
+                                },
                                 icon: Icon(
                                   Icons.close,
                                   color: Colors.white,
@@ -374,6 +377,13 @@ class _VerticalStackedCardScreenState extends State<VerticalStackedCardScreen> {
                                     setState(() {
                                       isMuted = !isMuted; // Toggle mute state
                                     });
+                                    if (isMuted) {
+                                      _audioPlayer.setVolume(
+                                          0); // Set volume to 0 (mute)
+                                    } else {
+                                      _audioPlayer.setVolume(
+                                          1); // Set volume back to normal (unmute)
+                                    }
                                   },
                                   icon: Icon(
                                     isMuted

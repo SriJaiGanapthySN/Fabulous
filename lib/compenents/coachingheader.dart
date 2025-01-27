@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
 
 class HeaderSection extends StatelessWidget {
-  const HeaderSection({super.key});
+  final Map<String,dynamic> coaching;
+  const HeaderSection({super.key,required this.coaching});
+  Color colorFromString(String colorString) {
+    // Remove the '#' if it's there and parse the hex color code
+    String hexColor = colorString.replaceAll('#', '');
+
+    // Ensure the string has the correct length (6 digits)
+    if (hexColor.length == 6) {
+      // Parse the color string to an integer and return it as a Color
+      return Color(
+          int.parse('0xFF$hexColor')); // Adding 0xFF to indicate full opacity
+    } else {
+      throw FormatException('Invalid color string format');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -9,8 +23,8 @@ class HeaderSection extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(16),
-          child: Image.asset(
-            "assets/images/sample3.jpg",
+          child: Image.network(
+            coaching["imageUrl"],
             fit: BoxFit.cover,
             height: 300,
             width: double.infinity,
@@ -19,8 +33,8 @@ class HeaderSection extends StatelessWidget {
         const SizedBox(height: 16),
         Container(
           alignment: Alignment.topLeft,
-          child: const Text(
-            "Burnout",
+          child:  Text(
+            coaching["title"],
             style: TextStyle(
               color: Colors.white,
               fontSize: 30,
@@ -31,8 +45,8 @@ class HeaderSection extends StatelessWidget {
         const SizedBox(height: 8),
         Container(
           alignment: Alignment.topLeft,
-          child: const Text(
-            "Forged from the fire of burnout Now rise from the ashes.",
+          child: Text(
+            coaching["subtitle"],
             style: TextStyle(
               color: Colors.white,
               fontSize: 26,
@@ -44,7 +58,7 @@ class HeaderSection extends StatelessWidget {
           onPressed: () {},
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
-            foregroundColor: const Color(0xFF002A73),
+            foregroundColor: colorFromString(coaching["color"]),
             padding: const EdgeInsets.symmetric(horizontal: 145, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),

@@ -13,12 +13,14 @@ class Journeyscreen extends StatefulWidget {
   State<Journeyscreen> createState() => _JourneyscreenState();
 }
 
-class _JourneyscreenState extends State<Journeyscreen> with SingleTickerProviderStateMixin{
+class _JourneyscreenState extends State<Journeyscreen>
+    with SingleTickerProviderStateMixin {
   final JourneyService _journeyService = JourneyService();
   skillTrack? skilltrack;
   bool _isLoading = true;
   String skillTrackID = '';
   List<Skill> skills = [];
+  int completed = 0;
 
   late final AnimationController _controller = AnimationController(
     vsync: this,
@@ -34,7 +36,7 @@ class _JourneyscreenState extends State<Journeyscreen> with SingleTickerProvider
     _controller.dispose();
     super.dispose();
   }
-  
+
   @override
   void initState() {
     super.initState();
@@ -44,9 +46,13 @@ class _JourneyscreenState extends State<Journeyscreen> with SingleTickerProvider
 
   Future<void> fetchSkill() async {
     try {
-      final result = await _journeyService.getSkills(skillTrackID, widget.email);
+      final result =
+          await _journeyService.getSkills(skillTrackID, widget.email);
+      int totalSkillLevelsCompleted =
+          skills.fold(0, (sum, skill) => sum + skill.skillLevelCompleted);
       setState(() {
         skills = result;
+        completed = totalSkillLevelsCompleted;
       });
       // _addskillLevel();
     } catch (e) {
@@ -56,7 +62,8 @@ class _JourneyscreenState extends State<Journeyscreen> with SingleTickerProvider
 
   Future<void> _fetchJourney() async {
     try {
-      final journey = await _journeyService.fetchUnreleasedJourney(widget.email);
+      final journey =
+          await _journeyService.fetchUnreleasedJourney(widget.email);
       if (journey != null) {
         setState(() {
           skilltrack = journey;
@@ -78,18 +85,41 @@ class _JourneyscreenState extends State<Journeyscreen> with SingleTickerProvider
     }
   }
 
-  Color colorFromString(String colorString) {
-  // Remove the '#' if it's there and parse the hex color code
-  String hexColor = colorString.replaceAll('#', '');
-  
-  // Ensure the string has the correct length (6 digits)
-  if (hexColor.length == 6) {
-    // Parse the color string to an integer and return it as a Color
-    return Color(int.parse('0xFF$hexColor')); // Adding 0xFF to indicate full opacity
-  } else {
-    throw FormatException('Invalid color string format');
+  Text _fetchProgressText(
+      int levelCompleted, int levelTotal, bool open) {
+    String progressText = "Not yet unlocked";
+    Color progressColor = Colors.grey;
+    if (open) {
+      if (levelCompleted == 0) {
+        progressText = "Not yet Started";
+        progressColor = Colors.blue;
+      } else {
+        progressText = "${levelCompleted}/${levelTotal} achived";
+        progressColor = Colors.red;
+      }
+    }
+
+    // return "${levelCompleted}/${levelTotal} achived";
+    return Text(
+      progressText,
+      style: TextStyle(fontSize: 12, color: progressColor),
+    );
+// return "Progress info not available";
   }
-}
+
+  Color colorFromString(String colorString) {
+    // Remove the '#' if it's there and parse the hex color code
+    String hexColor = colorString.replaceAll('#', '');
+
+    // Ensure the string has the correct length (6 digits)
+    if (hexColor.length == 6) {
+      // Parse the color string to an integer and return it as a Color
+      return Color(
+          int.parse('0xFF$hexColor')); // Adding 0xFF to indicate full opacity
+    } else {
+      throw FormatException('Invalid color string format');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,166 +133,183 @@ class _JourneyscreenState extends State<Journeyscreen> with SingleTickerProvider
           ),
         ],
       ),
-      body:_isLoading
-        ? Center(child: CircularProgressIndicator())
-        : skilltrack == null
-            ? Center(child: Text("No journey found"))
-            :
-       Column(
-        children: [
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 12),
-            width: double.infinity,
-            padding: EdgeInsets.all(50),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              image: DecorationImage(
-                  image: NetworkImage(skilltrack!.imageUrl),
-                  fit: BoxFit.cover),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '6/${skilltrack!.skillLevelCount} events achieved',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  '24% completion',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 46),
-          Expanded(
-            child: ListView.builder(
-              itemCount: skills.length,
-              itemBuilder: (context, index) {
-                final skill = skills[index];
-                return GestureDetector(
-                  onTap: () {
-          // Navigate to the SkillDetailScreen and pass skill.objective
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Journeysecondlevel(skill: skill,email: widget.email,skilltrack: skilltrack!),
-            ),
-          );
-        },
-                
-        child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 25),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : skilltrack == null
+              ? Center(child: Text("No journey found"))
+              : Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 12),
+                      width: double.infinity,
+                      padding: EdgeInsets.all(50),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        image: DecorationImage(
+                            image: NetworkImage(skilltrack!.imageUrl),
+                            fit: BoxFit.cover),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          // CircleAvatar(
-                          //   backgroundColor:colorFromString(skill.color),
-                          //   child: skill.iconUrl != null
-                          //       ? SvgPicture.network(
-                          //           skill.iconUrl,
-                          //           width: 20,
-                          //           height: 20,
-                          //           fit: BoxFit.contain,
-                          //         )
-                          //       : Icon(
-                          //           Icons.help_outline,
-                          //           size: 20,
-                          //           color: Colors.white,
-                          //         ),
-                          // ),
-                          Stack(
-                          children: [
-                            FadeTransition(
-                              opacity: _fadeAnimation,
-                              child: ScaleTransition(
-                                scale: _scaleAnimation,
-                                child: Container(
-                                  width: 45,
-                                  height: 45,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: 
-                                    // item['isCompleted']
-                                        // ? 
-                                        const Color.fromARGB(
-                                            255, 121, 186, 80),
-                                        // : const Color.fromARGB(
-                                        //     255, 255, 255, 255),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              alignment: Alignment.center,
-                              margin: EdgeInsets.only(left: 3, top: 2),
-                              child: CircleAvatar(
-                                backgroundColor: colorFromString(skill.color),
-                                // item['isCompleted']
-                                    // ? const Color.fromARGB(255, 102, 179, 55)
-                                    // : const Color.fromARGB(255, 203, 195, 195),
-                                // child: Icon(
-                                //   item['icon'],
-                                //   size: 20,
-                                //   color: item['isCompleted']
-                                //       ? const Color.fromARGB(255, 252, 252, 252)
-                                //       : const Color.fromARGB(
-                                //           255, 102, 101, 101),
-                                // ),
-                                child: skill.iconUrl != null
-                                ? SvgPicture.network(
-                                    skill.iconUrl,
-                                    width: 20,
-                                    height: 20,
-                                    fit: BoxFit.contain,
-                                  )
-                                : Icon(
-                                    Icons.help_outline,
-                                    size: 20,
-                                    color: Colors.white,
-                                  ),
-                              ),
-                            ),
-                          ],
-                        ),
-                          if (index != skills.length - 1)
-                            DottedLineNearIcon(),
+                          Text(
+                            '${skilltrack!.levelsCompleted}/${skilltrack!.skillLevelCount} events achieved',
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            '${(skilltrack!.levelsCompleted / skilltrack!.skillLevelCount * 100).toInt()}% completion',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
-                      
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              skill.title,
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Progress info not available',
-                              style: TextStyle(fontSize: 12, color: Colors.grey),
-                            ),
-                          ],
-                        ),
+                    ),
+                    SizedBox(height: 30),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: skills.length,
+                        itemBuilder: (context, index) {
+                          final skill = skills[index];
+                          bool shouldAnimate = (index == 0 &&
+                                  skill.skillLevelCompleted <
+                                      skill.totalLevels) ||
+                              (index > 0 &&
+                                  skills[index - 1].skillLevelCompleted ==
+                                      skills[index - 1].totalLevels);
+                          
+                          bool open=(index == 0) ||
+                              (index > 0 &&
+                                  skills[index - 1].skillLevelCompleted ==
+                                      skills[index - 1].totalLevels);
+
+                          return GestureDetector(
+                              onTap: () {
+                                if(open){
+                                  Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Journeysecondlevel(
+                                        skill: skill,
+                                        email: widget.email,
+                                        skilltrack: skilltrack!),
+                                  ),
+                                );
+                                }
+                                
+                              },
+                              child: Container(
+                                margin: EdgeInsets.symmetric(horizontal: 25),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Stack(
+                                          children: [
+                                            if (shouldAnimate)
+                                              FadeTransition(
+                                                opacity: _fadeAnimation,
+                                                child: ScaleTransition(
+                                                  scale: _scaleAnimation,
+                                                  child: Container(
+                                                    width: 45,
+                                                    height: 45,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: colorFromString(
+                                                          skill.color),
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                            else
+                                              Container(
+                                                width: 45,
+                                                height: 45,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: open
+                                                      ? colorFromString(
+                                                          skill.color)
+                                                      : Colors.grey,
+                                                ),
+                                              ),
+                                            // FadeTransition(
+                                            //   opacity: _fadeAnimation,
+                                            //   child: ScaleTransition(
+                                            //     scale: _scaleAnimation,
+                                            //     child: Container(
+                                            //       width: 45,
+                                            //       height: 45,
+                                            //       decoration: BoxDecoration(
+                                            //         shape: BoxShape.circle,
+                                            //         color:
+                                            //             colorFromString(skill.color),
+
+                                            //       ),
+                                            //     ),
+                                            //   ),
+                                            // ),
+                                            Container(
+                                              alignment: Alignment.center,
+                                              margin: EdgeInsets.only(
+                                                  left: 3, top: 2),
+                                              child: CircleAvatar(
+                                                backgroundColor: open
+                                                    ? colorFromString(
+                                                        skill.color)
+                                                    : Colors.grey,
+                                                child: skill.iconUrl != null
+                                                    ? SvgPicture.network(
+                                                        skill.iconUrl,
+                                                        width: 20,
+                                                        height: 20,
+                                                        fit: BoxFit.contain,
+                                                      )
+                                                    : Icon(
+                                                        Icons.help_outline,
+                                                        size: 20,
+                                                        color: Colors.white,
+                                                      ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        if (index != skills.length - 1)
+                                          DottedLineNearIcon(),
+                                      ],
+                                    ),
+                                    SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            skill.title,
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(height: 4),
+                                          _fetchProgressText(
+                                              skill.skillLevelCompleted,
+                                              skill.totalLevels,
+                                              open),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ));
+                        },
                       ),
-                    ],
-                  ),
-                )
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+                    ),
+                  ],
+                ),
     );
   }
 }

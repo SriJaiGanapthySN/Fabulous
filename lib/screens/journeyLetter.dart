@@ -201,7 +201,6 @@
 //   }
 // }
 
-
 // import 'package:flutter/material.dart';
 // import 'package:flutter_html/flutter_html.dart';
 // import 'package:fab/models/skill.dart';
@@ -406,7 +405,6 @@
 //   }
 // }
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:fab/models/skill.dart';
@@ -446,16 +444,16 @@ class JourneyLetter extends StatelessWidget {
   }
 
   Color colorFromString(String colorString) {
-      try {
-        String hexColor = colorString.replaceAll('#', '');
-        if (hexColor.length == 6) {
-          return Color(int.parse('0xFF$hexColor'));
-        }
-      } catch (e) {
-        print("Invalid color string: $e");
+    try {
+      String hexColor = colorString.replaceAll('#', '');
+      if (hexColor.length == 6) {
+        return Color(int.parse('0xFF$hexColor'));
       }
-      return Colors.orange; // Default to orange on error
+    } catch (e) {
+      print("Invalid color string: $e");
     }
+    return Colors.orange; // Default to orange on error
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -490,62 +488,64 @@ class JourneyLetter extends StatelessWidget {
           ),
           // Content Box (Starts from top, overlapping the image)
           // Content Box (Starts from top, overlapping the image)
-Positioned(
-  top: 130, // This ensures the content box starts at the top of the screen
-  left: 0,
-  right: 0,
-  bottom: 0, // Stretches till the bottom
-  child: Container(
-    margin: EdgeInsets.symmetric(
-      horizontal: screenWidth * 0.05,
-      vertical: screenHeight * 0.02,
-    ),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(15),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.1),
-          blurRadius: 8,
-          offset: Offset(0, 4),
-        ),
-      ],
-    ),
-    child: Padding(
-      padding: EdgeInsets.all(screenWidth * 0.04),
-      child: SingleChildScrollView( // Make the content scrollable
-        child: FutureBuilder<String>(
-          future: fetchContent(letterData['contentUrl']),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Text(
-                'Error: ${snapshot.error}',
-                style: TextStyle(
-                  fontSize: screenWidth * 0.04,
-                  color: Colors.red,
-                ),
-              );
-            } else {
-              return Html(
-                data: snapshot.data ?? '<p>No content available</p>',
-                style: {
-                  "html": Style(
-                    fontSize: FontSize(screenWidth * 0.045),
-                    lineHeight: LineHeight(1.6),
-                    color: Colors.black87,
-                    textAlign: TextAlign.justify,
+          Positioned(
+            top:
+                130, // This ensures the content box starts at the top of the screen
+            left: 0,
+            right: 0,
+            bottom: 0, // Stretches till the bottom
+            child: Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.05,
+                vertical: screenHeight * 0.02,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
                   ),
-                },
-              );
-            }
-          },
-        ),
-      ),
-    ),
-  ),
-),
+                ],
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(screenWidth * 0.04),
+                child: SingleChildScrollView(
+                  // Make the content scrollable
+                  child: FutureBuilder<String>(
+                    future: fetchContent(letterData['contentUrl']),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Text(
+                          'Error: ${snapshot.error}',
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.04,
+                            color: Colors.red,
+                          ),
+                        );
+                      } else {
+                        return Html(
+                          data: snapshot.data ?? '<p>No content available</p>',
+                          style: {
+                            "html": Style(
+                              fontSize: FontSize(screenWidth * 0.045),
+                              lineHeight: LineHeight(1.6),
+                              color: Colors.black87,
+                              textAlign: TextAlign.justify,
+                            ),
+                          },
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: Container(
@@ -560,10 +560,34 @@ Positioned(
 
             // Call update service
             bool isUpdated = await _journeyService.updateMotivator(
-                true, letterData["objectId"], email);
+                true,
+                letterData["objectId"],
+                email,
+                skill.objectId,
+                skilltrack.objectId);
 
             if (isUpdated) {
-              Navigator.push(
+              // Navigator.pushReplacement(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => Journeysecondlevel(
+              //       skill: skill,
+              //       email: email,
+              //       skilltrack: skilltrack,
+              //     ),
+              //   ),
+              // );
+
+              int count = 0; // Counter to track popped routes
+              Navigator.popUntil(
+                context,
+                (route) {
+                  count++;
+                  return count > 1; // Stop popping after 2 routes
+                },
+              );
+
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => Journeysecondlevel(

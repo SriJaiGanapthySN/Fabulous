@@ -12,12 +12,15 @@ class Journeyscreentype3 extends StatelessWidget {
   final String email;
   final skillTrack skilltrack;
 
-  Journeyscreentype3(
-      {super.key, required this.motivatorData,required this.skill,
+  Journeyscreentype3({
+    super.key,
+    required this.motivatorData,
+    required this.skill,
     required this.email,
-    required this.skilltrack,});
+    required this.skilltrack,
+  });
 
-Future<String> fetchContent(String url) async {
+  Future<String> fetchContent(String url) async {
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -29,13 +32,12 @@ Future<String> fetchContent(String url) async {
       return 'Error: $e';
     }
   }
-final JourneyService _journeyService = JourneyService();
+
+  final JourneyService _journeyService = JourneyService();
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-      
-
 
     return Scaffold(
       appBar: AppBar(
@@ -85,7 +87,8 @@ final JourneyService _journeyService = JourneyService();
                           data: snapshot.data ?? '<p>No content available</p>',
                           style: {
                             "html": Style(
-                              fontSize: FontSize(screenWidth * 0.045), // Responsive text size
+                              fontSize: FontSize(
+                                  screenWidth * 0.045), // Responsive text size
                               lineHeight:
                                   LineHeight(1.6), // Improve line spacing
                               color: Colors.black87, // Text color
@@ -97,7 +100,8 @@ final JourneyService _journeyService = JourneyService();
                             ),
                             "ul": Style(
                               padding: HtmlPaddings.only(
-                                  left: screenWidth * 0.04), // Indent list items
+                                  left:
+                                      screenWidth * 0.04), // Indent list items
                             ),
                             "li": Style(
                               fontSize: FontSize(screenWidth * 0.045),
@@ -109,7 +113,8 @@ final JourneyService _journeyService = JourneyService();
                     }
                   },
                 ),
-                SizedBox(height: screenHeight * 0.1), // Add spacing at the bottom
+                SizedBox(
+                    height: screenHeight * 0.1), // Add spacing at the bottom
               ],
             ),
           ),
@@ -143,17 +148,41 @@ final JourneyService _journeyService = JourneyService();
 
                       // Call the updateOneTime function from the service
                       bool isUpdated = await _journeyService.updateMotivator(
-                          true, motivatorData["objectId"], email);
+                          true,
+                          motivatorData["objectId"],
+                          email,
+                          skill.objectId,
+                          skilltrack.objectId);
 
                       if (isUpdated) {
                         // If the update is successful, navigate to the next screen
-                        Navigator.push(
+                        // Navigator.pushReplacement(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => Journeysecondlevel(
+                        //       skill: skill,
+                        //       email: email,
+                        //       skilltrack: skilltrack!,
+                        //     ),
+                        //   ),
+                        // );
+
+                        int count = 0; // Counter to track popped routes
+                        Navigator.popUntil(
+                          context,
+                          (route) {
+                            count++;
+                            return count > 1; // Stop popping after 2 routes
+                          },
+                        );
+
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => Journeysecondlevel(
                               skill: skill,
                               email: email,
-                              skilltrack: skilltrack!,
+                              skilltrack: skilltrack,
                             ),
                           ),
                         );

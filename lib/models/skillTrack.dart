@@ -18,6 +18,7 @@ class skillTrack {
   final String title;
   final int skillCount;
   final String objectId;
+  final int levelsCompleted; // Add the levelsCompleted field
 
   skillTrack({
     required this.ctaColor,
@@ -39,6 +40,7 @@ class skillTrack {
     required this.title,
     required this.skillCount,
     required this.objectId,
+    this.levelsCompleted = 0, // Default to 0 if not provided
   });
 
   /// Factory constructor to create an instance from a map
@@ -63,6 +65,7 @@ class skillTrack {
       title: map['title'] ?? '',
       skillCount: map['skillCount'] ?? 0,
       objectId: map['objectId'] ?? '',
+      levelsCompleted: map['levelsCompleted'] ?? 0, // Handle levelsCompleted
     );
   }
 
@@ -88,6 +91,7 @@ class skillTrack {
       'title': title,
       'skillCount': skillCount,
       'objectId': objectId,
+      'levelsCompleted': levelsCompleted, // Add levelsCompleted
     };
   }
 }

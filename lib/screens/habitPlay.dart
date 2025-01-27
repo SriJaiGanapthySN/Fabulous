@@ -3,9 +3,11 @@ import 'package:fab/screens/generalcompenentfornotes.dart';
 import 'package:fab/screens/nacScreen.dart';
 import 'package:fab/screens/notesscreen.dart';
 import 'package:fab/screens/routinelistscreen.dart';
+import 'package:fab/services/coaching_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/svg.dart';
+// import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fab/services/task_services.dart';
@@ -24,15 +26,17 @@ class habitPlay extends StatefulWidget {
 }
 
 class _TaskrevealState extends State<habitPlay> {
+  final CoachingService _coachingService = CoachingService();
   bool _isAnimationVisible = false;
   int _currentIndex = 0; // Track the current task
   bool _isSnoozed = false; // Track snooze state
   bool _isSkiped = false; // Track if the task is skipped
   AudioPlayer _audioPlayer = AudioPlayer(); // Audio player instance
-  AudioPlayer _audioPlayerBgm = AudioPlayer(); // Audio player instance
+  final AudioPlayer _audioPlayerBgm = AudioPlayer(); // Audio player instance
   AudioPlayer _audioPlayerDrag = AudioPlayer(); // Audio player instance
   late ScrollController _scrollController;
   bool _isPlayingAudio = false;
+  Map<String, dynamic>? habitCoachingData;
 
   String items = '';
   var timestamp = "";
@@ -41,9 +45,25 @@ class _TaskrevealState extends State<habitPlay> {
   @override
   void initState() {
     super.initState();
+    // _setupAudioContext();
     _playBgm();
+
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
+  }
+
+  Future<void> _setupAudioContext() async {
+    await _audioPlayerBgm.setAudioContext(
+      AudioContext(
+        android: AudioContextAndroid(
+          isSpeakerphoneOn: false,
+          stayAwake: true,
+          contentType: AndroidContentType.music,
+          usageType: AndroidUsageType.media,
+          audioFocus: AndroidAudioFocus.gain,
+        ),
+      ),
+    );
   }
 
   // Play audio if snooze is not active
@@ -54,9 +74,11 @@ class _TaskrevealState extends State<habitPlay> {
   }
 
   void _playBgm() async {
-     if (!_isSnoozed) {
-    await _audioPlayerBgm.play(AssetSource("audio/bgm_task_reveal.m4a"));
-     }
+    if (!_isSnoozed) {
+      // await _audioPlayerBgm.setAsset('assets/audio/bgm_task_reveal.m4a');
+      // await _audioPlayerBgm.play();
+      await _audioPlayerBgm.play(AssetSource("audio/bgm_task_reveal.m4a"));
+    }
   }
 
   void _stopBgm() async {
@@ -65,7 +87,7 @@ class _TaskrevealState extends State<habitPlay> {
 
   void _playDragAudio() async {
     if (!_isSnoozed) {
-    await _audioPlayerDrag.play(AssetSource("audio/drag_task_reveal.m4a"));
+      await _audioPlayerDrag.play(AssetSource("audio/drag_task_reveal.m4a"));
     }
   }
 
@@ -98,6 +120,9 @@ class _TaskrevealState extends State<habitPlay> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _audioPlayer.stop();
+    _audioPlayerBgm.stop();
+    _audioPlayerDrag.stop();
     super.dispose();
   }
 
@@ -148,14 +173,14 @@ class _TaskrevealState extends State<habitPlay> {
     _stopAudio();
     _stopBgm();
 
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //       builder: (context) => PlayAudio(
-    //             email: widget.email,
-    //             couching: task,
-    //           )),
-    // );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => PlayAudio(
+                email: widget.email,
+                coachingData: task,
+              )),
+    );
   }
 
   // Handle skip button press
@@ -175,15 +200,29 @@ class _TaskrevealState extends State<habitPlay> {
     });
   }
 
+  int dayOfWeek() {
+    DateTime now = DateTime.now();
+    return now
+        .weekday; // Adjust because DateTime.weekday starts from 1 (Monday) to 7 (Sunday)
+  }
+
   // Handle snooze button press
   void _onSnoozePressed() {
     setState(() {
       _isSnoozed = !_isSnoozed;
     });
-
+    if (_isSnoozed) {
+      _audioPlayer.setVolume(0); // Set volume to 0 (mute)
+      _audioPlayerDrag.setVolume(0);
+      _audioPlayerBgm.setVolume(0);
+    } else {
+      _audioPlayer.setVolume(1); // Set volume back to normal (unmute)
+      _audioPlayerDrag.setVolume(1);
+      _audioPlayerBgm.setVolume(1);
+    }
     // Stop the audio when snooze is pressed
-    _stopAudio();
-    _stopBgm();
+    // _stopAudio();
+    // _stopBgm();
   }
 
   double _calculateDynamicMaxChildSize(
@@ -274,6 +313,26 @@ class _TaskrevealState extends State<habitPlay> {
     return Colors.orange; // Default to orange on error
   }
 
+  Future<String> _dailyCoaching(String habitName) async {
+    int day = dayOfWeek();
+    if (habitName.contains("Focus")) {
+      habitCoachingData = await _coachingService.getHabitCoaching("FOCUS", day);
+      print(habitCoachingData);
+      return habitCoachingData!["subtitle"];
+    }
+    if (habitName.contains("Daily")) {
+      habitCoachingData = await _coachingService.getHabitCoaching("MORNING", day);
+      print(habitCoachingData);
+      return habitCoachingData!["subtitle"];
+    }
+    if (habitName.contains("Nightly")) {
+      habitCoachingData = await _coachingService.getHabitCoaching("NIGHTLY", day);
+      print(habitCoachingData);
+      return habitCoachingData!["subtitle"];
+    }
+    return " ";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -309,14 +368,13 @@ class _TaskrevealState extends State<habitPlay> {
                 //   ),
                 // );
 
-Navigator.pushAndRemoveUntil(
-  context,
-  MaterialPageRoute(
-    builder: (context) => MainScreen(email: widget.email),
-  ),
-  (route) => false, // Removes all previous routes
-);
-
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainScreen(email: widget.email),
+                  ),
+                  (route) => false, // Removes all previous routes
+                );
               });
               return SizedBox.shrink();
             }
@@ -395,17 +453,17 @@ Navigator.pushAndRemoveUntil(
                 ),
 
                 Positioned(
-                top: 20,
-                right: 20,
-                child: IconButton(
-                  icon: Icon(
-                    _isSnoozed ? Icons.volume_off : Icons.volume_up,
-                    color: Colors.white,
-                    size: 35,
+                  top: 20,
+                  right: 20,
+                  child: IconButton(
+                    icon: Icon(
+                      _isSnoozed ? Icons.volume_off : Icons.volume_up,
+                      color: Colors.white,
+                      size: 35,
+                    ),
+                    onPressed: _onSnoozePressed,
                   ),
-                  onPressed: _onSnoozePressed,
                 ),
-              ),
                 // DraggableScrollableSheet
                 DraggableScrollableSheet(
                   initialChildSize: 0.3,
@@ -482,18 +540,55 @@ Navigator.pushAndRemoveUntil(
                                                         ),
                                                         const SizedBox(
                                                             height: 8),
-                                                        Text(
-                                                          currentTask[
-                                                                  'subtitle'] ??
-                                                              '',
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 18,
-                                                          ),
-                                                          textAlign:
-                                                              TextAlign.left,
-                                                        ),
+                                                        // Text(
+                                                        //   _dailyCoaching(currentTask['name']) ??
+                                                        //       '',
+                                                        //   style:
+                                                        //       const TextStyle(
+                                                        //     color: Colors.white,
+                                                        //     fontSize: 18,
+                                                        //   ),
+                                                        //   textAlign:
+                                                        //       TextAlign.left,
+                                                        // ),
+
+                                                        FutureBuilder<String>(
+                                                          future:
+                                                              _dailyCoaching(
+                                                                  currentTask[
+                                                                      'name']),
+                                                          builder: (context,
+                                                              snapshot) {
+                                                            if (snapshot
+                                                                    .connectionState ==
+                                                                ConnectionState
+                                                                    .waiting) {
+                                                              return const CircularProgressIndicator(); // Or any loading indicator
+                                                            } else if (snapshot
+                                                                .hasError) {
+                                                              return Text(
+                                                                  'Error: ${snapshot.error}');
+                                                            } else if (snapshot
+                                                                .hasData) {
+                                                              return Text(
+                                                                snapshot.data ??
+                                                                    '', // Safely using the data once it's loaded
+                                                                style:
+                                                                    const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 18,
+                                                                ),
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .left,
+                                                              );
+                                                            } else {
+                                                              return const Text(
+                                                                  ''); // Handle case when there's no data
+                                                            }
+                                                          },
+                                                        )
                                                       ],
                                                     ),
                                                   ),
@@ -504,12 +599,23 @@ Navigator.pushAndRemoveUntil(
                                                       color: Colors.white,
                                                       size: 35,
                                                     ),
-                                                    onPressed: () =>
-                                                        _coachingPlay(
-                                                            currentTask),
+                                                    onPressed: () => {
+                                                      if (habitCoachingData !=
+                                                          null)
+                                                        {
+                                                          _coachingPlay(
+                                                              habitCoachingData!) // Use the non-nullable value
+                                                        }
+                                                      else
+                                                        {
+                                                          // Handle the case where habitCoachingData is null (if needed)
+                                                          print(
+                                                              "habitCoachingData is null")
+                                                        }
+                                                    },
                                                     style: IconButton.styleFrom(
                                                       backgroundColor:
-                                                          Colors.red,
+                                                          colorFromString(currentTask["color"]) ,
                                                       shape:
                                                           const CircleBorder(),
                                                       padding: EdgeInsets.zero,
@@ -591,7 +697,7 @@ Navigator.pushAndRemoveUntil(
                                       //           Stack(
                                       //             alignment: Alignment.center,
                                       //             children: [
-                                                    
+
                                       //               IconButton(
                                       //                 icon: const Icon(
                                       //                   Icons.check,
@@ -668,118 +774,134 @@ Navigator.pushAndRemoveUntil(
                                       //   ),
                                       // ),
 
-Container(
-  width: boxWidth,
-  padding: const EdgeInsets.all(12),
-  decoration: BoxDecoration(
-    color: Colors.black.withOpacity(0.6),
-    borderRadius: BorderRadius.circular(15),
-  ),
-  child: Column(
-    children: [
-      const Text(
-        "Today",
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      const Divider(
-        color: Colors.white,
-        thickness: 1,
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center, // Center the buttons horizontally
-        children: [
-          // Skip Button
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                onPressed: _onSkipPressed,
-                icon: const Icon(
-                  Icons.skip_next,
-                  color: Colors.white,
-                  size: 35,
-                ),
-              ),
-              const Text(
-                "Skip",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
-              ),
-            ],
-          ),
+                                      Container(
+                                        width: boxWidth,
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.6),
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            const Text(
+                                              "Today",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const Divider(
+                                              color: Colors.white,
+                                              thickness: 1,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment
+                                                  .center, // Center the buttons horizontally
+                                              children: [
+                                                // Skip Button
+                                                Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    IconButton(
+                                                      onPressed: _onSkipPressed,
+                                                      icon: const Icon(
+                                                        Icons.skip_next,
+                                                        color: Colors.white,
+                                                        size: 35,
+                                                      ),
+                                                    ),
+                                                    const Text(
+                                                      "Skip",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 18,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
 
-          // Check Button with Animation
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.check,
-                  color: Colors.white,
-                  size: 45,
-                ),
-                onPressed: () => _onCheckPressed(
-                  currentTask.containsKey("completionLottieUrl")
-                      ? currentTask['completionLottieUrl']
-                      : "",
-                  currentTask['objectId'],
-                ),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.pink,
-                  shape: const CircleBorder(),
-                ),
-              ),
-              SizedBox(
-                height: 150,
-                width: 150,
-                child: Visibility(
-                  visible: _isAnimationVisible,
-                  child: currentTask.containsKey("completionLottieUrl")
-                      ? Lottie.network(
-                          currentTask['completionLottieUrl'],
-                          repeat: false,
-                          width: 150, // Adjust size as needed
-                          height: 150,
-                        )
-                      : Container(),
-                ),
-              ),
-            ],
-          ),
+                                                // Check Button with Animation
+                                                Stack(
+                                                  alignment: Alignment.center,
+                                                  children: [
+                                                    IconButton(
+                                                      icon: const Icon(
+                                                        Icons.check,
+                                                        color: Colors.white,
+                                                        size: 45,
+                                                      ),
+                                                      onPressed: () =>
+                                                          _onCheckPressed(
+                                                        currentTask.containsKey(
+                                                                "completionLottieUrl")
+                                                            ? currentTask[
+                                                                'completionLottieUrl']
+                                                            : "",
+                                                        currentTask['objectId'],
+                                                      ),
+                                                      style:
+                                                          IconButton.styleFrom(
+                                                        backgroundColor:
+                                                            Colors.pink,
+                                                        shape:
+                                                            const CircleBorder(),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 150,
+                                                      width: 150,
+                                                      child: Visibility(
+                                                        visible:
+                                                            _isAnimationVisible,
+                                                        child: currentTask
+                                                                .containsKey(
+                                                                    "completionLottieUrl")
+                                                            ? Lottie.network(
+                                                                currentTask[
+                                                                    'completionLottieUrl'],
+                                                                repeat: false,
+                                                                width:
+                                                                    150, // Adjust size as needed
+                                                                height: 150,
+                                                              )
+                                                            : Container(),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
 
-          // Snooze Button
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                onPressed: _onSnoozePressed,
-                icon: const Icon(
-                  Icons.repeat,
-                  color: Colors.white,
-                  size: 35,
-                ),
-              ),
-              const Text(
-                "Snooze",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ],
-  ),
-),
-                                      
+                                                // Snooze Button
+                                                Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    IconButton(
+                                                      onPressed:
+                                                          _onSnoozePressed,
+                                                      icon: const Icon(
+                                                        Icons.repeat,
+                                                        color: Colors.white,
+                                                        size: 35,
+                                                      ),
+                                                    ),
+                                                    const Text(
+                                                      "Snooze",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 18,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
                                       const SizedBox(height: 20),
                                       Container(
                                         width: boxWidth,

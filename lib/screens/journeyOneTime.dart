@@ -265,11 +265,34 @@ class JourneyOneTime extends StatelessWidget {
 
                       // Call the updateOneTime function from the service
                       bool isUpdated = await _journeyService.updateOneTime(
-                          true, oneTimeData["objectId"], email);
+                          true,
+                          oneTimeData["objectId"],
+                          email,
+                          skill.objectId,
+                          skilltrack.objectId);
 
                       if (isUpdated) {
                         // If the update is successful, navigate to the next screen
-                        Navigator.push(
+                        // Navigator.pushReplacement(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => Journeysecondlevel(
+                        //       skill: skill,
+                        //       email: email,
+                        //       skilltrack: skilltrack,
+                        //     ),
+                        //   ),
+                        // );
+                        int count = 0;
+                        Navigator.popUntil(
+                          context,
+                          (route) {
+                            count++;
+                            return count > 1; // Stop popping after 2 routes
+                          },
+                        );
+
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => Journeysecondlevel(

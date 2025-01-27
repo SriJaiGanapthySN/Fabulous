@@ -7,9 +7,16 @@ import 'package:flutter_html/flutter_html.dart';
 
 class PlayAudio extends StatefulWidget {
   final String email;
-  final QueryDocumentSnapshot couching;
+  // final QueryDocumentSnapshot couching;
+  final Map<String,dynamic> coachingData;
+  // final Map<String,dynamic> coachingSeries;
 
-  const PlayAudio({super.key, required this.email, required this.couching});
+  const PlayAudio({super.key, 
+  required this.email, 
+  // required this.couching,
+  required this.coachingData,
+  // required this.coachingSeries
+  });
 
   @override
   State<PlayAudio> createState() => _PlayAudioState();
@@ -18,9 +25,11 @@ class PlayAudio extends StatefulWidget {
 class _PlayAudioState extends State<PlayAudio> {
   final AudioPlayer audioPlayer = AudioPlayer();
   String htmlContent = '';
-  bool isPlaying = false;
+  bool isPlaying = true;
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
+  bool ran=false;
+  bool isMuted = false;
 
   String formatTime(int seconds) {
     final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
@@ -50,7 +59,8 @@ class _PlayAudioState extends State<PlayAudio> {
       });
     });
 
-    _fetchContent(widget.couching["contentUrl"]);
+    _fetchContent(widget.coachingData["contentUrl"]);
+    _playSound(widget.coachingData["audioUrl"]);
   }
 
   Future<void> _fetchContent(String url) async {
@@ -91,10 +101,26 @@ class _PlayAudioState extends State<PlayAudio> {
     }
   }
 
+  void _voice() {
+    setState(() {
+      isMuted = !isMuted;
+    });
+    audioPlayer.setVolume(isMuted ? 0 : 1);
+  }
+
+@override
+  void dispose() {
+    audioPlayer.stop();
+    super.dispose();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
+        backgroundColor: Colors.black,
         actions: [
           Container(
             margin: EdgeInsets.only(right: 20),
@@ -102,18 +128,16 @@ class _PlayAudioState extends State<PlayAudio> {
               height: 30,
               width: 100,
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: _voice,
                 label: Text(
-                  "Off",
-                  style: TextStyle(
-                    color: const Color.fromARGB(255, 97, 96, 96),
-                  ),
+                  isMuted ? "On" : "Off",
+                  style: TextStyle(color: Colors.white),
                 ),
-                icon: Icon(Icons.notifications_off),
+                icon: Icon(isMuted ? Icons.notifications_on : Icons.notifications_off),
                 style: ElevatedButton.styleFrom(
                   elevation: 0.5,
-                  backgroundColor: const Color.fromARGB(255, 244, 234, 234),
-                  iconColor: const Color.fromARGB(255, 97, 96, 96),
+                  backgroundColor: Colors.grey[800],
+                  iconColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -150,9 +174,9 @@ class _PlayAudioState extends State<PlayAudio> {
                         child: SizedBox(
                           width: 300,
                           child: Slider(
-                            activeColor: const Color.fromARGB(255, 97, 96, 96),
+                            activeColor: Colors.white38,
                             inactiveColor:
-                                const Color.fromARGB(255, 229, 227, 227),
+                                Colors.white12,
                             min: 0,
                             max: duration.inSeconds.toDouble(),
                             value: position.inSeconds.toDouble(),
@@ -180,11 +204,11 @@ class _PlayAudioState extends State<PlayAudio> {
                 ),
                 CircleAvatar(
                   radius: 20,
-                  backgroundColor: const Color.fromARGB(255, 229, 227, 227),
+                  backgroundColor: Colors.white12,
                   child: IconButton(
                       onPressed: () {
                         if (!isPlaying) {
-                          _playSound(widget.couching["audioLink"]);
+                          _playSound(widget.coachingData["audioUrl"]);
                           toggle();
                         } else {
                           _stopSound();
@@ -192,8 +216,8 @@ class _PlayAudioState extends State<PlayAudio> {
                         }
                       },
                       icon: isPlaying
-                          ? Icon(Icons.pause)
-                          : Icon(Icons.play_arrow)),
+                          ? Icon(Icons.pause, color: Colors.white38)
+                          : Icon(Icons.play_arrow, color: Colors.white38)),
                 )
               ],
             ),
@@ -203,13 +227,13 @@ class _PlayAudioState extends State<PlayAudio> {
             Row(
               children: [
                 // Conditionally display the Share Button
-                if (widget.couching["isdailyroutine"])
+                if (!ran)
                   Expanded(
                     child: Container(
                       margin: EdgeInsets.symmetric(horizontal: 20),
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Colors.red,
+                        color: widget.coachingData["type"]=="FOCUS" ?Colors.orange:widget.coachingData["type"]=="NIGHTLY"?Colors.black38:Colors.red,
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Row(
@@ -234,7 +258,7 @@ class _PlayAudioState extends State<PlayAudio> {
                   ),
 
                 // Conditionally display the Share Icon + Add to Morning Routine Button
-                if (!widget.couching["isdailyroutine"])
+                if (ran)
                   Row(
                     children: [
                       // Share Icon Button
@@ -302,20 +326,24 @@ class _PlayAudioState extends State<PlayAudio> {
                         data: htmlContent,
                         style: {
                           "body": Style(
+                            color: Colors.white,
                             fontSize: FontSize(18), // Increased font size
                             lineHeight: LineHeight(
                                 1.5), // Adjust line height for better readability
                           ),
                           "p": Style(
+                            color: Colors.white,
                             fontSize:
                                 FontSize(18), // Apply font size to paragraphs
                           ),
                           "h1": Style(
+                            color: Colors.white,
                             fontSize: FontSize(
                                 22), // Apply larger font size to headings
                             fontWeight: FontWeight.bold,
                           ),
                           "h2": Style(
+                            color: Colors.white,
                             fontSize:
                                 FontSize(20), // Apply font size to subheadings
                             fontWeight: FontWeight.bold,

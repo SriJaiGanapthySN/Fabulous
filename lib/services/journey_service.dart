@@ -64,7 +64,6 @@ class JourneyService {
       // Query to get the first document where `isReleased` is false
       final querySnapshot = await collectionRef
           .where('isReleased', isEqualTo: false)
-          .limit(1)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
@@ -80,51 +79,129 @@ class JourneyService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchUserJourneys(String email) async {
+  try {
+    // Fetch the collection snapshot for the given email
+    final querySnapshot = await _firestore
+        .collection('testers')
+        .doc(email)
+        .collection('skillTrack')
+        .get();
+
+    // Check if the collection has any documents
+    if (querySnapshot.docs.isNotEmpty) {
+      // Map each document to a Map<String, dynamic> and return as a list
+      return querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+    }
+
+    // Return an empty list if no matching document is found
+    return [];
+  } catch (e) {
+    print('Error fetching user journeys: $e');
+    return [];
+  }
+}
+
   Future<void> updateIsReleased(String email, String docId) async {
-    try {
-      final docRef = _firestore
+  try {
+    final docRef = _firestore
+        .collection('testers')
+        .doc(email)
+        .collection('skillTrack')
+        .doc(docId);
+
+    // Fetch the current value of isReleased
+    final snapshot = await docRef.get();
+
+    if (snapshot.exists) {
+      final currentValue = snapshot.data()?['isReleased'] as bool?;
+
+      // Reverse the value if it exists
+      if (currentValue != null) {
+        await docRef.update({'isReleased': !currentValue});
+        print('Document $docId updated to isReleased: ${!currentValue}');
+      } else {
+        print('Field "isReleased" does not exist in the document.');
+      }
+    } else {
+      print('Document $docId does not exist.');
+    }
+  } catch (e) {
+    print('Error updating isReleased: $e');
+  }
+}
+
+Future<void> addSkillTrack(String id, String email) async {
+  try {
+    // Reference to the document path '/skillTrack/{id}'
+    final skillDocRef = _firestore.collection('skillTrack').doc(id);
+
+    // Ensure 'isReleased' is set to false
+    await skillDocRef.update({'isReleased': false});
+
+    // Fetch the document snapshot
+    final docSnapshot = await skillDocRef.get();
+
+    // Check if the document exists
+    if (docSnapshot.exists) {
+      // Get the document data
+      final skillData = docSnapshot.data() as Map<String, dynamic>;
+
+      // Check if 'levelsCompleted' is not present and add it with a default value of 0
+      if (!skillData.containsKey('levelsCompleted')) {
+        skillData['levelsCompleted'] = 0;
+      }
+
+      // Reference to the target path '/testers/{email}/skillTrack/{id}'
+      final userSkillLevelPath = _firestore
           .collection('testers')
           .doc(email)
-          .collection('skillTrack')
-          .doc(docId);
+          .collection('skillTrack');
 
-      await docRef.update({'isReleased': true});
-      print('Document $docId updated to isReleased: true');
-    } catch (e) {
-      print('Error updating isReleased: $e');
+      // Add the document data to the target path
+      await userSkillLevelPath.doc(id).set(skillData);
+
+      print('Document $id added to /testers/$email/skillTrack with levelsCompleted.');
+    } else {
+      print('Document with id $id does not exist in /skillTrack.');
     }
+  } catch (e) {
+    print('Error fetching and adding skills: $e');
   }
+}
 
-  Future<void> addSkillTrack(String id, String email) async {
-    try {
-      // Reference to the document path '/skillGoal/{id}'
-      final skillDocRef = _firestore.collection('skillTrack').doc(id);
-      await skillDocRef.update({'isReleased': false});
-      // Fetch the document snapshot
-      final docSnapshot = await skillDocRef.get();
+  // Future<void> addSkillTrack(String id, String email) async {
+  //   try {
+  //     // Reference to the document path '/skillGoal/{id}'
+  //     final skillDocRef = _firestore.collection('skillTrack').doc(id);
+  //     await skillDocRef.update({'isReleased': false});
+  //     // Fetch the document snapshot
+  //     final docSnapshot = await skillDocRef.get();
 
-      // Check if the document exists
-      if (docSnapshot.exists) {
-        // Get the document data
-        final skillData = docSnapshot.data() as Map<String, dynamic>;
+  //     // Check if the document exists
+  //     if (docSnapshot.exists) {
+  //       // Get the document data
+  //       final skillData = docSnapshot.data() as Map<String, dynamic>;
 
-        // Reference to the target path '/testers/{email}/skillGoal/{id}'
-        final userSkillLevelPath = _firestore
-            .collection('testers')
-            .doc(email)
-            .collection('skillTrack');
+  //       // Reference to the target path '/testers/{email}/skillGoal/{id}'
+  //       final userSkillLevelPath = _firestore
+  //           .collection('testers')
+  //           .doc(email)
+  //           .collection('skillTrack');
 
-        // Add the document data to the target path
-        await userSkillLevelPath.doc(id).set(skillData);
+  //       // Add the document data to the target path
+  //       await userSkillLevelPath.doc(id).set(skillData);
 
-        print('Document $id added to /testers/$email/skillTrack');
-      } else {
-        print('Document with id $id does not exist in /skillTrack.');
-      }
-    } catch (e) {
-      print('Error fetching and adding skills: $e');
-    }
-  }
+  //       print('Document $id added to /testers/$email/skillTrack');
+  //     } else {
+  //       print('Document with id $id does not exist in /skillTrack.');
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching and adding skills: $e');
+  //   }
+  // }
 
 // Future<List<Skill>> addSkills(String skillTrackId, String email) async {
 //   try {
@@ -204,10 +281,13 @@ class JourneyService {
 
       // Add each skill to the specified path with isComplete = false
       for (var skill in skills) {
-        // Convert skill to a map and add 'isComplete': false
+        final totalLevels = await getTotalSkillLevels(skill
+            .objectId); // Convert skill to a map and add 'isComplete': false
         final skillData = {
           ...skill.toMap(), // Existing skill data
-          'isCompleted': false, // New field
+          'isCompleted': false,
+          'skillLevelCompleted': 0, // New field
+          'totalLevels': totalLevels
         };
 
         // Add the updated skill data to the user's skill collection
@@ -222,103 +302,111 @@ class JourneyService {
     }
   }
 
+  Future<int> getTotalSkillLevels(String id) async {
+    var _querysnapshot = await _firestore
+        .collection('skillLevel')
+        .where('skillId', isEqualTo: id)
+        .get();
+    return _querysnapshot.docs.length;
+  }
+
   Future<List<String>> addSkillLevel(List<Skill> skills, String email) async {
-  try {
-    // List to store goalId values
-    final List<String> goals = [];
+    try {
+      // List to store goalId values
+      final List<String> goals = [];
 
-    // Reference to the 'skillLevel' collection
-    final skillCollection = _firestore.collection('skillLevel');
+      // Reference to the 'skillLevel' collection
+      final skillCollection = _firestore.collection('skillLevel');
 
-    // Iterate through each skill
-    for (var skill in skills) {
-      // Query to fetch documents where 'skillId' matches
-      final querySnapshot = await skillCollection
-          .where('skillId', isEqualTo: skill.objectId)
-          .get();
+      // Iterate through each skill
+      for (var skill in skills) {
+        // Query to fetch documents where 'skillId' matches
+        final querySnapshot = await skillCollection
+            .where('skillId', isEqualTo: skill.objectId)
+            .get();
 
-      if (querySnapshot.docs.isEmpty) {
-        print('No skill level found for skillID: ${skill.objectId}');
-        continue;  // Move to the next skill
-      }
-
-      // Reference to the target path: /testers/{email}/skillLevel
-      final userSkillLevelPath = _firestore
-          .collection('testers')
-          .doc(email)
-          .collection('skillLevel');
-
-      // Add each document to the specified path
-      for (var doc in querySnapshot.docs) {
-        final skillData = doc.data() as Map<String, dynamic>;
-
-        // Check if 'goalId' exists and add it to the goals list
-        if (skillData.containsKey('goalId')) {
-          final goalId = skillData['goalId'];
-          if (goalId != null && goalId is String) {
-            goals.add(goalId);  // Only add the ID
-          }
+        if (querySnapshot.docs.isEmpty) {
+          print('No skill level found for skillID: ${skill.objectId}');
+          continue; // Move to the next skill
         }
 
-        // Add 'isCompleted' field with a default value of false
-        final updatedSkillData = {
-          ...skillData,
-          'isCompleted': false,
-        };
+        // Reference to the target path: /testers/{email}/skillLevel
+        final userSkillLevelPath = _firestore
+            .collection('testers')
+            .doc(email)
+            .collection('skillLevel');
 
-        // Upload the updated data
-        await userSkillLevelPath.doc(doc.id).set(updatedSkillData);
+        // Add each document to the specified path
+        for (var doc in querySnapshot.docs) {
+          final skillData = doc.data() as Map<String, dynamic>;
 
-        print('Document ${doc.id} added to /testers/$email/skillLevel');
+          // Check if 'goalId' exists and add it to the goals list
+          if (skillData.containsKey('goalId')) {
+            final goalId = skillData['goalId'];
+            if (goalId != null && goalId is String) {
+              goals.add(goalId); // Only add the ID
+            }
+          }
+
+          // Add 'isCompleted' field with a default value of false
+          final updatedSkillData = {
+            ...skillData,
+            'isCompleted': false,
+          };
+
+          // Upload the updated data
+          await userSkillLevelPath.doc(doc.id).set(updatedSkillData);
+
+          print('Document ${doc.id} added to /testers/$email/skillLevel');
+        }
       }
+
+      // Print the collected goal IDs
+      print('Collected goalIds: $goals');
+      return goals;
+    } catch (e) {
+      print('Error fetching and adding skill levels: $e');
+      return []; // Return an empty list if an error occurs
     }
-
-    // Print the collected goal IDs
-    print('Collected goalIds: $goals');
-    return goals;
-    
-  } catch (e) {
-    print('Error fetching and adding skill levels: $e');
-    return [];  // Return an empty list if an error occurs
   }
-}
 
-Future<void> addSkillGoals(List<String> ids, String email) async {
-  try {
-    // Reference to the target path: /testers/{email}/skillGoal
-    final userSkillGoalPath = _firestore.collection('testers').doc(email).collection('skillGoal');
+  Future<void> addSkillGoals(List<String> ids, String email) async {
+    try {
+      // Reference to the target path: /testers/{email}/skillGoal
+      final userSkillGoalPath =
+          _firestore.collection('testers').doc(email).collection('skillGoal');
 
-    // Iterate through each ID in the list
-    for (String id in ids) {
-      // Reference to the document path: /skillGoal/{id}
-      final skillDocRef = _firestore.collection('skillGoal').doc(id);
+      // Iterate through each ID in the list
+      for (String id in ids) {
+        // Reference to the document path: /skillGoal/{id}
+        final skillDocRef = _firestore.collection('skillGoal').doc(id);
 
-      // Fetch the document snapshot
-      final docSnapshot = await skillDocRef.get();
+        // Fetch the document snapshot
+        final docSnapshot = await skillDocRef.get();
 
-      // Check if the document exists
-      if (docSnapshot.exists) {
-        // Get the document data
-        final skillData = docSnapshot.data() as Map<String, dynamic>;
-        final updatedSkillData = {
-          ...skillData,      // Existing data
-          'isCompleted': false, // New field
-        };
+        // Check if the document exists
+        if (docSnapshot.exists) {
+          // Get the document data
+          final skillData = docSnapshot.data() as Map<String, dynamic>;
+          final updatedSkillData = {
+            ...skillData, // Existing data
+            'isCompleted': false, // New field
+          };
 
-        // Add the document data to the user's skillGoal collection
-        await userSkillGoalPath.doc(id).set(updatedSkillData);
+          // Add the document data to the user's skillGoal collection
+          await userSkillGoalPath.doc(id).set(updatedSkillData);
 
-        print('Document $id added to /testers/$email/skillGoal');
-      } else {
-        print('Document with id $id does not exist in /skillGoal.');
+          print('Document $id added to /testers/$email/skillGoal');
+        } else {
+          print('Document with id $id does not exist in /skillGoal.');
+        }
       }
-    }
 
-    print('All provided skill goals have been added successfully.');
-  } catch (e) {
-    print('Error fetching and adding skill goals: $e');
+      print('All provided skill goals have been added successfully.');
+    } catch (e) {
+      print('Error fetching and adding skill goals: $e');
+    }
   }
-}
 
   Future<void> addSkillGoal(String id, String email) async {
     try {
@@ -439,7 +527,8 @@ Future<void> addSkillGoals(List<String> ids, String email) async {
     }
   }
 
-  Future<bool> updateGoalCompletion(String userEmail,String id,  String skillLevelId) async {
+  Future<bool> updateGoalCompletion(
+      String userEmail, String id, String skillLevelId,String skillId,String skillTrackId) async {
     try {
       // Perform the Firestore update for the specific user email and skill level ID
       await FirebaseFirestore.instance
@@ -453,8 +542,23 @@ Future<void> addSkillGoals(List<String> ids, String email) async {
           .collection('testers')
           .doc(userEmail)
           .collection('skillLevel')
-          .doc(skillLevelId) // Assuming 'id' is the document ID for the skill level
+          .doc(
+              skillLevelId) // Assuming 'id' is the document ID for the skill level
           .update({'isCompleted': true});
+
+          await FirebaseFirestore.instance
+            .collection('testers')
+            .doc(userEmail)
+            .collection('skill')
+            .doc(skillId) // Assuming 'skillId' is the document ID for the skill
+            .update({'skillLevelCompleted': FieldValue.increment(1)});
+
+        await FirebaseFirestore.instance
+            .collection('testers')
+            .doc(userEmail)
+            .collection('skillTrack')
+            .doc(skillTrackId) // Assuming 'skillId' is the document ID for the skill
+            .update({'levelsCompleted': FieldValue.increment(1)});
 
       return true;
     } catch (e) {
@@ -463,7 +567,7 @@ Future<void> addSkillGoals(List<String> ids, String email) async {
     }
   }
 
-  Future<bool> updateOneTime(bool isAdded, String id, String userEmail) async {
+  Future<bool> updateOneTime(bool isAdded, String id, String userEmail,String skillId,String skillTrackId) async {
     try {
       // Perform the Firestore update for the specific user email and skill level ID
       await FirebaseFirestore.instance
@@ -472,6 +576,20 @@ Future<void> addSkillGoals(List<String> ids, String email) async {
           .collection('skillLevel')
           .doc(id) // Assuming 'id' is the document ID for the skill level
           .update({'isCompleted': true});
+
+          await FirebaseFirestore.instance
+            .collection('testers')
+            .doc(userEmail)
+            .collection('skill')
+            .doc(skillId) // Assuming 'skillId' is the document ID for the skill
+            .update({'skillLevelCompleted': FieldValue.increment(1)});
+
+        await FirebaseFirestore.instance
+            .collection('testers')
+            .doc(userEmail)
+            .collection('skillTrack')
+            .doc(skillTrackId) // Assuming 'skillId' is the document ID for the skill
+            .update({'levelsCompleted': FieldValue.increment(1)});
 
       return true;
     } catch (e) {
@@ -499,15 +617,45 @@ Future<void> addSkillGoals(List<String> ids, String email) async {
   }
 
   Future<bool> updateMotivator(
-      bool isAdded, String id, String userEmail) async {
+      bool isAdded, String id, String userEmail, String skillId,String skillTrackId) async {
     try {
       // Perform the Firestore update for the specific user email and skill level ID
-      await FirebaseFirestore.instance
+
+      final skillLevelDoc = await FirebaseFirestore.instance
           .collection('testers')
           .doc(userEmail)
           .collection('skillLevel')
           .doc(id) // Assuming 'id' is the document ID for the skill level
-          .update({'isCompleted': true});
+          .get();
+
+// Check if the document exists and `isCompleted` is false
+      if (skillLevelDoc.exists &&
+          !(skillLevelDoc.data()?['isCompleted'] ?? true)) {
+        // Update 'isCompleted' to true
+        await FirebaseFirestore.instance
+            .collection('testers')
+            .doc(userEmail)
+            .collection('skillLevel')
+            .doc(id)
+            .update({'isCompleted': true});
+
+        // Increment 'skillLevelCompleted' in the skill document
+        await FirebaseFirestore.instance
+            .collection('testers')
+            .doc(userEmail)
+            .collection('skill')
+            .doc(skillId) // Assuming 'skillId' is the document ID for the skill
+            .update({'skillLevelCompleted': FieldValue.increment(1)});
+
+        await FirebaseFirestore.instance
+            .collection('testers')
+            .doc(userEmail)
+            .collection('skillTrack')
+            .doc(skillTrackId) // Assuming 'skillId' is the document ID for the skill
+            .update({'levelsCompleted': FieldValue.increment(1)});
+      } else {
+        print("Skill level is already completed or does not exist.");
+      }
 
       return true;
     } catch (e) {

@@ -159,7 +159,7 @@ class _CoachingFirstLevelState extends State<CoachingFirstLevel> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                Coachingscreenreveal(),
+                                                Coachingscreenreveal(email: widget.email,coachingSeriesId:  training["objectId"],coachingSeries: training,),
                                           ),
                                         );
                                       },

@@ -9,6 +9,9 @@ class Skill {
   final String skillTrackId;
   final String title;
   final int updatedAt;
+  final int skillLevelCompleted; // Optional field
+  final int totalLevels; // Optional field
+  final bool isCompleted; // Optional field
 
   // Constructor
   Skill({
@@ -22,6 +25,9 @@ class Skill {
     required this.skillTrackId,
     required this.title,
     required this.updatedAt,
+    this.skillLevelCompleted = 0, // Default value
+    this.totalLevels = 0, // Default value
+    this.isCompleted = false, // Default value
   });
 
   // Factory method to create Skill object from map
@@ -37,6 +43,9 @@ class Skill {
       skillTrackId: map['skillTrackId'] as String,
       title: map['title'] as String,
       updatedAt: map['updatedAt'] as int,
+      skillLevelCompleted: map['skillLevelCompleted'] ?? 0, // Handles absence
+      totalLevels: map['totalLevels'] ?? 0, // Handles absence
+      isCompleted: map['isCompleted'] ?? false, // Handles absence
     );
   }
 
@@ -53,6 +62,9 @@ class Skill {
       'skillTrackId': skillTrackId,
       'title': title,
       'updatedAt': updatedAt,
+      'skillLevelCompleted': skillLevelCompleted, // Include new field
+      'totalLevels': totalLevels, // Include new field
+      'isCompleted': isCompleted, // Include new field
     };
   }
 }

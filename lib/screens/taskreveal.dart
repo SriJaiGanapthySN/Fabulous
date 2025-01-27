@@ -141,14 +141,14 @@ class _TaskrevealState extends State<Taskreveal> {
     _stopAudio();
     _stopBgm();
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => PlayAudio(
-                email: widget.email,
-                couching: task,
-              )),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //       builder: (context) => PlayAudio(
+    //             email: widget.email,
+    //             couching: task,
+    //           )),
+    // );
   }
 
   // Handle skip button press

@@ -19,8 +19,7 @@ class Journeyscreenrevealtype2 extends StatefulWidget {
       required this.skilltrack});
 
   @override
-  State<Journeyscreenrevealtype2> createState() =>
-      _Journeyscreenrevealtype2();
+  State<Journeyscreenrevealtype2> createState() => _Journeyscreenrevealtype2();
 }
 
 class _Journeyscreenrevealtype2 extends State<Journeyscreenrevealtype2> {
@@ -55,14 +54,13 @@ class _Journeyscreenrevealtype2 extends State<Journeyscreenrevealtype2> {
   Future<void> updateGoal(int rate, String email, String id) async {
     try {
       // Await the result from getSkillGoal
-      final upddated = await _journeyService.updateGoal(rate,email, id);
+      final upddated = await _journeyService.updateGoal(rate, email, id);
 
       // Refresh the UI after data is fetched
-      if(upddated){
+      if (upddated) {
         print("Updated!");
         await fetchGoal(email, id);
-      }
-      else{
+      } else {
         print("Not Updating");
       }
     } catch (e) {
@@ -70,36 +68,55 @@ class _Journeyscreenrevealtype2 extends State<Journeyscreenrevealtype2> {
     }
   }
 
-  Future<void> completeGoal(String email, String id, String skillLevelId) async {
+  Future<void> completeGoal(String email, String id, String skillLevelId,
+      String skillId, String skillTrackId) async {
     try {
       // Await the result from getSkillGoal
-      final upddated = await _journeyService.updateGoalCompletion(email, id,skillLevelId);
+      final upddated = await _journeyService.updateGoalCompletion(
+          email, id, skillLevelId, skillId, skillTrackId);
 
       // Refresh the UI after data is fetched
-      if(upddated){
-
+      if (upddated) {
         print("COMPLETED!");
-        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Journeysecondlevel(
-                              skill: widget.skill,
-                              email: email,
-                              skilltrack: widget.skilltrack,
-                            ),
-                          ),
-                        );
+        // Navigator.pushReplacement(
+        //                   context,
+        //                   MaterialPageRoute(
+        //                     builder: (context) => Journeysecondlevel(
+        //                       skill: widget.skill,
+        //                       email: email,
+        //                       skilltrack: widget.skilltrack,
+        //                     ),
+        //                   ),
+        //                 );
+
+        int count = 0; // Counter to track popped routes
+        Navigator.popUntil(
+          context,
+          (route) {
+            count++;
+            return count > 1; // Stop popping after 2 routes
+          },
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Journeysecondlevel(
+              skill: widget.skill,
+              email: email,
+              skilltrack: widget.skilltrack,
+            ),
+          ),
+        );
+
         // await fetchGoal(email, id);
-      }
-      else{
+      } else {
         print("Not Completing");
       }
     } catch (e) {
       print('Error fetching goal: $e');
     }
   }
-
-
 
   Color colorFromString(String colorString) {
     // Remove the '#' if it's there and parse the hex color code
@@ -108,7 +125,8 @@ class _Journeyscreenrevealtype2 extends State<Journeyscreenrevealtype2> {
     // Ensure the string has the correct length (6 digits)
     if (hexColor.length == 6) {
       // Parse the color string to an integer and return it as a Color
-      return Color(int.parse('0xFF$hexColor')); // Adding 0xFF to indicate full opacity
+      return Color(
+          int.parse('0xFF$hexColor')); // Adding 0xFF to indicate full opacity
     } else {
       throw FormatException('Invalid color string format');
     }
@@ -118,7 +136,6 @@ class _Journeyscreenrevealtype2 extends State<Journeyscreenrevealtype2> {
   Widget build(BuildContext context) {
     // Fetch screen size for dynamic font and spacing
     final screenWidth = MediaQuery.of(context).size.width;
-
 
     return Scaffold(
       appBar: AppBar(
@@ -181,7 +198,8 @@ class _Journeyscreenrevealtype2 extends State<Journeyscreenrevealtype2> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 32.0),
                           child: Text(
-                            skillGoalData?["description"] ?? "Loading description...",
+                            skillGoalData?["description"] ??
+                                "Loading description...",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.white,
@@ -214,18 +232,22 @@ class _Journeyscreenrevealtype2 extends State<Journeyscreenrevealtype2> {
                           SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(skillGoalData?["value"] ?? 0, (index) {
+                            children: List.generate(
+                                skillGoalData?["value"] ?? 0, (index) {
                               // Check if the completionRateGoal is greater than 0
-                              int completionRateGoal = skillGoalData?["completionRateGoal"] ?? 0;
+                              int completionRateGoal =
+                                  skillGoalData?["completionRateGoal"] ?? 0;
                               bool isColored = index < completionRateGoal;
 
                               return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
                                 child: Icon(
                                   Icons.check_circle,
                                   color: isColored
                                       ? colorFromString(widget.skill.color)
-                                      : Colors.grey, // Gray if the goal isn't met
+                                      : Colors
+                                          .grey, // Gray if the goal isn't met
                                   size: screenWidth * 0.1,
                                 ),
                               );
@@ -234,25 +256,38 @@ class _Journeyscreenrevealtype2 extends State<Journeyscreenrevealtype2> {
                           SizedBox(height: 16),
                           Builder(
                             builder: (context) {
-                              int completionRateGoal = skillGoalData?["completionRateGoal"] ?? 0;
+                              int completionRateGoal =
+                                  skillGoalData?["completionRateGoal"] ?? 0;
                               int value = skillGoalData?["value"] ?? 0;
 
                               return (completionRateGoal < value)
                                   ? ElevatedButton(
                                       onPressed: () {
-                                        completionRateGoal=completionRateGoal+1;
-                                        updateGoal(completionRateGoal,widget.email, widget.goalData["goalId"]);
-                                        if(completionRateGoal==value){
-                                          completeGoal(widget.email, widget.goalData["goalId"],widget.goalData["objectId"]);
+                                        completionRateGoal =
+                                            completionRateGoal + 1;
+                                        updateGoal(
+                                            completionRateGoal,
+                                            widget.email,
+                                            widget.goalData["goalId"]);
+                                        if (completionRateGoal == value) {
+                                          completeGoal(
+                                              widget.email,
+                                              widget.goalData["goalId"],
+                                              widget.goalData["objectId"],
+                                              widget.skill.objectId,
+                                              widget.skilltrack.objectId);
                                         }
-                                        
+
                                         // Add action here, such as marking goal as complete
                                       },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.green, // Green button
-                                        padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 12.0),
+                                        backgroundColor:
+                                            Colors.green, // Green button
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 32.0, vertical: 12.0),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                       ),
                                       child: Text(
