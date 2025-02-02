@@ -1,4 +1,7 @@
 import 'package:animated_loading_border/animated_loading_border.dart';
+import 'package:fab/compenents/chatTestAnimation.dart';
+import 'package:fab/compenents/chatTextFadeIn.dart';
+import 'package:fab/compenents/testtexteffecr.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:pretty_animated_text/pretty_animated_text.dart';
@@ -113,9 +116,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin{
                         color: colorAnimation.value, // Dynamically update the bubble's color
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: SequentialAnimatedText(
-                        text: "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
-                      ),
+                      // child: SequentialAnimatedText(
+                      //   text: "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
+                      // ),
+child: BlurFadeAndColorTextEffect(
+  text: "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
+),
+// FadeInText(
+//             text: "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
+//             textStyle: TextStyle(fontSize: 14, color: Colors.black,),
+//           ),
+
                     ),
                   ),
                 );
@@ -209,145 +220,145 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin{
 
 // import 'package:flutter/material.dart';/
 
-class SequentialAnimatedText extends StatefulWidget {
-  final String text;
+// class SequentialAnimatedText extends StatefulWidget {
+//   final String text;
 
-  const SequentialAnimatedText({Key? key, required this.text}) : super(key: key);
+//   const SequentialAnimatedText({Key? key, required this.text}) : super(key: key);
 
-  @override
-  _SequentialAnimatedTextState createState() => _SequentialAnimatedTextState();
-}
+//   @override
+//   _SequentialAnimatedTextState createState() => _SequentialAnimatedTextState();
+// }
 
-class _SequentialAnimatedTextState extends State<SequentialAnimatedText>
-    with TickerProviderStateMixin {
-  late List<String> words;
-  late List<AnimationController> controllers;
-  late List<Animation<Offset>> positionAnimations;
-  late List<Animation<double>> gradientAnimations;
-  int currentWordIndex = 0;
+// class _SequentialAnimatedTextState extends State<SequentialAnimatedText>
+//     with TickerProviderStateMixin {
+//   late List<String> words;
+//   late List<AnimationController> controllers;
+//   late List<Animation<Offset>> positionAnimations;
+//   late List<Animation<double>> gradientAnimations;
+//   int currentWordIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
+//   @override
+//   void initState() {
+//     super.initState();
 
-    // Split text into words
-    words = widget.text.split(' ');
+//     // Split text into words
+//     words = widget.text.split(' ');
 
-    // Initialize controllers and animations for each word
-    controllers = List.generate(
-      words.length,
-      (index) => AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 350), // Duration for each word animation
-      ),
-    );
+//     // Initialize controllers and animations for each word
+//     controllers = List.generate(
+//       words.length,
+//       (index) => AnimationController(
+//         vsync: this,
+//         duration: const Duration(milliseconds: 350), // Duration for each word animation
+//       ),
+//     );
 
-    positionAnimations = List.generate(
-      words.length,
-      (index) => Tween<Offset>(
-        begin: const Offset(0, 0.3), // Start below
-        end: Offset.zero, // End at original position
-      ).animate(CurvedAnimation(
-        parent: controllers[index],
-        curve: Curves.easeOut,
-      )),
-    );
+//     positionAnimations = List.generate(
+//       words.length,
+//       (index) => Tween<Offset>(
+//         begin: const Offset(0, 0.3), // Start below
+//         end: Offset.zero, // End at original position
+//       ).animate(CurvedAnimation(
+//         parent: controllers[index],
+//         curve: Curves.easeOut,
+//       )),
+//     );
 
-    gradientAnimations = List.generate(
-      words.length,
-      (index) => Tween<double>(
-        begin: 0.0, // Blue fully covers the word initially
-        end: 1.0, // White fully covers the word at the end
-      ).animate(CurvedAnimation(
-        parent: controllers[index],
-        curve: Curves.easeInOut,
-      )),
-    );
+//     gradientAnimations = List.generate(
+//       words.length,
+//       (index) => Tween<double>(
+//         begin: 0.0, // Blue fully covers the word initially
+//         end: 1.0, // White fully covers the word at the end
+//       ).animate(CurvedAnimation(
+//         parent: controllers[index],
+//         curve: Curves.easeInOut,
+//       )),
+//     );
 
-    // Start the animations sequentially
-    _startAnimations();
-  }
+//     // Start the animations sequentially
+//     _startAnimations();
+//   }
 
-  void _startAnimations() async {
-    for (var i = 0; i < words.length; i++) {
-      setState(() {
-        currentWordIndex = i; // Show the current word
-      });
+//   void _startAnimations() async {
+//     for (var i = 0; i < words.length; i++) {
+//       setState(() {
+//         currentWordIndex = i; // Show the current word
+//       });
 
-      // Start animation for the current word
-      controllers[i].forward();
+//       // Start animation for the current word
+//       controllers[i].forward();
 
-      // Delay for 20 milliseconds before the next word
-      await Future.delayed(
-        controllers[i].duration! - const Duration(milliseconds: 100),
-      );
-    }
-  }
+//       // Delay for 20 milliseconds before the next word
+//       await Future.delayed(
+//         controllers[i].duration! - const Duration(milliseconds: 100),
+//       );
+//     }
+//   }
 
-  @override
-  void dispose() {
-    // Dispose all controllers
-    for (var controller in controllers) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     // Dispose all controllers
+//     for (var controller in controllers) {
+//       controller.dispose();
+//     }
+//     super.dispose();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 4,
-      runSpacing: 4,
-      children: List.generate(words.length, (index) {
-        return index <= currentWordIndex
-            ? SlideTransition(
-                position: positionAnimations[index],
-                child: AnimatedBuilder(
-                  animation: gradientAnimations[index],
-                  builder: (context, child) {
-                    return ShaderMask(
-                      shaderCallback: (bounds) {
-                        // Create multiple shades between blue and white
-                        return LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            Colors.white, // End with White
-                            Color.lerp(Color.fromARGB(255, 40, 12, 224),
-                                Colors.white, 0.3)!, // Light blue shade
-                            Color.lerp(Color.fromARGB(255, 40, 12, 224),
-                                Colors.white, 0.5)!, // Medium blue shade
-                            Color.lerp(Color.fromARGB(255, 40, 12, 224),
-                                Colors.white, 0.7)!, // Light white-blue
-                            Color.fromARGB(255, 40, 12, 224), // Start with Blue
-                          ],
-                          stops: [
-                            gradientAnimations[index].value, // Blue at bottom
-                            gradientAnimations[index].value + 0.01, // Light blue
-                            gradientAnimations[index].value + 0.01, // Medium blue
-                            gradientAnimations[index].value + 0.01, // Medium blue
-                            gradientAnimations[index].value + 0.01, // White-blue
-                            // 1.0, // Full white
-                          ],
-                        ).createShader(bounds);
-                      },
-                      blendMode: BlendMode.srcIn,
-                      child: Text(
-                        words[index],
-                        // style: const TextStyle(
-                        //   fontSize: 24,
-                        //   fontWeight: FontWeight.bold,
-                        // ),
-                      ),
-                    );
-                  },
-                ),
-              )
-            : const SizedBox(); // Empty space for words not yet animated
-      }),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Wrap(
+//       spacing: 4,
+//       runSpacing: 4,
+//       children: List.generate(words.length, (index) {
+//         return index <= currentWordIndex
+//             ? SlideTransition(
+//                 position: positionAnimations[index],
+//                 child: AnimatedBuilder(
+//                   animation: gradientAnimations[index],
+//                   builder: (context, child) {
+//                     return ShaderMask(
+//                       shaderCallback: (bounds) {
+//                         // Create multiple shades between blue and white
+//                         return LinearGradient(
+//                           begin: Alignment.bottomCenter,
+//                           end: Alignment.topCenter,
+//                           colors: [
+//                             Colors.white, // End with White
+//                             Color.lerp(Color.fromARGB(255, 40, 12, 224),
+//                                 Colors.white, 0.3)!, // Light blue shade
+//                             Color.lerp(Color.fromARGB(255, 40, 12, 224),
+//                                 Colors.white, 0.5)!, // Medium blue shade
+//                             Color.lerp(Color.fromARGB(255, 40, 12, 224),
+//                                 Colors.white, 0.7)!, // Light white-blue
+//                             Color.fromARGB(255, 40, 12, 224), // Start with Blue
+//                           ],
+//                           stops: [
+//                             gradientAnimations[index].value, // Blue at bottom
+//                             gradientAnimations[index].value + 0.01, // Light blue
+//                             gradientAnimations[index].value + 0.01, // Medium blue
+//                             gradientAnimations[index].value + 0.01, // Medium blue
+//                             gradientAnimations[index].value + 0.01, // White-blue
+//                             // 1.0, // Full white
+//                           ],
+//                         ).createShader(bounds);
+//                       },
+//                       blendMode: BlendMode.srcIn,
+//                       child: Text(
+//                         words[index],
+//                         // style: const TextStyle(
+//                         //   fontSize: 24,
+//                         //   fontWeight: FontWeight.bold,
+//                         // ),
+//                       ),
+//                     );
+//                   },
+//                 ),
+//               )
+//             : const SizedBox(); // Empty space for words not yet animated
+//       }),
+//     );
+//   }
+// }
 
 class AnimatedMessageBubble extends StatelessWidget {
   final String message;
