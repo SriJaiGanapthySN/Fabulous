@@ -51,6 +51,7 @@ dependencies:
   video_player: ^2.9.2
   animated_loading_border: ^0.0.2
   just_audio: ^0.9.43
+  widget_and_text_animator: ^1.1.5
 
 dev_dependencies:
   flutter_test:
