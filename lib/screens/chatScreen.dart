@@ -3,6 +3,7 @@ import 'package:fab/compenents/chatTestAnimation.dart';
 import 'package:fab/compenents/chatTextFadeIn.dart';
 import 'package:fab/compenents/testtexteffecr.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:video_player/video_player.dart';
 import 'package:pretty_animated_text/pretty_animated_text.dart';
 
@@ -15,7 +16,7 @@ class ChatScreen extends StatefulWidget {
   _ChatScreenState createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin{
+class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final List<Widget> messages = [];
   final TextEditingController _controller = TextEditingController();
   late VideoPlayerController _videoController;
@@ -40,106 +41,158 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin{
     super.dispose();
   }
 
-
 //I am feeling burnedout. Any suggestion for recharging
   void _sendMessage() {
-  if (_controller.text.isNotEmpty) {
-    final String messageText = _controller.text;
-    _controller.clear();
+    if (_controller.text.isNotEmpty) {
+      final String messageText = _controller.text;
+      _controller.clear();
 
-    // Create an animation controller for the user's message animation
-    AnimationController animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
-
-    Animation<Offset> slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 10), // Start from the bottom
-      end: Offset.zero, // End at its position
-    ).animate(CurvedAnimation(
-      parent: animationController,
-      curve: Curves.easeOut,
-    ));
-
-    setState(() {
-      messages.add(
-        AnimatedMessageBubble(
-          message: messageText,
-          alignment: Alignment.centerRight,
-          animation: slideAnimation,
-          controller: animationController,
-          bubbleColor: Colors.white,
-          textColor: Colors.black,
-        ),
+      // Create an animation controller for the user's message animation
+      AnimationController animationController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 1200),
       );
-    });
 
-    animationController.forward();
+      Animation<Offset> slideAnimation = Tween<Offset>(
+        begin: const Offset(-1.2, 14), // Start from bottom-left
+        end: Offset.zero, // Move to final position
+      ).animate(CurvedAnimation(
+        parent: animationController,
+        curve: Curves.easeOut,
+      ));
 
-    // After the user's message animation completes, show the reply
-    animationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        // Create an animation controller for the reply bubble's color intensity
-        AnimationController replyController = AnimationController(
-          vsync: this,
-          duration: const Duration(seconds: 10),
+      setState(() {
+        messages.add(
+          AnimatedMessageBubble(
+            message: messageText,
+            alignment: Alignment.centerRight,
+            animation: slideAnimation,
+            controller: animationController,
+            bubbleColor: Colors.white,
+            textColor: Colors.black,
+          ),
         );
+      });
 
-        Animation<Color?> colorAnimation = TweenSequence<Color?>(
-          [
-            TweenSequenceItem(
-              tween: ColorTween(begin: Colors.white10, end: Colors.white30)
-                  .chain(CurveTween(curve: Curves.easeIn)),
-              weight: 50.0,
-            ),
-            TweenSequenceItem(
-              tween: ColorTween(begin: Colors.white30, end: Colors.white10)
-                  .chain(CurveTween(curve: Curves.easeOut)),
-              weight: 50.0,
-            ),
-          ],
-        ).animate(replyController);
+      animationController.forward();
 
-        setState(() {
-          messages.add(
-            AnimatedBuilder(
-              animation: colorAnimation,
-              builder: (context, child) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
-                      decoration: BoxDecoration(
-                        color: colorAnimation.value, // Dynamically update the bubble's color
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      // child: SequentialAnimatedText(
-                      //   text: "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
-                      // ),
-child: BlurFadeAndColorTextEffect(
-  text: "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
-),
-// FadeInText(
-//             text: "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
-//             textStyle: TextStyle(fontSize: 14, color: Colors.black,),
-//           ),
-
-                    ),
-                  ),
-                );
-              },
-            ),
+      // After the user's message animation completes, show the reply
+      animationController.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          // Create an animation controller for the reply bubble's color intensity
+          AnimationController replyController = AnimationController(
+            vsync: this,
+            duration: const Duration(seconds: 10),
           );
-        });
 
-        replyController.forward();
-      }
-    });
+          Animation<Color?> colorAnimation = TweenSequence<Color?>(
+            [
+              TweenSequenceItem(
+                tween: ColorTween(begin: Colors.white10, end: Colors.white30)
+                    .chain(CurveTween(curve: Curves.easeIn)),
+                weight: 50.0,
+              ),
+              TweenSequenceItem(
+                tween: ColorTween(begin: Colors.white30, end: Colors.white10)
+                    .chain(CurveTween(curve: Curves.easeOut)),
+                weight: 50.0,
+              ),
+            ],
+          ).animate(replyController);
+
+          AnimationController fadeController = AnimationController(
+            vsync: this,
+            duration: const Duration(milliseconds: 4300),
+          );
+
+          Animation<double> fadeAnimation = CurvedAnimation(
+            parent: fadeController,
+            curve: Curves.easeIn,
+          );
+
+// Delay the fade-in by 100ms
+          Future.delayed(const Duration(milliseconds: 400), () {
+            fadeController.forward();
+          });
+
+          setState(() {
+            messages.add(
+              AnimatedBuilder(
+                animation: colorAnimation,
+                builder: (context, child) {
+                  return Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.7),
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        decoration: BoxDecoration(
+                          color: colorAnimation
+                              .value, // Dynamically update the bubble's color
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        // child: SequentialAnimatedText(
+                        //   text: "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
+                        // ),
+                        child: Column(
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start, // Aligns left
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.width * 0.04,
+                            ),
+                            BlurFadeAndColorTextEffect(
+                              text:
+                                  "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                FadeTransition(
+                                  opacity: fadeAnimation,
+                                  child: IconButton(
+                                    onPressed: () {},
+                                    icon: const FaIcon(FontAwesomeIcons.heart),
+                                    color: Colors.white,
+                                    iconSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(
+                                    width: 5), // Space between buttons
+                                FadeTransition(
+                                  opacity: fadeAnimation,
+                                  child: IconButton(
+                                    onPressed: () {},
+                                    icon: const FaIcon(FontAwesomeIcons.add),
+                                    color: Colors.white,
+                                    iconSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        // FadeInText(
+                        //             text: "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
+                        //             textStyle: TextStyle(fontSize: 14, color: Colors.black,),
+                        //           ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          });
+
+          replyController.forward();
+          fadeController.forward();
+        }
+      });
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -187,13 +240,18 @@ child: BlurFadeAndColorTextEffect(
                           ],
                         ),
                         child: TextField(
+                          maxLines: null,
+                          keyboardType: TextInputType.multiline,
                           controller: _controller,
-                          style: const TextStyle(color: Colors.white), // Set text color to white
+                          style: const TextStyle(
+                              color: Colors.white), // Set text color to white
                           decoration: InputDecoration(
                             hintText: "Message",
-                            hintStyle: const TextStyle(color: Colors.white70), // Hint text color
+                            hintStyle: const TextStyle(
+                                color: Colors.white70), // Hint text color
                             border: InputBorder.none, // Remove border
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 10),
                           ),
                         ),
                       ),
@@ -214,7 +272,6 @@ child: BlurFadeAndColorTextEffect(
     );
   }
 }
-
 
 // import 'package:flutter/material.dart';
 
@@ -387,7 +444,8 @@ class AnimatedMessageBubble extends StatelessWidget {
         child: Align(
           alignment: alignment,
           child: Container(
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+            constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.7),
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
             decoration: BoxDecoration(
               color: bubbleColor,

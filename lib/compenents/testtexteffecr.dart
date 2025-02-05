@@ -32,7 +32,8 @@ class _BlurFadeAndColorTextEffectState extends State<BlurFadeAndColorTextEffect>
     // Initialize the animation controller
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500), // Duration for each word's animation
+      duration:
+          Duration(milliseconds: 250), // Duration for each word's animation
     );
 
     // Define the blur animation
@@ -105,7 +106,6 @@ class _BlurFadeAndColorTextEffectState extends State<BlurFadeAndColorTextEffect>
                         text: '$word ',
                         style: TextStyle(
                           fontSize: 14,
-                          fontFamily: 'Original',
                           // fontWeight: FontWeight.bold,
                           color: _colorAnimation.value, // Animated font color
                         ),
@@ -116,7 +116,7 @@ class _BlurFadeAndColorTextEffectState extends State<BlurFadeAndColorTextEffect>
                         text: '$word ',
                         style: TextStyle(
                           fontSize: 14,
-                          fontFamily: 'Original',
+
                           // fontWeight: FontWeight.bold,
                           color: Colors.white, // Fully white
                         ),
