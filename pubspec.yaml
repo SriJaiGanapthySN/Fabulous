@@ -52,6 +52,8 @@ dependencies:
   animated_loading_border: ^0.0.2
   just_audio: ^0.9.43
   widget_and_text_animator: ^1.1.5
+  flutter_tts: ^4.2.2
+  speech_to_text: ^7.0.0
 
 dev_dependencies:
   flutter_test:
