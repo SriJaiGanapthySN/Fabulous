@@ -38,7 +38,7 @@
 //         setState(() {}); // Update the UI when the video is initialized
 //         _videoController.setLooping(true); // Loop the video
 //         _videoController.play(); // Play the video
-        
+
 //       });
 
 //       _ccontroller = AnimationController(
@@ -303,7 +303,6 @@ import 'package:fab/compenents/chatTestAnimation.dart';
 import 'package:fab/compenents/chatTextFadeIn.dart';
 import 'package:fab/compenents/testtexteffecr.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:video_player/video_player.dart';
 import 'package:pretty_animated_text/pretty_animated_text.dart';
@@ -343,7 +342,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       });
 
     _ccontroller = AnimationController(
-      duration: const Duration(milliseconds: 1600), // Speed of gradient transition
+      duration:
+          const Duration(milliseconds: 1600), // Speed of gradient transition
       vsync: this,
     );
 
@@ -362,7 +362,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-//I am feeling burnedout. Any suggestion for recharging
   void _sendMessage() {
     if (_controller.text.isNotEmpty) {
       final String messageText = _controller.text;
@@ -371,21 +370,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       // Create an animation controller for the user's message animation
       AnimationController animationController = AnimationController(
         vsync: this,
-        duration: const Duration(milliseconds: 1200),
-      );
-      // Create an animation controller for the user's message animation
-      AnimationController animationController = AnimationController(
-        vsync: this,
         duration: const Duration(seconds: 2),
       );
 
-      Animation<Offset> slideAnimation = Tween<Offset>(
-        begin: const Offset(-1.2, 14), // Start from bottom-left
-        end: Offset.zero, // Move to final position
-      ).animate(CurvedAnimation(
-        parent: animationController,
-        curve: Curves.easeOut,
-      ));
       Animation<Offset> slideAnimation = Tween<Offset>(
         begin: const Offset(0, 10), // Start from the bottom
         end: Offset.zero, // End at its position
@@ -433,106 +420,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ],
           ).animate(replyController);
 
-          AnimationController fadeController = AnimationController(
-            vsync: this,
-            duration: const Duration(milliseconds: 4300),
-          );
-
-          Animation<double> fadeAnimation = CurvedAnimation(
-            parent: fadeController,
-            curve: Curves.easeIn,
-          );
-
-// Delay the fade-in by 100ms
-          Future.delayed(const Duration(milliseconds: 400), () {
-            fadeController.forward();
-          });
-          Animation<Color?> colorAnimation = TweenSequence<Color?>(
-            [
-              TweenSequenceItem(
-                tween: ColorTween(begin: Colors.white10, end: Colors.white30)
-                    .chain(CurveTween(curve: Curves.easeIn)),
-                weight: 50.0,
-              ),
-              TweenSequenceItem(
-                tween: ColorTween(begin: Colors.white30, end: Colors.white10)
-                    .chain(CurveTween(curve: Curves.easeOut)),
-                weight: 50.0,
-              ),
-            ],
-          ).animate(replyController);
-
-          setState(() {
-            messages.add(
-              AnimatedBuilder(
-                animation: colorAnimation,
-                builder: (context, child) {
-                  return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.7),
-                        padding: const EdgeInsets.symmetric(horizontal: 18),
-                        decoration: BoxDecoration(
-                          color: colorAnimation
-                              .value, // Dynamically update the bubble's color
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        // child: SequentialAnimatedText(
-                        //   text: "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
-                        // ),
-                        child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start, // Aligns left
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.width * 0.04,
-                            ),
-                            BlurFadeAndColorTextEffect(
-                              text:
-                                  "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                FadeTransition(
-                                  opacity: fadeAnimation,
-                                  child: IconButton(
-                                    onPressed: () {},
-                                    icon: const FaIcon(FontAwesomeIcons.heart),
-                                    color: Colors.white,
-                                    iconSize: 14,
-                                  ),
-                                ),
-                                const SizedBox(
-                                    width: 5), // Space between buttons
-                                FadeTransition(
-                                  opacity: fadeAnimation,
-                                  child: IconButton(
-                                    onPressed: () {},
-                                    icon: const FaIcon(FontAwesomeIcons.add),
-                                    color: Colors.white,
-                                    iconSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        // FadeInText(
-                        //             text: "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
-                        //             textStyle: TextStyle(fontSize: 14, color: Colors.black,),
-                        //           ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            );
-          });
           setState(() {
             messages.add(
               AnimatedBuilder(
@@ -558,15 +445,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           incomingEffect: WidgetTransitionEffects(
                               blur: const Offset(10, 10),
                               duration: const Duration(milliseconds: 500)),
-                          outgoingEffect: WidgetTransitionEffects(blur: const Offset(10, 10)),
-                          atRestEffect: WidgetRestingEffects.wave(effectStrength: 0.2,duration: Duration(milliseconds: 750),numberOfPlays:1),
+                          outgoingEffect: WidgetTransitionEffects(
+                              blur: const Offset(10, 10)),
+                          atRestEffect: WidgetRestingEffects.wave(
+                              effectStrength: 0.2,
+                              duration: Duration(milliseconds: 750),
+                              numberOfPlays: 1),
                           style: GoogleFonts.lato(
-                              textStyle:  TextStyle(
-                                fontFamily:"Original",
-                                // color: Colors.white,
-                                letterSpacing: 1, fontSize: 14,
-                                color: _colorAnimation.value ?? Colors.blue,
-                              )),
+                              textStyle: TextStyle(
+                            fontFamily: "Original",
+                            // color: Colors.white,
+                            letterSpacing: 1, fontSize: 14,
+                            color: _colorAnimation.value ?? Colors.blue,
+                          )),
                           textAlign: TextAlign.left,
                           initialDelay: const Duration(milliseconds: 0),
                           spaceDelay: const Duration(milliseconds: 100),
@@ -581,12 +472,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             );
           });
 
-          replyController.forward();
-          fadeController.forward();
-        }
-      });
-    }
-  }
           replyController.forward();
         }
       });
@@ -665,13 +550,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8), // Spacing between toggle button and input box
+                    const SizedBox(
+                        width:
+                            8), // Spacing between toggle button and input box
                     // Message input box
                     if (_isMessageBoxVisible)
                       Expanded(
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.white10, // Semi-transparent background
+                            color:
+                                Colors.white10, // Semi-transparent background
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
@@ -697,7 +585,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           ),
                         ),
                       ),
-                    const SizedBox(width: 8), // Spacing between input box and send button
+                    const SizedBox(
+                        width: 8), // Spacing between input box and send button
                     // Send button
                     if (_isMessageBoxVisible)
                       IconButton(
@@ -715,150 +604,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 }
-
-// import 'package:flutter/material.dart';
-
-// import 'package:flutter/material.dart';/
-
-// class SequentialAnimatedText extends StatefulWidget {
-//   final String text;
-
-//   const SequentialAnimatedText({Key? key, required this.text}) : super(key: key);
-
-//   @override
-//   _SequentialAnimatedTextState createState() => _SequentialAnimatedTextState();
-// }
-
-// class _SequentialAnimatedTextState extends State<SequentialAnimatedText>
-//     with TickerProviderStateMixin {
-//   late List<String> words;
-//   late List<AnimationController> controllers;
-//   late List<Animation<Offset>> positionAnimations;
-//   late List<Animation<double>> gradientAnimations;
-//   int currentWordIndex = 0;
-
-//   @override
-//   void initState() {
-//     super.initState();
-
-//     // Split text into words
-//     words = widget.text.split(' ');
-
-//     // Initialize controllers and animations for each word
-//     controllers = List.generate(
-//       words.length,
-//       (index) => AnimationController(
-//         vsync: this,
-//         duration: const Duration(milliseconds: 350), // Duration for each word animation
-//       ),
-//     );
-
-//     positionAnimations = List.generate(
-//       words.length,
-//       (index) => Tween<Offset>(
-//         begin: const Offset(0, 0.3), // Start below
-//         end: Offset.zero, // End at original position
-//       ).animate(CurvedAnimation(
-//         parent: controllers[index],
-//         curve: Curves.easeOut,
-//       )),
-//     );
-
-//     gradientAnimations = List.generate(
-//       words.length,
-//       (index) => Tween<double>(
-//         begin: 0.0, // Blue fully covers the word initially
-//         end: 1.0, // White fully covers the word at the end
-//       ).animate(CurvedAnimation(
-//         parent: controllers[index],
-//         curve: Curves.easeInOut,
-//       )),
-//     );
-
-//     // Start the animations sequentially
-//     _startAnimations();
-//   }
-
-//   void _startAnimations() async {
-//     for (var i = 0; i < words.length; i++) {
-//       setState(() {
-//         currentWordIndex = i; // Show the current word
-//       });
-
-//       // Start animation for the current word
-//       controllers[i].forward();
-
-//       // Delay for 20 milliseconds before the next word
-//       await Future.delayed(
-//         controllers[i].duration! - const Duration(milliseconds: 100),
-//       );
-//     }
-//   }
-
-//   @override
-//   void dispose() {
-//     // Dispose all controllers
-//     for (var controller in controllers) {
-//       controller.dispose();
-//     }
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Wrap(
-//       spacing: 4,
-//       runSpacing: 4,
-//       children: List.generate(words.length, (index) {
-//         return index <= currentWordIndex
-//             ? SlideTransition(
-//                 position: positionAnimations[index],
-//                 child: AnimatedBuilder(
-//                   animation: gradientAnimations[index],
-//                   builder: (context, child) {
-//                     return ShaderMask(
-//                       shaderCallback: (bounds) {
-//                         // Create multiple shades between blue and white
-//                         return LinearGradient(
-//                           begin: Alignment.bottomCenter,
-//                           end: Alignment.topCenter,
-//                           colors: [
-//                             Colors.white, // End with White
-//                             Color.lerp(Color.fromARGB(255, 40, 12, 224),
-//                                 Colors.white, 0.3)!, // Light blue shade
-//                             Color.lerp(Color.fromARGB(255, 40, 12, 224),
-//                                 Colors.white, 0.5)!, // Medium blue shade
-//                             Color.lerp(Color.fromARGB(255, 40, 12, 224),
-//                                 Colors.white, 0.7)!, // Light white-blue
-//                             Color.fromARGB(255, 40, 12, 224), // Start with Blue
-//                           ],
-//                           stops: [
-//                             gradientAnimations[index].value, // Blue at bottom
-//                             gradientAnimations[index].value + 0.01, // Light blue
-//                             gradientAnimations[index].value + 0.01, // Medium blue
-//                             gradientAnimations[index].value + 0.01, // Medium blue
-//                             gradientAnimations[index].value + 0.01, // White-blue
-//                             // 1.0, // Full white
-//                           ],
-//                         ).createShader(bounds);
-//                       },
-//                       blendMode: BlendMode.srcIn,
-//                       child: Text(
-//                         words[index],
-//                         // style: const TextStyle(
-//                         //   fontSize: 24,
-//                         //   fontWeight: FontWeight.bold,
-//                         // ),
-//                       ),
-//                     );
-//                   },
-//                 ),
-//               )
-//             : const SizedBox(); // Empty space for words not yet animated
-//       }),
-//     );
-//   }
-// }
 
 class AnimatedMessageBubble extends StatelessWidget {
   final String message;
