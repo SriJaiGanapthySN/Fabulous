@@ -322,26 +322,38 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       onLongPressDown: (_) {},
                       onLongPressUp: () {},
                       child: Container(
-                        width: 56, // Button size
-                        height: 56, // Button size
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          _isMessageBoxVisible || _isLongPressing
-                              ? Icons.close
-                              : Icons.message,
-                          color: Colors.white,
-                        ),
-                      ),
+                          width: 56, // Button size
+                          height: 56, // Button size
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: _isMessageBoxVisible || _isLongPressing
+                              ? Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                )
+                              : Icon(
+                                  Icons.message,
+                                  color: Colors.white,
+                                )
+                          // : Container(
+                          //     decoration: BoxDecoration(
+                          //         borderRadius: BorderRadius.circular(54)),
+                          //     child: Image.asset(
+                          //       "assets/images/icon.png",
+                          //       height: 10,
+                          //       width: 10,
+                          //     ),
+                          //   ),
+                          ),
                     ),
                     const SizedBox(
                         width:

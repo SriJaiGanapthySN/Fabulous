@@ -99,6 +99,7 @@ flutter:
     - "assets/videos/sendingbg.mp4"
     - "assets/videos/sendbg.mp4"
     - "assets/animations/Ripple.json"
+    - "assets/images/icon.png"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
