@@ -100,6 +100,11 @@ flutter:
     - "assets/videos/sendbg.mp4"
     - "assets/animations/Ripple.json"
     - "assets/images/icon.png"
+    - "assets/animations/BG small Blur/BG small Blur.json"
+    - "assets/animations/Inner+Outerbox+Glow/Inner Box/Outerbox.json"
+    - "assets/animations/Inner+Outerbox+Glow/Outerbox/Outerbox.json"
+    - "assets/animations/Inner+Outerbox+Glow/Outer Glow/Outerbox.json"
+    - "assets/animations/Inner+Outerbox+Glow/Inner+Outerbox+Glow/Outerbox.json"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

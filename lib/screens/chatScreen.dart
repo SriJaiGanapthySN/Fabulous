@@ -22,6 +22,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   late VideoPlayerController _videoController;
   late AnimationController _ccontroller;
+  late AnimationController _mindcontroller;
   late Animation<Color?> _colorAnimation;
   bool _isMessageBoxVisible = false;
   final FocusNode _focusNode = FocusNode();
@@ -29,6 +30,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   bool _isLongPressing = false;
   String displayText = "Hold to Speak";
   late Timer _timer;
+  bool _isReversing = false;
 
   // Ensure initialization of animationController in initState
   late AnimationController _animationController;
@@ -40,6 +42,27 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
+    // _mindcontroller = AnimationController(
+    //   vsync: this,
+    //   duration: Duration(seconds: 5), // Sets animation duration to 2 seconds
+    // )..repeat(reverse: false);
+
+    _mindcontroller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 5), // Smooth duration
+    )..addListener(() {
+        if (_mindcontroller.value > 0.99 && !_isReversing) {
+          // Start reversing at 90% progress
+          _isReversing = true;
+          _mindcontroller.reverse();
+        } else if (_mindcontroller.value < 0.13 && _isReversing) {
+          // Start playing forward again at 10% progress
+          _isReversing = false;
+          _mindcontroller.forward();
+        }
+      });
+
+    _mindcontroller.forward(); // Start animation forward
     // Initialize the animation controller
     _animationController = AnimationController(
       duration: const Duration(seconds: 1),
@@ -286,19 +309,66 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     return Scaffold(
       body: Stack(
         children: [
-          // Background video
-          if (_videoController.value.isInitialized)
-            SizedBox.expand(
-              child: FittedBox(
-                fit: BoxFit.cover,
-                child: SizedBox(
-                  width: _videoController.value.size.width,
-                  height: _videoController.value.size.height,
-                  child: VideoPlayer(_videoController),
-                ),
-              ),
+          Container(
+            color: Color(0xFF1E1B8A), // Set your desired background color
+            width: double.infinity,
+            height: double.infinity,
+          ),
+          Center(
+            child: Lottie.asset(
+              'assets/animations/BG small Blur/BG small Blur.json', // Replace with your actual Lottie file path
+              width: 400, // Adjust size as needed
+              height: 400,
+              fit: BoxFit.contain,
+              controller: _mindcontroller,
+              // animate: true,
             ),
-          // Chat overlay
+          ),
+          Center(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Lottie animation
+                Lottie.asset(
+                  "assets/animations/Inner+Outerbox+Glow/Inner Box/Outerbox.json",
+                  width: 220, // 2x the height
+                  height: 100, // Base height
+                  fit: BoxFit.fill, // Ensures it stretches properly
+                  controller:
+                      _mindcontroller, // Using the same controller for the animation
+                  animate: true,
+                ),
+
+                // Animate the text based on the same controller
+                // AnimatedBuilder(
+                //   animation: _mindcontroller,
+                //   builder: (context, child) {
+                //     // We are fading in and out the text using the controller's value
+                //     return Align(
+                //       alignment: Alignment.center,
+                //       child: Opacity(
+                //         opacity: _mindcontroller
+                //             .value, // Fade based on controller value
+                //         child: Transform.translate(
+                //           offset: Offset(0,
+                //               -5), // Shift the text up by 20 pixels (adjust as needed)
+                //           child: Text(
+                //             "What's on your mind?",
+                //             style: TextStyle(
+                //               color: const Color.fromARGB(
+                //                   206, 255, 255, 255), // White text color
+                //               fontSize: 16, // Adjust size as needed
+                //               fontWeight: FontWeight.w600, // Optional: bold text
+                //             ),
+                //           ),
+                //         ),
+                //       ),
+                //     );
+                //   },
+                // ),
+              ],
+            ),
+          ),
           Column(
             children: [
               Expanded(
@@ -325,12 +395,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           width: 56, // Button size
                           height: 56, // Button size
                           decoration: BoxDecoration(
-                            color: Colors.blue,
+                            color: Colors.white12,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                blurRadius: 5,
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
                                 offset: const Offset(0, 3),
                               ),
                             ],
@@ -341,8 +411,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                   color: Colors.white,
                                 )
                               : Icon(
-                                  Icons.message,
+                                  Icons.blur_circular,
                                   color: Colors.white,
+                                  size: 45,
                                 )
                           // : Container(
                           //     decoration: BoxDecoration(
@@ -425,31 +496,43 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       ),
                     if (!_isMessageBoxVisible)
                       Container(
-                        margin: EdgeInsets.only(left: 30),
+                        margin: EdgeInsets.only(left: 2),
                         child: AnimatedOpacity(
                           duration: Duration(
                               milliseconds:
                                   2000), // Smooth fade-in and fade-out
                           opacity: _opacity,
-                          child: TextAnimator(
-                            displayText,
-                            incomingEffect: WidgetTransitionEffects(
-                                blur: const Offset(10, 10),
-                                duration: const Duration(milliseconds: 500)),
-                            outgoingEffect: WidgetTransitionEffects(
-                                blur: const Offset(10, 10)),
-                            atRestEffect: WidgetRestingEffects.wave(
-                                effectStrength: 0.2,
-                                duration: Duration(milliseconds: 750),
-                                numberOfPlays: 1),
-                            style: TextStyle(
-                                fontFamily: "Original",
-                                color: Colors.white,
-                                fontSize: 18),
-                            textAlign: TextAlign.left,
-                            initialDelay: const Duration(milliseconds: 0),
-                            spaceDelay: const Duration(milliseconds: 100),
-                            characterDelay: const Duration(milliseconds: 10),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.circle_sharp, // Add the circle_sharp icon
+                                color: Color(0xFFA715E9), // Icon color
+                                size: 6, // Icon size
+                              ),
+                              SizedBox(width: 2), // Space between icon and text
+                              TextAnimator(
+                                displayText,
+                                incomingEffect: WidgetTransitionEffects(
+                                    blur: const Offset(10, 10),
+                                    duration:
+                                        const Duration(milliseconds: 500)),
+                                outgoingEffect: WidgetTransitionEffects(
+                                    blur: const Offset(10, 10)),
+                                atRestEffect: WidgetRestingEffects.wave(
+                                    effectStrength: 0.2,
+                                    duration: Duration(milliseconds: 750),
+                                    numberOfPlays: 1),
+                                style: TextStyle(
+                                    fontFamily: "Original",
+                                    color: Colors.white,
+                                    fontSize: 15),
+                                textAlign: TextAlign.left,
+                                initialDelay: const Duration(milliseconds: 0),
+                                spaceDelay: const Duration(milliseconds: 100),
+                                characterDelay:
+                                    const Duration(milliseconds: 10),
+                              ),
+                            ],
                           ),
                         ),
                       )
