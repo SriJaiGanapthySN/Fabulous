@@ -24,6 +24,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late AnimationController _ccontroller;
   late AnimationController _mindcontroller;
   late AnimationController _ripplecontroller;
+  late AnimationController _mindboxcontroller;
   late Animation<Color?> _colorAnimation;
   bool _isMessageBoxVisible = false;
   final FocusNode _focusNode = FocusNode();
@@ -33,6 +34,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late Timer _timer;
   bool _isReversing = false;
   bool _isRippleDone = false;
+  bool _showContainer = false; // Initially hidden
+  double _scale = 0.0; // Start with zero scale
+
   // bool _repeatGlow = true;
 
   late AnimationController _boxAnimationController;
@@ -53,6 +57,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     //   duration: Duration(seconds: 5), // Sets animation duration to 2 seconds
     // )..repeat(reverse: false);
 
+    Future.delayed(Duration(seconds: 1), () {
+      setState(() {
+        _showContainer = true;
+        _scale = 1.0; // Scale up to full size
+      });
+    });
+
     _mindcontroller = AnimationController(
       vsync: this,
       duration: Duration(seconds: 5), // Smooth duration
@@ -69,6 +80,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       });
 
     _mindcontroller.forward(); // Start animation forward
+
+    _mindboxcontroller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 2), // Sets animation duration to 2 seconds
+    )..repeat(); // Loops the animation
 
     _ripplecontroller = AnimationController(
       vsync: this,
@@ -340,7 +356,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           800; // Character delay (10ms) + full effect (800ms)
                       Duration textAnimationDuration =
                           Duration(milliseconds: textDurationMs);
-                         bool repeatGlow=true;
+                      bool repeatGlow = true;
                       return Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 5, horizontal: 10),
@@ -490,6 +506,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: Stack(
         children: [
@@ -498,63 +516,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             width: double.infinity,
             height: double.infinity,
           ),
-
-          // Center(
-          //   child: Lottie.asset(
-          //     'assets/animations/BG small Blur/BG small Blur.json', // Replace with your actual Lottie file path
-          //     width: 400, // Adjust size as needed
-          //     height: 400,
-          //     fit: BoxFit.contain,
-          //     controller: _mindcontroller,
-          //     // animate: true,
-          //   ),
-          // ),
-          // Center(
-          //   child: Stack(
-          //     alignment: Alignment.center,
-          //     children: [
-          //       // Lottie animation
-          //       Lottie.asset(
-          //         "assets/animations/Inner+Outerbox+Glow/Inner Box/Outerbox.json",
-          //         width: 220, // 2x the height
-          //         height: 100, // Base height
-          //         fit: BoxFit.fill, // Ensures it stretches properly
-          //         controller:
-          //             _mindcontroller, // Using the same controller for the animation
-          //         animate: true,
-          //       ),
-
-          //       // Animate the text based on the same controller
-          //       // AnimatedBuilder(
-          //       //   animation: _mindcontroller,
-          //       //   builder: (context, child) {
-          //       //     // We are fading in and out the text using the controller's value
-          //       //     return Align(
-          //       //       alignment: Alignment.center,
-          //       //       child: Opacity(
-          //       //         opacity: _mindcontroller
-          //       //             .value, // Fade based on controller value
-          //       //         child: Transform.translate(
-          //       //           offset: Offset(0,
-          //       //               -5), // Shift the text up by 20 pixels (adjust as needed)
-          //       //           child: Text(
-          //       //             "What's on your mind?",
-          //       //             style: TextStyle(
-          //       //               color: const Color.fromARGB(
-          //       //                   206, 255, 255, 255), // White text color
-          //       //               fontSize: 16, // Adjust size as needed
-          //       //               fontWeight: FontWeight.w600, // Optional: bold text
-          //       //             ),
-          //       //           ),
-          //       //         ),
-          //       //       ),
-          //       //     );
-          //       //   },
-          //       // ),
-          //     ],
-          //   ),
-          // ),
-
           if (messages.isEmpty)
             Stack(
               // mainAxisAlignment: MainAxisAlignment.center,
@@ -562,30 +523,42 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 Center(
                   child: Lottie.asset(
                     'assets/animations/BG small Blur/BG small Blur.json',
-                    width: 400,
-                    height: 400,
-                    fit: BoxFit.contain,
+                    width: screenWidth / 0.9,
+                    height: screenHeight / 1.8,
+                    fit: BoxFit.fill,
                     controller: _mindcontroller,
                   ),
                 ),
                 Center(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Lottie.asset(
-                        "assets/animations/Inner+Outerbox+Glow/Inner Box/Outerbox.json",
-                        width: 220,
-                        height: 100,
-                        fit: BoxFit.fill,
-                        controller: _mindcontroller,
-                        animate: true,
+                  child: AnimatedOpacity(
+                    opacity: _showContainer ? 1.0 : 0.0, // Fade in
+                    duration: Duration(seconds: 1), // 1 sec fade-in
+                    curve: Curves.easeInOut, // Smooth transition
+
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Container(
+                        width: screenWidth / 2.15,
+                        height: screenHeight / 13,
+                        color:
+                            Colors.white.withOpacity(0.1), // Semi-transparent
+                        padding: EdgeInsets.all(10),
+                        alignment: Alignment.center, // Center the text
+                        child: Text(
+                          "What's on your mind?",
+                          style: TextStyle(
+                            color: Colors.white
+                                .withOpacity(0.7), // Light white text
+                            fontSize: screenWidth * 0.038, // Adjust size
+                            fontWeight: FontWeight.w600, // Semi-bold
+                          ),
+                        ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ],
             ),
-
           Column(
             children: [
               Expanded(
