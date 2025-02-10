@@ -23,7 +23,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late VideoPlayerController _videoController;
   late AnimationController _ccontroller;
   late AnimationController _mindcontroller;
-  late AnimationController _ripplecontroller;
+  late AnimationController _rippleController;
   late AnimationController _mindboxcontroller;
   late Animation<Color?> _colorAnimation;
   bool _isMessageBoxVisible = false;
@@ -36,6 +36,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   bool _isRippleDone = false;
   bool _showContainer = false; // Initially hidden
   double _scale = 0.0; // Start with zero scale
+  
 
   // bool _repeatGlow = true;
 
@@ -86,10 +87,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       duration: Duration(seconds: 2), // Sets animation duration to 2 seconds
     )..repeat(); // Loops the animation
 
-    _ripplecontroller = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 4), // Sets animation duration to 2 seconds
-    )..repeat(reverse: false);
+    // _ripplecontroller = AnimationController(
+    //   vsync: this,
+    //   duration: Duration(seconds: 6), // Sets animation duration to 2 seconds
+    // )..repeat();
+    // _ripplecontroller.forward();
+    _rippleController = AnimationController(
+      vsync: this, 
+      duration: const Duration(seconds: 5), // Set animation duration to 6 seconds
+    )..repeat(); 
     // Initialize the animation controller
     _animationController = AnimationController(
       duration: const Duration(seconds: 1),
@@ -187,6 +193,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     _videoController.dispose();
     _controller.dispose();
     _focusNode.dispose();
+    _rippleController.dispose();
     _animationController.dispose(); // Dispose of the animation controller
     super.dispose();
     _ccontroller.dispose();
@@ -718,29 +725,66 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           ),
           if (_isLongPressing)
             Positioned(
-              bottom: kBottomNavigationBarHeight + 45,
+              bottom: 0,
               left: 0,
               right: 0,
               child: Center(
-                child: Lottie.asset(
-                  "assets/animations/All Lottie/Down Ripple/Ripple.json", // Your local animation
-                  width: MediaQuery.of(context).size.width,
-                  height: 100,
-                  fit: BoxFit.cover,
-                  // controller: _ripplecontroller,
-                  repeat: true, // Makes animation run continuously
-                  animate: true, // Ensure animation starts
-                  // onLoaded: (composition) {
-                  //   _animationController
-                  //     ..duration = composition.duration;
-                  // },
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Lottie.asset(
+                      "assets/animations/All Lottie/Down Ripple/Ripple.json",
+                      width: MediaQuery.of(context).size.width,
+                      height: screenHeight * 0.25,
+                      fit: BoxFit.fill,
+                      repeat: true,
+                      animate: true,
+                      frameRate: FrameRate(30),
+                      controller: _rippleController, // Custom controller for speed control
+  // onLoaded: (composition) {
+  //   _rippleController
+  //     ..duration = const Duration(seconds: 6) // Set animation duration
+  //     ..forward(); // Start animation
+  // },
+                    ),
+                    Positioned(
+                      bottom: screenHeight * 0.06,
+                      left:
+                          16, // Add left padding to keep text within the screen
+                      right:
+                          16, // Add right padding to keep text within the screen
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width *
+                            0.9, // Adjust width dynamically
+                        child: TextAnimator(
+                          "I'm feeling burned out. Any suggestions for recharging?",
+                          incomingEffect: WidgetTransitionEffects
+                              .incomingSlideInFromBottom(),
+                          outgoingEffect: WidgetTransitionEffects
+                              .outgoingSlideOutToBottom(),
+                          atRestEffect: WidgetRestingEffects.wave(
+                            numberOfPlays: 1,
+                            effectStrength: 0.2
 
-                  controller: _ripplecontroller, // Use custom controller
-                  // onLoaded: (composition) {
-                  //   _ripplecontroller
-                  //     ..duration = composition.duration * 2 // Slows down animation (2x duration)
-                  //     ..repeat(reverse: true);  // Loops the animation
-                  // },
+                          ),
+                          style: GoogleFonts.roboto(
+                            textStyle: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing:
+                                  2, // Reduce spacing to prevent excessive width
+                              fontSize: 20, // Adjust font size if necessary
+                            ),
+                          ),
+                          textAlign: TextAlign.center,
+                          initialDelay: const Duration(milliseconds: 10),
+                          spaceDelay: const Duration(milliseconds: 100),
+                          characterDelay: const Duration(milliseconds: 0),
+                          maxLines: 3,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
