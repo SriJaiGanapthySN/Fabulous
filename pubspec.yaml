@@ -108,6 +108,7 @@ flutter:
     - "assets/animations/All Lottie/Down Ripple/Ripple.json"
     - "assets/animations/All Lottie/BG Glow Gradient/3 in 1/BG Glow Gradient.json"
     - "assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json"
+    - "assets/images/bg.jpeg"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

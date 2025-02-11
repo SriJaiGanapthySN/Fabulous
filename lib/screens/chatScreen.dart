@@ -37,7 +37,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   bool _showContainer = false; // Initially hidden
   double _scale = 0.0; // Start with zero scale
   bool _isSendingMessage = false; // Add this variable
-  bool _isGlowVisible = false;
+  String voicetext = "I'm feeling burned out. Any suggestions for recharging?";
+  bool _shouldShowTextBox = false;
 
   // bool _repeatGlow = true;
 
@@ -54,11 +55,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    // _mindcontroller = AnimationController(
-    //   vsync: this,
-    //   duration: Duration(seconds: 5), // Sets animation duration to 2 seconds
-    // )..repeat(reverse: false);
-
     Future.delayed(Duration(seconds: 1), () {
       setState(() {
         _showContainer = true;
@@ -70,6 +66,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: Duration(seconds: 5), // Smooth duration
     )..addListener(() {
+        setState(() {
+          _shouldShowTextBox = true; // Show second box when animation starts
+        });
         if (_mindcontroller.value > 0.99 && !_isReversing) {
           // Start reversing at 90% progress
           _isReversing = true;
@@ -88,11 +87,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       duration: Duration(seconds: 2), // Sets animation duration to 2 seconds
     )..repeat(); // Loops the animation
 
-    // _ripplecontroller = AnimationController(
-    //   vsync: this,
-    //   duration: Duration(seconds: 6), // Sets animation duration to 2 seconds
-    // )..repeat();
-    // _ripplecontroller.forward();
     _rippleController = AnimationController(
       vsync: this,
       duration:
@@ -103,25 +97,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       duration: const Duration(seconds: 1),
       vsync: this,
     );
-
-    // _ripplecontroller = AnimationController(
-    //   vsync: this,
-    //   duration: Duration(seconds: 4), // Smooth duration
-    // )..addListener(() {
-    //   _ripplecontroller.forward();
-    //     if (_ripplecontroller.value > 0.90) {
-    //       // When animation reaches 90%, reset it to 10% and keep running
-    //       // _ripplecontroller.forward();
-    //       // _ripplecontroller.reset();  // Reset to beginning
-
-    //       _ripplecontroller.value = 0.1;
-    //       _ripplecontroller.forward(); // Restart smoothly
-    //     }else{
-    //        _ripplecontroller.forward();
-    //     }
-    //   });
-
-    // _ripplecontroller.forward(); // Start animation
 
     // Initialize the video controller
     _videoController = VideoPlayerController.asset('assets/videos/chatBg.mp4')
@@ -153,12 +128,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         800; // Character delay (10ms) + full effect (800ms)
     Duration textAnimationDuration = Duration(milliseconds: textDurationMs);
 
-    // Box animation controller (duration matches text animation)
-    // _boxAnimationController = AnimationController(
-    //   vsync: this,
-    //   duration: textAnimationDuration,
-    // );
-
     _boxAnimationController = AnimationController(
       vsync: this,
       duration: textAnimationDuration,
@@ -172,12 +141,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
     _boxAnimationController.forward();
     _glowAnimationController.forward();
-
-    // Future.delayed(Duration(seconds: 5), () {
-    //   setState(() {
-    //     _repeatGlow = false; // Stop repeating after 5 seconds
-    //   });
-    // });
   }
 
   void _startTextSwitching() {
@@ -210,13 +173,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   void _onLongPressEnd(LongPressEndDetails details) {
     setState(() {
+      _sendMessage(sentence);
       _isLongPressing = false;
     });
   }
 
-  void _sendMessage() {
-    if (_controller.text.isNotEmpty) {
-      final String messageText = _controller.text;
+  void _sendMessage(String response) {
+    if (true) {
+      final String messageText =
+          !_controller.text.isEmpty ? _controller.text : voicetext;
       _controller.clear();
 
       // Create an animation controller for the user's message animation
@@ -224,6 +189,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         vsync: this,
         duration: const Duration(seconds: 2),
       );
+
+      AnimationController _sparkleController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 1200),
+      );
+
 
       Animation<Offset> slideAnimation = Tween<Offset>(
         begin: const Offset(-1.5, 19), // Start from the bottom
@@ -240,7 +211,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       setState(() {
         Future.delayed(Duration(milliseconds: 10), () {
           _isSendingMessage = true;
-          _isGlowVisible = true;
+          // _isGlowVisible = true;
         });
 
         messages.add(
@@ -256,6 +227,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       });
 
       animationController.forward();
+      _sparkleController.forward();
 
       // After the user's message animation completes, show the reply
       animationController.addStatusListener((status) {
@@ -281,25 +253,35 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           ).animate(replyController);
 
           double iconOpacity = 0.0; // Initial opacity of icons
+          bool repeatGlow = true;
+          bool _isGlowVisible = true;
+          bool _isBoxVisible = false;
+          int textDurationMs = (response.length * 10) +
+              800; // Character delay (10ms) + full effect (800ms)
+          Duration textAnimationDuration =
+              Duration(milliseconds: textDurationMs + 1000);
 
           setState(() {
             messages.add(
               StatefulBuilder(
                 builder: (context, setLocalState) {
-                  Future.delayed(Duration(seconds: 5), () {
+                  Future.delayed(Duration(milliseconds: 1000), () {
+                    setLocalState(() {
+                      _isBoxVisible = true; // Show box animation
+                    });
+                  });
+                  
+                  Future.delayed(textAnimationDuration, () {
                     setLocalState(() {
                       iconOpacity = 1.0; // Change opacity after 3 seconds
+                      repeatGlow = false;
+                      _isGlowVisible = false;
                     });
                   });
 
                   return AnimatedBuilder(
                     animation: colorAnimation,
                     builder: (context, child) {
-                      int textDurationMs = (sentence.length * 10) +
-                          800; // Character delay (10ms) + full effect (800ms)
-                      Duration textAnimationDuration =
-                          Duration(milliseconds: textDurationMs);
-                      bool repeatGlow = true;
                       return Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 5, horizontal: 10),
@@ -307,113 +289,131 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           alignment: Alignment.centerLeft,
                           child: Stack(
                             children: [
-                              // Animated Lottie Box
-                              Lottie.asset(
-                                "assets/animations/Inner+Outerbox+Glow/Outerbox/Outerbox.json", // Replace with actual file path
-                                width: MediaQuery.of(context).size.width *
-                                    0.7, // Match previous maxWidth
-                                height:
-                                    MediaQuery.of(context).size.height * 0.2,
-                                fit: BoxFit.fill,
-                                controller: _boxAnimationController,
-                                repeat: false,
-                                // controller: _boxAnimationController, // Attach animation controller if needed
-                              ),
-
-                              Lottie.asset(
-                                "assets/animations/Inner+Outerbox+Glow/Outer Glow/Outerbox.json", // Replace with actual file path
-                                width: MediaQuery.of(context).size.width *
-                                    0.7, // Match previous maxWidth
-                                height:
-                                    MediaQuery.of(context).size.height * 0.2,
-                                fit: BoxFit.fill,
-                                // controller: _glowAnimationController,
-                                //  repeat: true,
-                                // controller: _boxAnimationController, // Attach animation controller if needed
-                                repeat: repeatGlow,
-                                onLoaded: (composition) {
-                                  // Timer starts ONLY when the animation first loads
-                                  Future.delayed(textAnimationDuration, () {
-                                    setState(() {
-                                      repeatGlow =
-                                          false; // Stop repeating after 5 seconds
-                                    });
-                                  });
-                                },
-                              ),
-
-                              // Overlay text and icons inside the animated box
-                              Positioned.fill(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 12, horizontal: 18),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      TextAnimator(
-                                        "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
-                                        incomingEffect: WidgetTransitionEffects(
-                                            blur: const Offset(10, 10),
-                                            duration: const Duration(
-                                                milliseconds: 800)),
-                                        outgoingEffect: WidgetTransitionEffects(
-                                            blur: const Offset(10, 10)),
-                                        atRestEffect: WidgetRestingEffects.wave(
-                                            effectStrength: 0.2,
-                                            duration:
-                                                Duration(milliseconds: 750),
-                                            numberOfPlays: 1),
-                                        style: GoogleFonts.lato(
-                                            textStyle: TextStyle(
-                                          fontFamily: "Original",
-                                          letterSpacing: 1,
-                                          fontSize: 14,
-                                          color: Colors
-                                              .white, // Ensure text is visible over the animation
-                                        )),
-                                        textAlign: TextAlign.left,
-                                        initialDelay:
-                                            const Duration(milliseconds: 0),
-                                        spaceDelay:
-                                            const Duration(milliseconds: 100),
-                                        characterDelay:
-                                            const Duration(milliseconds: 10),
-                                        maxLines: 3,
-                                      ),
-
-                                      // Icons Row with Fade-In Animation
-                                      AnimatedOpacity(
-                                        duration: Duration(seconds: 1),
-                                        opacity: iconOpacity,
-                                        curve: Curves.easeIn,
-                                        child: Row(
-                                          children: [
-                                            IconButton(
-                                              onPressed: () {},
-                                              icon: FaIcon(
-                                                FontAwesomeIcons.heart,
-                                                color: Colors.white,
-                                                size: 20,
-                                              ),
-                                            ),
-                                            SizedBox(width: 5),
-                                            IconButton(
-                                              onPressed: () {},
-                                              icon: FaIcon(
-                                                FontAwesomeIcons.plus,
-                                                color: Colors.white,
-                                                size: 20,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                              Visibility(
+                                visible: _isGlowVisible,
+                                child: Lottie.asset(
+                                  'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.8,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.3,
+                                  fit: BoxFit.cover,
+                                  repeat: false,
+                                  // controller: _sparkleController
                                 ),
                               ),
+                              if (_isBoxVisible) ...[
+                                // Animated Lottie Box
+                                Lottie.asset(
+                                  "assets/animations/Inner+Outerbox+Glow/Outerbox/Outerbox.json", // Replace with actual file path
+                                  width: MediaQuery.of(context).size.width *
+                                      0.7, // Match previous maxWidth
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.2,
+                                  fit: BoxFit.fill,
+                                  // controller: _boxAnimationController,
+                                  repeat: false,
+                                  // controller: _boxAnimationController, // Attach animation controller if needed
+                                ),
+
+                                Lottie.asset(
+                                  "assets/animations/Inner+Outerbox+Glow/Outer Glow/Outerbox.json", // Replace with actual file path
+                                  width: MediaQuery.of(context).size.width *
+                                      0.7, // Match previous maxWidth
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.2,
+                                  fit: BoxFit.fill,
+                                  // controller: _glowAnimationController,
+                                  //  repeat: true,
+                                  // controller: _boxAnimationController, // Attach animation controller if needed
+                                  repeat: repeatGlow,
+                                  // onLoaded: (composition) {
+                                  //   // Timer starts ONLY when the animation first loads
+                                  //   Future.delayed(textAnimationDuration, () {
+                                  //     setState(() {
+                                  //       repeatGlow =
+                                  //           false; // Stop repeating after 5 seconds
+                                  //     });
+                                  //   });
+                                  // },
+                                ),
+
+                                // Overlay text and icons inside the animated box
+                                Positioned.fill(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12, horizontal: 18),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextAnimator(
+                                          "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
+                                          incomingEffect:
+                                              WidgetTransitionEffects(
+                                                  blur: const Offset(10, 10),
+                                                  duration: const Duration(
+                                                      milliseconds: 800)),
+                                          outgoingEffect:
+                                              WidgetTransitionEffects(
+                                                  blur: const Offset(10, 10)),
+                                          atRestEffect:
+                                              WidgetRestingEffects.wave(
+                                                  effectStrength: 0.2,
+                                                  duration: Duration(
+                                                      milliseconds: 750),
+                                                  numberOfPlays: 1),
+                                          style: GoogleFonts.lato(
+                                              textStyle: TextStyle(
+                                            fontFamily: "Original",
+                                            letterSpacing: 1,
+                                            fontSize: 14,
+                                            color: Colors
+                                                .white, // Ensure text is visible over the animation
+                                          )),
+                                          textAlign: TextAlign.left,
+                                          initialDelay:
+                                              const Duration(milliseconds: 0),
+                                          spaceDelay:
+                                              const Duration(milliseconds: 100),
+                                          characterDelay:
+                                              const Duration(milliseconds: 10),
+                                          maxLines: 3,
+                                        ),
+
+                                        // Icons Row with Fade-In Animation
+                                        AnimatedOpacity(
+                                          duration: Duration(milliseconds: 100),
+                                          opacity: iconOpacity,
+                                          curve: Curves.easeIn,
+                                          child: Row(
+                                            children: [
+                                              IconButton(
+                                                onPressed: () {},
+                                                icon: FaIcon(
+                                                  FontAwesomeIcons.heart,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                              SizedBox(width: 5),
+                                              IconButton(
+                                                onPressed: () {},
+                                                icon: FaIcon(
+                                                  FontAwesomeIcons.plus,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ]
                             ],
                           ),
                         ),
@@ -454,10 +454,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            color: Color(0xFF1E1B8A),
-            width: double.infinity,
-            height: double.infinity,
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/bg.jpeg', // Replace with your image path
+              fit: BoxFit.cover,
+            ),
           ),
 
           // Lottie Animation (Only Visible When Sending)
@@ -482,29 +483,29 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   },
                 ),
               ),
-              Positioned(
-                left: 0,
-                right: 0,
-                top: 10,
-                child: Visibility(
-                  visible: _isGlowVisible,
-                  child: Lottie.asset(
-                    'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
-                    width: screenWidth * 0.3,
-                    height: screenHeight * 0.3,
-                    fit: BoxFit.cover,
-                    repeat: false,
-                    onLoaded: (composition) {
-                      // After 1-2 seconds, hide the glowing effect
-                      Future.delayed(Duration(seconds: 2), () {
-                        setState(() {
-                          _isGlowVisible = false;
-                        });
-                      });
-                    },
-                  ),
-                ),
-              ),
+              // Positioned(
+              //   left: 0,
+              //   right: 0,
+              //   top: 10,
+              //   child: Visibility(
+              //     visible: _isGlowVisible,
+              //     child: Lottie.asset(
+              //       'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
+              //       width: screenWidth * 0.3,
+              //       height: screenHeight * 0.3,
+              //       fit: BoxFit.cover,
+              //       repeat: false,
+              //       onLoaded: (composition) {
+              //         // After 1-2 seconds, hide the glowing effect
+              //         Future.delayed(Duration(seconds: 2), () {
+              //           setState(() {
+              //             _isGlowVisible = false;
+              //           });
+              //         });
+              //       },
+              //     ),
+              //   ),
+              // ),
             ],
           ),
 
@@ -521,34 +522,36 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     controller: _mindcontroller,
                   ),
                 ),
-                Center(
-                  child: AnimatedOpacity(
-                    opacity: _showContainer ? 1.0 : 0.0, // Fade in
-                    duration: Duration(seconds: 1), // 1 sec fade-in
-                    curve: Curves.easeInOut, // Smooth transition
+                if (_shouldShowTextBox)
+                  Center(
+                    child: AnimatedOpacity(
+                      opacity: _showContainer ? 1.0 : 0.0, // Fade in
+                      duration: Duration(seconds: 1), // 1 sec fade-in
+                      curve: Curves.easeInOut, // Smooth transition
 
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: Container(
-                        width: screenWidth / 2.15,
-                        height: screenHeight / 13,
-                        color:
-                            Colors.white.withOpacity(0.1), // Semi-transparent
-                        padding: EdgeInsets.all(10),
-                        alignment: Alignment.center, // Center the text
-                        child: Text(
-                          "What's on your mind?",
-                          style: TextStyle(
-                            color: Colors.white
-                                .withOpacity(0.7), // Light white text
-                            fontSize: screenWidth * 0.038, // Adjust size
-                            fontWeight: FontWeight.w600, // Semi-bold
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Container(
+                          width: screenWidth / 2.15,
+                          height: screenHeight / 13,
+                          color:
+                              Colors.white.withOpacity(0.1), // Semi-transparent
+                          padding: EdgeInsets.all(10),
+                          alignment: Alignment.center, // Center the text
+                          child: Text(
+                            "What's on your mind?",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white
+                                  .withOpacity(0.7), // Light white text
+                              fontSize: screenWidth * 0.038, // Adjust size
+                              fontWeight: FontWeight.w600, // Semi-bold
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
               ],
             ),
           Column(
@@ -596,17 +599,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                   Icons.blur_circular,
                                   color: Colors.white,
                                   size: 45,
-                                )
-                          // : Container(
-                          //     decoration: BoxDecoration(
-                          //         borderRadius: BorderRadius.circular(54)),
-                          //     child: Image.asset(
-                          //       "assets/images/icon.png",
-                          //       height: 10,
-                          //       width: 10,
-                          //     ),
-                          //   ),
-                          ),
+                                )),
                     ),
                     const SizedBox(
                         width:
@@ -652,7 +645,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     // Send button
                     if (_isMessageBoxVisible)
                       IconButton(
-                        onPressed: _sendMessage,
+                        onPressed: () => _sendMessage(sentence),
                         icon: const Icon(Icons.send),
                         color: Colors.white54, // Set icon color to white
                       ),
