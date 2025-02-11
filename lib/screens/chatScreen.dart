@@ -36,7 +36,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   bool _isRippleDone = false;
   bool _showContainer = false; // Initially hidden
   double _scale = 0.0; // Start with zero scale
-  
+  bool _isSendingMessage = false; // Add this variable
+  bool _isGlowVisible = false;
 
   // bool _repeatGlow = true;
 
@@ -93,9 +94,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     // )..repeat();
     // _ripplecontroller.forward();
     _rippleController = AnimationController(
-      vsync: this, 
-      duration: const Duration(seconds: 5), // Set animation duration to 6 seconds
-    )..repeat(); 
+      vsync: this,
+      duration:
+          const Duration(seconds: 5), // Set animation duration to 6 seconds
+    )..repeat();
     // Initialize the animation controller
     _animationController = AnimationController(
       duration: const Duration(seconds: 1),
@@ -231,7 +233,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         curve: Curves.easeOut,
       ));
 
+      // setState(() {
+      //   _isSendingMessage = true; // Set to true when sending message
+      // });
+
       setState(() {
+        Future.delayed(Duration(milliseconds: 10), () {
+          _isSendingMessage = true;
+          _isGlowVisible = true;
+        });
+
         messages.add(
           AnimatedMessageBubble(
             message: messageText,
@@ -284,81 +295,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   return AnimatedBuilder(
                     animation: colorAnimation,
                     builder: (context, child) {
-                      // return Padding(
-                      //   padding: const EdgeInsets.symmetric(
-                      //       vertical: 5, horizontal: 10),
-                      //   child: Align(
-                      //     alignment: Alignment.centerLeft,
-                      //     child: Container(
-                      //       constraints: BoxConstraints(
-                      //           maxWidth:
-                      //               MediaQuery.of(context).size.width * 0.7),
-                      //       padding: const EdgeInsets.symmetric(
-                      //           vertical: 12, horizontal: 18),
-                      //       decoration: BoxDecoration(
-                      //         color: colorAnimation.value,
-                      //         borderRadius: BorderRadius.circular(20),
-                      //       ),
-                      //       child: Column(
-                      //         children: [
-                      //           TextAnimator(
-                      //             "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
-                      //             incomingEffect: WidgetTransitionEffects(
-                      //                 blur: const Offset(10, 10),
-                      //                 duration:
-                      //                     const Duration(milliseconds: 800)),
-                      //             outgoingEffect: WidgetTransitionEffects(
-                      //                 blur: const Offset(10, 10)),
-                      //             atRestEffect: WidgetRestingEffects.wave(
-                      //                 effectStrength: 0.2,
-                      //                 duration: Duration(milliseconds: 750),
-                      //                 numberOfPlays: 1),
-                      //             style: GoogleFonts.lato(
-                      //                 textStyle: TextStyle(
-                      //               fontFamily: "Original",
-                      //               letterSpacing: 1,
-                      //               fontSize: 14,
-                      //               color: _colorAnimation.value ?? Colors.blue,
-                      //             )),
-                      //             textAlign: TextAlign.left,
-                      //             initialDelay: const Duration(milliseconds: 0),
-                      //             spaceDelay: const Duration(milliseconds: 100),
-                      //             characterDelay:
-                      //                 const Duration(milliseconds: 10),
-                      //             maxLines: 3,
-                      //           ),
-                      //           AnimatedOpacity(
-                      //             duration: Duration(seconds: 1),
-                      //             opacity: iconOpacity,
-                      //             curve: Curves.easeIn,
-                      //             child: Row(
-                      //               children: [
-                      //                 IconButton(
-                      //                   onPressed: () {},
-                      //                   icon: FaIcon(
-                      //                     FontAwesomeIcons.heart,
-                      //                     color: Colors.white,
-                      //                     size: 20,
-                      //                   ),
-                      //                 ),
-                      //                 SizedBox(width: 5),
-                      //                 IconButton(
-                      //                   onPressed: () {},
-                      //                   icon: FaIcon(
-                      //                     FontAwesomeIcons.plus,
-                      //                     color: Colors.white,
-                      //                     size: 20,
-                      //                   ),
-                      //                 ),
-                      //               ],
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //     ),
-                      //   ),
-                      // );
-
                       int textDurationMs = (sentence.length * 10) +
                           800; // Character delay (10ms) + full effect (800ms)
                       Duration textAnimationDuration =
@@ -519,10 +455,59 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       body: Stack(
         children: [
           Container(
-            color: Color(0xFF1E1B8A), // Set your desired background color
+            color: Color(0xFF1E1B8A),
             width: double.infinity,
             height: double.infinity,
           ),
+
+          // Lottie Animation (Only Visible When Sending)
+          Stack(
+            children: [
+              Visibility(
+                visible: _isSendingMessage,
+                child: Lottie.asset(
+                  'assets/animations/All Lottie/BG Glow Gradient/3 in 1/BG Glow Gradient.json',
+                  width: screenWidth,
+                  height: screenHeight,
+                  fit: BoxFit.cover,
+                  repeat: false,
+                  onLoaded: (composition) {
+                    // Instantly turn off animation after it plays
+                    Future.delayed(
+                        composition.duration + Duration(milliseconds: 90), () {
+                      setState(() {
+                        _isSendingMessage = false;
+                      });
+                    });
+                  },
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                top: 10,
+                child: Visibility(
+                  visible: _isGlowVisible,
+                  child: Lottie.asset(
+                    'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
+                    width: screenWidth * 0.3,
+                    height: screenHeight * 0.3,
+                    fit: BoxFit.cover,
+                    repeat: false,
+                    onLoaded: (composition) {
+                      // After 1-2 seconds, hide the glowing effect
+                      Future.delayed(Duration(seconds: 2), () {
+                        setState(() {
+                          _isGlowVisible = false;
+                        });
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+
           if (messages.isEmpty)
             Stack(
               // mainAxisAlignment: MainAxisAlignment.center,
@@ -739,13 +724,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       fit: BoxFit.fill,
                       repeat: true,
                       animate: true,
-                      frameRate: FrameRate(30),
-                      controller: _rippleController, // Custom controller for speed control
-  // onLoaded: (composition) {
-  //   _rippleController
-  //     ..duration = const Duration(seconds: 6) // Set animation duration
-  //     ..forward(); // Start animation
-  // },
+                      // frameRate: FrameRate(30),
+                      // controller:
+                      //     _rippleController, // Custom controller for speed control
+                      // onLoaded: (composition) {
+                      //   _rippleController
+                      //     ..duration = const Duration(
+                      //         seconds: 6) // Set animation duration
+                      //     ..forward(); // Start animation
+                      // },
                     ),
                     Positioned(
                       bottom: screenHeight * 0.06,
@@ -763,23 +750,24 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           outgoingEffect: WidgetTransitionEffects
                               .outgoingSlideOutToBottom(),
                           atRestEffect: WidgetRestingEffects.wave(
-                            numberOfPlays: 1,
-                            effectStrength: 0.2
-
-                          ),
+                              numberOfPlays: 1, effectStrength: 0.2),
                           style: GoogleFonts.roboto(
                             textStyle: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w500,
-                              letterSpacing:
-                                  2, // Reduce spacing to prevent excessive width
-                              fontSize: 20, // Adjust font size if necessary
+                              letterSpacing: 2,
+                              fontSize: 20,
                             ),
                           ),
                           textAlign: TextAlign.center,
-                          initialDelay: const Duration(milliseconds: 10),
-                          spaceDelay: const Duration(milliseconds: 100),
-                          characterDelay: const Duration(milliseconds: 0),
+                          // Synchronize with Lottie by delaying initial text appearance
+                          initialDelay: const Duration(
+                              milliseconds: 100), // Reduced initial delay
+                          spaceDelay: const Duration(
+                              milliseconds: 50), // Faster space delay
+                          characterDelay: const Duration(
+                              milliseconds:
+                                  20), // Slightly faster character delay
                           maxLines: 3,
                         ),
                       ),
