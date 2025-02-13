@@ -26,6 +26,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late AnimationController _rippleController;
   late AnimationController _mindboxcontroller;
   late Animation<Color?> _colorAnimation;
+  bool isThresholdReached = false; // Variable to track state change
+
   bool _isMessageBoxVisible = false;
   final FocusNode _focusNode = FocusNode();
   double _opacity = 0.0;
@@ -189,6 +191,14 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         vsync: this,
         duration: const Duration(seconds: 2),
       );
+      animationController.addListener(() {
+    if (animationController.value >= 0.65 && !isThresholdReached) {
+      setState(() {
+        isThresholdReached = true;
+      });
+      print("State changed at 85% progress");
+    }
+  });
 
       AnimationController _sparkleController = AnimationController(
         vsync: this,
@@ -465,7 +475,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           Stack(
             children: [
               Visibility(
-                visible: _isSendingMessage,
+                visible: isThresholdReached,
                 child: Lottie.asset(
                   'assets/animations/All Lottie/BG Glow Gradient/3 in 1/BG Glow Gradient.json',
                   width: screenWidth,
@@ -478,6 +488,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         composition.duration + Duration(milliseconds: 90), () {
                       setState(() {
                         _isSendingMessage = false;
+                        isThresholdReached=false;
                       });
                     });
                   },
