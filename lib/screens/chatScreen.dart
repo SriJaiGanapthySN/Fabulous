@@ -143,6 +143,26 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
     _boxAnimationController.forward();
     _glowAnimationController.forward();
+
+    // Add a listener to the text controller
+    _controller.addListener(() {
+      if (_controller.text.isNotEmpty && _showMindText) {
+        setState(() {
+          _showMindText = false;
+          _shouldShowTextBox = false;
+          _mindcontroller.stop();
+        });
+      } else if (_controller.text.isEmpty &&
+          !_showMindText &&
+          _isMessageBoxVisible) {
+        setState(() {
+          _showMindText = true;
+          _shouldShowTextBox = true;
+          _mindcontroller.reset();
+          _mindcontroller.forward();
+        });
+      }
+    });
   }
 
   void _startTextSwitching() {
@@ -456,16 +476,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     setState(() {
       _isMessageBoxVisible = !_isMessageBoxVisible;
       if (_isMessageBoxVisible) {
-        // Fade out both the text and background when showing message box
-        _showMindText = false;
-        _shouldShowTextBox = false; // Hide the entire mind box container
-        _mindcontroller.stop(); // Stop the background animation
+        // Only hide the animations if there's text in the input
+        if (_controller.text.isNotEmpty) {
+          _showMindText = false;
+          _shouldShowTextBox = false;
+          _mindcontroller.stop();
+        }
       } else {
-        // Show everything again when hiding message box
         _showMindText = true;
-        _shouldShowTextBox = true; // Show the mind box container
-        _mindcontroller.reset(); // Reset the animation
-        _mindcontroller.forward(); // Resume the background animation from start
+        _shouldShowTextBox = true;
+        _mindcontroller.reset();
+        _mindcontroller.forward();
       }
     });
 
