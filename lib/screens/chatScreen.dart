@@ -41,6 +41,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   bool _isSendingMessage = false; // Add this variable
   String voicetext = "I'm feeling burned out. Any suggestions for recharging?";
   bool _shouldShowTextBox = false;
+  bool _showMindText = true; // Add this variable to control text visibility
 
   // bool _repeatGlow = true;
 
@@ -91,8 +92,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
     _rippleController = AnimationController(
       vsync: this,
-      duration:
-          const Duration(seconds: 5), // Set animation duration to 6 seconds
+      duration: const Duration(seconds: 8), // Back to original 5 seconds
     )..repeat();
     // Initialize the animation controller
     _animationController = AnimationController(
@@ -170,6 +170,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   void _onLongPressStart(LongPressStartDetails details) {
     setState(() {
       _isLongPressing = true;
+      // Fade out both the text and background when long pressing
+      _showMindText = false;
+      _shouldShowTextBox = false;
+      _mindcontroller.stop();
+      // Reset and restart the ripple animation
+      _rippleController.reset();
+      _rippleController.forward();
     });
   }
 
@@ -177,6 +184,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     setState(() {
       _sendMessage(sentence);
       _isLongPressing = false;
+      // Show everything again when long press ends
+      _showMindText = true;
+      _shouldShowTextBox = true;
+      _mindcontroller.reset(); // Reset the animation
+      _mindcontroller.forward(); // Start the animation from beginning
     });
   }
 
@@ -192,19 +204,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         duration: const Duration(seconds: 2),
       );
       animationController.addListener(() {
-    if (animationController.value >= 0.65 && !isThresholdReached) {
-      setState(() {
-        isThresholdReached = true;
+        if (animationController.value >= 0.65 && !isThresholdReached) {
+          setState(() {
+            isThresholdReached = true;
+          });
+          print("State changed at 85% progress");
+        }
       });
-      print("State changed at 85% progress");
-    }
-  });
 
       AnimationController _sparkleController = AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 1200),
       );
-
 
       Animation<Offset> slideAnimation = Tween<Offset>(
         begin: const Offset(-1.5, 19), // Start from the bottom
@@ -280,7 +291,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       _isBoxVisible = true; // Show box animation
                     });
                   });
-                  
+
                   Future.delayed(textAnimationDuration, () {
                     setLocalState(() {
                       iconOpacity = 1.0; // Change opacity after 3 seconds
@@ -444,6 +455,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   void _toggleMessageBoxVisibility() {
     setState(() {
       _isMessageBoxVisible = !_isMessageBoxVisible;
+      if (_isMessageBoxVisible) {
+        // Fade out both the text and background when showing message box
+        _showMindText = false;
+        _shouldShowTextBox = false; // Hide the entire mind box container
+        _mindcontroller.stop(); // Stop the background animation
+      } else {
+        // Show everything again when hiding message box
+        _showMindText = true;
+        _shouldShowTextBox = true; // Show the mind box container
+        _mindcontroller.reset(); // Reset the animation
+        _mindcontroller.forward(); // Resume the background animation from start
+      }
     });
 
     // Set focus to the TextField when the message box is visible
@@ -488,7 +511,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         composition.duration + Duration(milliseconds: 90), () {
                       setState(() {
                         _isSendingMessage = false;
-                        isThresholdReached=false;
+                        isThresholdReached = false;
                       });
                     });
                   },
@@ -522,41 +545,46 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
           if (messages.isEmpty)
             Stack(
-              // mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Center(
-                  child: Lottie.asset(
-                    'assets/animations/BG small Blur/BG small Blur.json',
-                    width: screenWidth / 0.9,
-                    height: screenHeight / 1.8,
-                    fit: BoxFit.fill,
-                    controller: _mindcontroller,
+                AnimatedOpacity(
+                  opacity: _shouldShowTextBox ? 1.0 : 0.0,
+                  duration: Duration(
+                      milliseconds: 1500), // Increased from 800 to 1500ms
+                  curve: Curves
+                      .easeInOut, // Using easeInOut for smoother transition
+                  child: Center(
+                    child: Lottie.asset(
+                      'assets/animations/BG small Blur/BG small Blur.json',
+                      width: screenWidth / 0.9,
+                      height: screenHeight / 1.8,
+                      fit: BoxFit.fill,
+                      controller: _mindcontroller,
+                    ),
                   ),
                 ),
                 if (_shouldShowTextBox)
                   Center(
                     child: AnimatedOpacity(
-                      opacity: _showContainer ? 1.0 : 0.0, // Fade in
-                      duration: Duration(seconds: 1), // 1 sec fade-in
-                      curve: Curves.easeInOut, // Smooth transition
-
+                      opacity: _showContainer && _showMindText ? 1.0 : 0.0,
+                      duration: Duration(
+                          milliseconds: 1500), // Increased from 800 to 1500ms
+                      curve: Curves
+                          .easeInOut, // Using easeInOut for smoother transition
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(24),
                         child: Container(
                           width: screenWidth / 2.15,
                           height: screenHeight / 13,
-                          color:
-                              Colors.white.withOpacity(0.1), // Semi-transparent
+                          color: Colors.white.withOpacity(0.1),
                           padding: EdgeInsets.all(10),
-                          alignment: Alignment.center, // Center the text
+                          alignment: Alignment.center,
                           child: Text(
                             "What's on your mind?",
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Colors.white
-                                  .withOpacity(0.7), // Light white text
-                              fontSize: screenWidth * 0.038, // Adjust size
-                              fontWeight: FontWeight.w600, // Semi-bold
+                              color: Colors.white.withOpacity(0.7),
+                              fontSize: screenWidth * 0.038,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -721,32 +749,26 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Lottie.asset(
-                      "assets/animations/All Lottie/Down Ripple/Ripple.json",
-                      width: MediaQuery.of(context).size.width,
-                      height: screenHeight * 0.25,
-                      fit: BoxFit.fill,
-                      repeat: true,
-                      animate: true,
-                      // frameRate: FrameRate(30),
-                      // controller:
-                      //     _rippleController, // Custom controller for speed control
-                      // onLoaded: (composition) {
-                      //   _rippleController
-                      //     ..duration = const Duration(
-                      //         seconds: 6) // Set animation duration
-                      //     ..forward(); // Start animation
-                      // },
+                    Container(
+                      height: screenHeight *
+                          0.4, // Increased height for better visibility
+                      alignment: Alignment.bottomCenter,
+                      child: Lottie.asset(
+                        "assets/animations/All Lottie/Down Ripple/Ripple.json",
+                        width: MediaQuery.of(context).size.width,
+                        height: screenHeight * 0.25,
+                        fit: BoxFit.fill,
+                        repeat: true,
+                        animate: true,
+                        controller: _rippleController,
+                      ),
                     ),
                     Positioned(
-                      bottom: screenHeight * 0.06,
-                      left:
-                          16, // Add left padding to keep text within the screen
-                      right:
-                          16, // Add right padding to keep text within the screen
+                      bottom: screenHeight * 0.08, // Adjusted position
+                      left: 16,
+                      right: 16,
                       child: SizedBox(
-                        width: MediaQuery.of(context).size.width *
-                            0.9, // Adjust width dynamically
+                        width: MediaQuery.of(context).size.width * 0.9,
                         child: TextAnimator(
                           "I'm feeling burned out. Any suggestions for recharging?",
                           incomingEffect: WidgetTransitionEffects

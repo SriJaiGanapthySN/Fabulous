@@ -2,17 +2,6 @@ import 'package:fab/screens/audio.dart';
 import 'package:fab/firebase_options.dart';
 import 'package:fab/screens/challengerevealscreen.dart';
 
-import 'package:fab/screens/challengesscreen.dart';
-import 'package:fab/screens/discoverscreen.dart';
-import 'package:fab/screens/guidedcoachingmenu.dart';
-import 'package:fab/screens/guidedcoachingrevealscreen.dart';
-import 'package:fab/screens/guidedcoachingsecondlevel.dart';
-import 'package:fab/screens/homepage.dart';
-import 'package:fab/screens/journeyscreen.dart';
-import 'package:fab/screens/journeyscreenrevealtype1.dart';
-import 'package:fab/screens/journeyscreenrevealtype2.dart';
-import 'package:fab/screens/journeyscreentype3.dart';
-import 'package:fab/screens/journeysecondlevel.dart';
 import 'package:fab/screens/logingupinterfacescreen.dart';
 import 'package:fab/screens/notesscreen.dart';
 import 'package:fab/screens/routinelistscreen.dart';
