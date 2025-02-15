@@ -52,7 +52,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
 
   final String sentence =
-      "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.";
+      "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.\n jabfgjabgjhabgjhbrjgbrejgbjearbgjehrbgjherbgjehrgbjerhgbehjrlgbjerhlbgerjbgejrlgberjkgbejkrgberjlgblerbgerligbeluigberiugberiugberriglberjgberuigberliugbleirugbielgbeiurbgleirgbsiuegbijlsbglkjsdfbglsiuebrgijlbsgsiuebgjidlbgiudgbleiurbgibgjkdfsbgmfkdnskjhfigrehsgliu";
 
   @override
   void initState() {
@@ -348,7 +348,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                 Lottie.asset(
                                   "assets/animations/Inner+Outerbox+Glow/Outerbox/Outerbox.json", // Replace with actual file path
                                   width: MediaQuery.of(context).size.width *
-                                      0.7, // Match previous maxWidth
+                                      0.87, // Match previous maxWidth
                                   height:
                                       MediaQuery.of(context).size.height * 0.2,
                                   fit: BoxFit.fill,
@@ -360,7 +360,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                 Lottie.asset(
                                   "assets/animations/Inner+Outerbox+Glow/Outer Glow/Outerbox.json", // Replace with actual file path
                                   width: MediaQuery.of(context).size.width *
-                                      0.7, // Match previous maxWidth
+                                      0.87, // Match previous maxWidth
                                   height:
                                       MediaQuery.of(context).size.height * 0.2,
                                   fit: BoxFit.fill,
@@ -382,69 +382,86 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                 // Overlay text and icons inside the animated box
                                 Positioned.fill(
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12, horizontal: 18),
+                                    padding: const EdgeInsets.only(
+                                        top: 12, left: 18, right: 12),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        TextAnimator(
-                                          "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
-                                          incomingEffect:
-                                              WidgetTransitionEffects(
-                                                  blur: const Offset(10, 10),
-                                                  duration: const Duration(
-                                                      milliseconds: 800)),
-                                          outgoingEffect:
-                                              WidgetTransitionEffects(
-                                                  blur: const Offset(10, 10)),
-                                          atRestEffect:
-                                              WidgetRestingEffects.wave(
-                                                  effectStrength: 0.2,
-                                                  duration: Duration(
-                                                      milliseconds: 750),
-                                                  numberOfPlays: 1),
-                                          style: GoogleFonts.lato(
-                                              textStyle: TextStyle(
-                                            fontFamily: "Original",
-                                            letterSpacing: 1,
-                                            fontSize: 14,
-                                            color: Colors
-                                                .white, // Ensure text is visible over the animation
-                                          )),
-                                          textAlign: TextAlign.left,
-                                          initialDelay:
-                                              const Duration(milliseconds: 0),
-                                          spaceDelay:
-                                              const Duration(milliseconds: 100),
-                                          characterDelay:
-                                              const Duration(milliseconds: 10),
-                                          maxLines: 3,
-                                        ),
-
-                                        // Icons Row with Fade-In Animation
-                                        AnimatedOpacity(
-                                          duration: Duration(milliseconds: 100),
-                                          opacity: iconOpacity,
-                                          curve: Curves.easeIn,
-                                          child: Row(
+                                        Container(
+                                          // Wrap the Column in a Container with margin
+                                          margin: EdgeInsets.only(
+                                              left: 5, right: 10),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              IconButton(
-                                                onPressed: () {},
-                                                icon: FaIcon(
-                                                  FontAwesomeIcons.heart,
-                                                  color: Colors.white,
-                                                  size: 20,
-                                                ),
+                                              TextAnimator(
+                                                "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits hvuguygu  yguygvuyvuyvuyvyuvuyvuyvyuvuyiguyl. ",
+                                                incomingEffect:
+                                                    WidgetTransitionEffects(
+                                                        blur: const Offset(
+                                                            10, 10),
+                                                        duration:
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    800)),
+                                                outgoingEffect:
+                                                    WidgetTransitionEffects(
+                                                        blur: const Offset(
+                                                            10, 10)),
+                                                atRestEffect:
+                                                    WidgetRestingEffects.wave(
+                                                        effectStrength: 0.2,
+                                                        duration: Duration(
+                                                            milliseconds: 750),
+                                                        numberOfPlays: 1),
+                                                style: GoogleFonts.lato(
+                                                    textStyle: TextStyle(
+                                                  fontFamily: "Original",
+                                                  letterSpacing: 1,
+                                                  fontSize: 14,
+                                                  color: Colors
+                                                      .white, // Ensure text is visible over the animation
+                                                )),
+                                                textAlign: TextAlign.left,
+                                                initialDelay: const Duration(
+                                                    milliseconds: 0),
+                                                spaceDelay: const Duration(
+                                                    milliseconds: 100),
+                                                characterDelay: const Duration(
+                                                    milliseconds: 10),
+                                                maxLines: 8,
                                               ),
-                                              SizedBox(width: 5),
-                                              IconButton(
-                                                onPressed: () {},
-                                                icon: FaIcon(
-                                                  FontAwesomeIcons.plus,
-                                                  color: Colors.white,
-                                                  size: 20,
+
+                                              // Icons Row with Fade-In Animation
+                                              AnimatedOpacity(
+                                                duration:
+                                                    Duration(milliseconds: 100),
+                                                opacity: iconOpacity,
+                                                curve: Curves.easeIn,
+                                                child: Row(
+                                                  children: [
+                                                    IconButton(
+                                                      onPressed: () {},
+                                                      icon: FaIcon(
+                                                        FontAwesomeIcons.heart,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 5),
+                                                    IconButton(
+                                                      onPressed: () {},
+                                                      icon: FaIcon(
+                                                        FontAwesomeIcons.plus,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                             ],
