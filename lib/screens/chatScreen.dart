@@ -52,7 +52,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
 
   final String sentence =
-      "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.\n jabfgjabgjhabgjhbrjgbrejgbjearbgjehrbgjherbgjehrgbjerhgbehjrlgbjerhlbgerjbgejrlgberjkgbejkrgberjlgblerbgerligbeluigberiugberiugberriglberjgberuigberliugbleirugbielgbeiurbgleirgbsiuegbijlsbglkjsdfbglsiuebrgijlbsgsiuebgjidlbgiudgbleiurbgibgjkdfsbgmfkdnskjhfigrehsgliu";
+      "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits. ";
 
   @override
   void initState() {
@@ -221,10 +221,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       // Create an animation controller for the user's message animation
       AnimationController animationController = AnimationController(
         vsync: this,
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       );
       animationController.addListener(() {
-        if (animationController.value >= 0.65 && !isThresholdReached) {
+        if (animationController.value >= 0.1 && !isThresholdReached) {
           setState(() {
             isThresholdReached = true;
           });
@@ -250,7 +250,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       // });
 
       setState(() {
-        Future.delayed(Duration(milliseconds: 10), () {
+        Future.delayed(Duration(milliseconds: 0), () {
           _isSendingMessage = true;
           // _isGlowVisible = true;
         });
@@ -546,7 +546,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   onLoaded: (composition) {
                     // Instantly turn off animation after it plays
                     Future.delayed(
-                        composition.duration + Duration(milliseconds: 90), () {
+                        composition.duration + Duration(milliseconds: 390), () {
                       setState(() {
                         _isSendingMessage = false;
                         isThresholdReached = false;
