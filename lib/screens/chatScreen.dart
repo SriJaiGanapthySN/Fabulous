@@ -224,7 +224,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         duration: const Duration(seconds: 1),
       );
       animationController.addListener(() {
-        if (animationController.value >= 0.1 && !isThresholdReached) {
+        if (animationController.value >= 0.65 && !isThresholdReached) {
           setState(() {
             isThresholdReached = true;
           });
