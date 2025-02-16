@@ -306,9 +306,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             messages.add(
               StatefulBuilder(
                 builder: (context, setLocalState) {
-                  Future.delayed(Duration(milliseconds: 1000), () {
+                  Future.delayed(Duration(milliseconds: 2000), () {
                     setLocalState(() {
                       _isBoxVisible = true; // Show box animation
+                      _isGlowVisible = false;
                     });
                   });
 
@@ -330,8 +331,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           alignment: Alignment.centerLeft,
                           child: Stack(
                             children: [
-                              Visibility(
-                                visible: _isGlowVisible,
+                              AnimatedOpacity(
+                                opacity: _isGlowVisible ? 1.0 : 0.0,
+                                duration: const Duration(
+                                    milliseconds:
+                                        500), // Adjust for smooth fading
+                                curve: Curves
+                                    .easeOut, // Makes the fade-out smoother
                                 child: Lottie.asset(
                                   'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
                                   width:
@@ -340,7 +346,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                       MediaQuery.of(context).size.height * 0.3,
                                   fit: BoxFit.cover,
                                   repeat: false,
-                                  // controller: _sparkleController
                                 ),
                               ),
                               if (_isBoxVisible) ...[
@@ -399,7 +404,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               TextAnimator(
-                                                "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits hvuguygu  yguygvuyvuyvuyvyuvuyvuyvyuvuyiguyl. ",
+                                                "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
                                                 incomingEffect:
                                                     WidgetTransitionEffects(
                                                         blur: const Offset(
