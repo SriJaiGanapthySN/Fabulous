@@ -510,6 +510,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         vsync: this,
         duration: const Duration(seconds: 1),
       );
+
+
+
       animationController.addListener(() {
         if (animationController.value >= 0.65 && !isThresholdReached) {
           setState(() {
@@ -588,6 +591,44 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               800; // Character delay (10ms) + full effect (800ms)
           Duration textAnimationDuration =
               Duration(milliseconds: textDurationMs + 1000);
+              late AnimationController _gradientcontroller;
+  late Animation<double> _opacityAnimation;
+
+              _gradientcontroller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 2), // Adjust based on Lottie duration
+    );
+
+    // Opacity Tween
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _gradientcontroller, curve: Curves.easeInOut),
+    );
+
+    // Start the animation
+    _gradientcontroller.forward();
+
+    late AnimationController _imagecontroller;
+  double _opacity = 0.0; // Initial opacity
+    bool _applyBlur = false;
+
+  _imagecontroller = AnimationController(vsync: this);
+
+    // Listen to the animation progress and update opacity
+    _imagecontroller.addListener(() {
+      setState(() {
+        _opacity = _imagecontroller.value; // Opacity follows animation progress
+      });
+    });
+    _imagecontroller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          _applyBlur = true;
+        });
+      }
+    });
+  
+
+
 
           setState(() {
             messages.add(
@@ -739,83 +780,137 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                     EdgeInsets.only(top: 10),
                                                 child: Stack(
                                                   alignment: Alignment.center,
+                                                  // children: [
+                                                  //   // Background JSON animation
+                                                    
+                                                  //   // Card image with fade-in effect
+                                                  //   ClipRRect(
+                                                  //     borderRadius:
+                                                  //         BorderRadius
+                                                  //             .circular(12),
+                                                  //     child: Stack(
+                                                  //       children: [
+                                                  //         Container(
+                                                  //           child:
+                                                  //               Image.asset(
+                                                  //             'assets/images/login.jpg', // Replace with your image path
+                                                  //             width: MediaQuery.of(
+                                                  //                         context)
+                                                  //                     .size
+                                                  //                     .width *
+                                                  //                 0.7,
+                                                  //             height: 200,
+                                                  //             fit: BoxFit
+                                                  //                 .cover,
+                                                  //           ),
+                                                  //         ),
+                                                          
+                                                  //       ],
+                                                  //     ),
+                                                  //   ),
+
+                                                  //     Lottie.asset(
+                                                  //       'assets/animations/gradient.json',
+                                                  //       width: MediaQuery.of(
+                                                  //                   context)
+                                                  //               .size
+                                                  //               .width *
+                                                  //           0.7,
+                                                  //       height: 200,
+                                                  //       fit: BoxFit.cover,
+                                                  //       repeat: false
+                                                  //     ),
+                                                  //     Container(
+                                                  //             margin: EdgeInsets
+                                                  //                 .only(
+                                                  //               top: 130,
+                                                  //               left: 10,
+                                                  //               right: 50,
+                                                  //             ),
+                                                  //             padding: EdgeInsets
+                                                  //                 .only(
+                                                  //                     bottom:
+                                                  //                         10),
+                                                  //             child: Text(
+                                                  //               "Dolphines Doing a Backflip in the Ocean",
+                                                  //               style:
+                                                  //                   TextStyle(
+                                                  //                 color: Colors
+                                                  //                     .white,
+                                                  //                 fontSize: 20,
+                                                  //                 fontWeight:
+                                                  //                     FontWeight
+                                                  //                         .bold,
+                                                  //               ),
+                                                  //             ),
+                                                  //           ),
+                                                  // ],
+
                                                   children: [
-                                                    // Background JSON animation
-                                                    AnimatedOpacity(
-                                                      duration: Duration(
-                                                          milliseconds: 1300),
-                                                      opacity: iconOpacity ==
-                                                              0.0
-                                                          ? 1.0
-                                                          : 0.0, // Changed from !iconOpacity
-                                                      child: Lottie.asset(
-                                                        'assets/animations/gradient.json',
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.7,
-                                                        height: 200,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                    // Card image with fade-in effect
-                                                    AnimatedOpacity(
-                                                      duration: Duration(
-                                                          milliseconds:
-                                                              700), // Increased to 2 seconds
-                                                      curve: Curves.easeInOut,
-                                                      opacity:
-                                                          iconOpacity, // Use the same iconOpacity for consistency
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(12),
-                                                        child: Stack(
-                                                          children: [
-                                                            Container(
-                                                              child:
-                                                                  Image.asset(
-                                                                'assets/images/login.jpg', // Replace with your image path
-                                                                width: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width *
-                                                                    0.7,
-                                                                height: 200,
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                              ),
-                                                            ),
-                                                            Container(
-                                                              margin: EdgeInsets
-                                                                  .only(
-                                                                top: 130,
-                                                                left: 10,
-                                                                right: 50,
-                                                              ),
-                                                              padding: EdgeInsets
-                                                                  .only(
-                                                                      bottom:
-                                                                          10),
-                                                              child: Text(
-                                                                "Dolphines Doing a Backflip in the Ocean",
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 20,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
+          // Card image with fade-in effect, opacity based on animation progress
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: AnimatedOpacity(
+              duration: Duration(milliseconds: 100), // Smooth transition
+              curve: Curves.easeInOut,
+              opacity: ((_opacity-0.5)<=0.0)?0:_opacity-0.5,
+              child: Image.asset(
+                'assets/images/login.jpg', // Replace with your image path
+                width: MediaQuery.of(context).size.width * 0.7,
+                height: 200,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          // if (_applyBlur)
+          //         Positioned(
+          //           bottom: 0,
+          //           left: 0,
+          //           right: 0,
+          //           height: 60, // Height of the blurred area
+          //           child: ClipRect(
+          //             child: BackdropFilter(
+          //               filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          //               child: Container(
+          //                 color: Colors.transparent.withOpacity(0.1), // Slight overlay for visibility
+          //               ),
+          //             ),
+          //           ),
+          //         ),
+
+          // Lottie animation over the image
+          Positioned.fill(
+            child: Lottie.asset(
+              'assets/animations/gradient.json',
+              fit: BoxFit.cover,
+              repeat: false,
+              controller: _imagecontroller,
+              onLoaded: (composition) {
+                _imagecontroller
+                  ..duration = composition.duration // Set animation duration
+                  ..forward(); // Start the animation
+              },
+            ),
+          ),
+
+          // Overlay text
+          Positioned(
+            bottom: 10,
+            left: 10,
+            right: 50,
+            child: Text(
+              "Dolphins Doing a Backflip in the Ocean",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+
+
                                                 ),
                                               ),
                                               SizedBox(height: 20),
