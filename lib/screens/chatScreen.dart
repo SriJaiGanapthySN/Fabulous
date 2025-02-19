@@ -301,20 +301,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               0,
               StatefulBuilder(
                 builder: (context, setLocalState) {
-                  bool hasShownGradient = false; // Add this flag
-
                   Future.delayed(Duration(milliseconds: 2000), () {
                     setLocalState(() {
                       _isBoxVisible = true;
                       _isGlowVisible =
-                          !hasShownGradient; // Only show if not shown before
+                          true; // Show the glow animation initially
                     });
 
                     // Add this to hide the glow after one animation
                     Future.delayed(Duration(milliseconds: 800), () {
                       setLocalState(() {
-                        _isGlowVisible = false;
-                        hasShownGradient = true; // Mark as shown
+                        _isGlowVisible =
+                            false; // Hide the glow after one animation
                       });
                     });
                   });
@@ -329,30 +327,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           alignment: Alignment.centerLeft,
                           child: Stack(
                             children: [
-                              // Only show gradient animation if not shown before
-                              if (!hasShownGradient)
-                                AnimatedOpacity(
-                                  duration: Duration(milliseconds: 800),
-                                  opacity: !_isGlowVisible ? 0.0 : 1.0,
-                                  child: Lottie.asset(
-                                    'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.8,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.3,
-                                    fit: BoxFit.cover,
-                                    repeat: false,
-                                    onLoaded: (composition) {
-                                      Future.delayed(
-                                          Duration(milliseconds: 500), () {
-                                        setLocalState(() {
-                                          _isGlowVisible = false;
-                                          hasShownGradient = true;
-                                        });
-                                      });
-                                    },
-                                  ),
+                              AnimatedOpacity(
+                                duration: Duration(milliseconds: 800),
+                                opacity: !_isGlowVisible ? 0.0 : 1.0,
+                                child: Lottie.asset(
+                                  'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.8,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.3,
+                                  fit: BoxFit.cover,
+                                  repeat: false, // Make sure repeat is false
                                 ),
+                              ),
                               if (_isBoxVisible) ...[
                                 // Animated Lottie Box
                                 Lottie.asset(
@@ -635,20 +622,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               0,
               StatefulBuilder(
                 builder: (context, setLocalState) {
-                  bool hasShownGradient = false; // Add this flag
-
                   Future.delayed(Duration(milliseconds: 2000), () {
                     setLocalState(() {
-                      _isBoxVisible = true;
+                      _isBoxVisible = true; // Show box animation
                       _isGlowVisible =
-                          !hasShownGradient; // Only show if not shown before
+                          true; // Show the glow animation initially
                     });
 
                     // Add this to hide the glow after one animation
                     Future.delayed(Duration(milliseconds: 800), () {
                       setLocalState(() {
-                        _isGlowVisible = false;
-                        hasShownGradient = true; // Mark as shown
+                        _isGlowVisible =
+                            false; // Hide the glow after one animation
                       });
                     });
                   });
@@ -663,30 +648,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           alignment: Alignment.centerLeft,
                           child: Stack(
                             children: [
-                              // Only show gradient animation if not shown before
-                              if (!hasShownGradient)
-                                AnimatedOpacity(
-                                  duration: Duration(milliseconds: 800),
-                                  opacity: !_isGlowVisible ? 0.0 : 1.0,
-                                  child: Lottie.asset(
-                                    'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.8,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.3,
-                                    fit: BoxFit.cover,
-                                    repeat: false,
-                                    onLoaded: (composition) {
-                                      Future.delayed(
-                                          Duration(milliseconds: 500), () {
-                                        setLocalState(() {
-                                          _isGlowVisible = false;
-                                          hasShownGradient = true;
-                                        });
-                                      });
-                                    },
-                                  ),
+                              AnimatedOpacity(
+                                duration: Duration(milliseconds: 800),
+                                opacity: !_isGlowVisible ? 0.0 : 1.0,
+                                child: Lottie.asset(
+                                  'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.8,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.3,
+                                  fit: BoxFit.cover,
+                                  repeat: false, // Make sure repeat is false
                                 ),
+                              ),
                               if (_isBoxVisible) ...[
                                 // Animated Lottie Box
                                 Lottie.asset(
