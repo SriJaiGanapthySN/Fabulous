@@ -54,6 +54,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final String sentence =
       "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits. ";
 
+  // Add this ScrollController
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -182,6 +185,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     _focusNode.dispose();
     _rippleController.dispose();
     _animationController.dispose(); // Dispose of the animation controller
+    _scrollController.dispose(); // Add this line
     super.dispose();
     _ccontroller.dispose();
     _timer.cancel();
@@ -204,12 +208,21 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     setState(() {
       _sendMessage(sentence);
       _isLongPressing = false;
-      // Show everything again when long press ends
       _showMindText = true;
       _shouldShowTextBox = true;
-      _mindcontroller.reset(); // Reset the animation
-      _mindcontroller.forward(); // Start the animation from beginning
+      _mindcontroller.reset();
+      _mindcontroller.forward();
     });
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   void _sendMessage(String response) {
@@ -223,52 +236,33 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         vsync: this,
         duration: const Duration(seconds: 1),
       );
-      animationController.addListener(() {
-        if (animationController.value >= 0.65 && !isThresholdReached) {
-          setState(() {
-            isThresholdReached = true;
-          });
-          print("State changed at 85% progress");
-        }
-      });
-
-      AnimationController _sparkleController = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 1200),
-      );
 
       Animation<Offset> slideAnimation = Tween<Offset>(
-        begin: const Offset(-1.5, 19), // Start from the bottom
-        end: Offset(1, 1), // End at its position
+        begin: const Offset(0, 1),
+        end: Offset.zero,
       ).animate(CurvedAnimation(
         parent: animationController,
         curve: Curves.easeOut,
       ));
 
-      // setState(() {
-      //   _isSendingMessage = true; // Set to true when sending message
-      // });
-
       setState(() {
         Future.delayed(Duration(milliseconds: 0), () {
           _isSendingMessage = true;
-          // _isGlowVisible = true;
         });
 
-        messages.add(
-          AnimatedMessageBubble(
-            message: messageText,
-            alignment: Alignment.centerRight,
-            animation: slideAnimation,
-            controller: animationController,
-            bubbleColor: Colors.white,
-            textColor: Colors.black,
-          ),
-        );
+        messages.insert(
+            0,
+            AnimatedMessageBubble(
+              message: messageText,
+              alignment: Alignment.centerRight,
+              animation: slideAnimation,
+              controller: animationController,
+              bubbleColor: Colors.white,
+              textColor: Colors.black,
+            ));
       });
 
       animationController.forward();
-      _sparkleController.forward();
 
       // After the user's message animation completes, show the reply
       animationController.addStatusListener((status) {
@@ -303,27 +297,24 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               Duration(milliseconds: textDurationMs + 1000);
 
           setState(() {
-            messages.add(
+            messages.insert(
+              0,
               StatefulBuilder(
                 builder: (context, setLocalState) {
+                  bool hasShownGradient = false; // Add this flag
+
                   Future.delayed(Duration(milliseconds: 2000), () {
                     setLocalState(() {
-                      _isBoxVisible = true; // Show box animation
-                      _isGlowVisible = false;
-                    });
-                  });
-
-                  Future.delayed(textAnimationDuration, () {
-                    setLocalState(() {
-                      _isGlowVisible = true; // Show JSON animation first
+                      _isBoxVisible = true;
+                      _isGlowVisible =
+                          !hasShownGradient; // Only show if not shown before
                     });
 
-                    // Add delay for image fade-in after text completes
-                    Future.delayed(Duration(milliseconds: 2000), () {
+                    // Add this to hide the glow after one animation
+                    Future.delayed(Duration(milliseconds: 800), () {
                       setLocalState(() {
-                        iconOpacity = 1.0; // Back to original direct fade-in
-                        repeatGlow = false;
                         _isGlowVisible = false;
+                        hasShownGradient = true; // Mark as shown
                       });
                     });
                   });
@@ -338,21 +329,30 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           alignment: Alignment.centerLeft,
                           child: Stack(
                             children: [
-                              AnimatedOpacity(
-                                duration: Duration(milliseconds: 800),
-                                opacity: !_isGlowVisible
-                                    ? 0.0
-                                    : 1.0, // Show JSON when _isGlowVisible is true
-                                child: Lottie.asset(
-                                  'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.8,
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.3,
-                                  fit: BoxFit.cover,
-                                  repeat: false,
+                              // Only show gradient animation if not shown before
+                              if (!hasShownGradient)
+                                AnimatedOpacity(
+                                  duration: Duration(milliseconds: 800),
+                                  opacity: !_isGlowVisible ? 0.0 : 1.0,
+                                  child: Lottie.asset(
+                                    'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.8,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.3,
+                                    fit: BoxFit.cover,
+                                    repeat: false,
+                                    onLoaded: (composition) {
+                                      Future.delayed(
+                                          Duration(milliseconds: 500), () {
+                                        setLocalState(() {
+                                          _isGlowVisible = false;
+                                          hasShownGradient = true;
+                                        });
+                                      });
+                                    },
+                                  ),
                                 ),
-                              ),
                               if (_isBoxVisible) ...[
                                 // Animated Lottie Box
                                 Lottie.asset(
@@ -493,6 +493,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             );
           });
 
+          // Scroll to top after adding the reply
+          _scrollToBottom();
+
           replyController.forward();
         }
       });
@@ -510,8 +513,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         vsync: this,
         duration: const Duration(seconds: 1),
       );
-
-
 
       animationController.addListener(() {
         if (animationController.value >= 0.65 && !isThresholdReached) {
@@ -545,16 +546,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           // _isGlowVisible = true;
         });
 
-        messages.add(
-          AnimatedMessageBubble(
-            message: messageText,
-            alignment: Alignment.centerRight,
-            animation: slideAnimation,
-            controller: animationController,
-            bubbleColor: Colors.white,
-            textColor: Colors.black,
-          ),
-        );
+        messages.insert(
+            0,
+            AnimatedMessageBubble(
+              message: messageText,
+              alignment: Alignment.centerRight,
+              animation: slideAnimation,
+              controller: animationController,
+              bubbleColor: Colors.white,
+              textColor: Colors.black,
+            ));
       });
 
       animationController.forward();
@@ -591,67 +592,63 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               800; // Character delay (10ms) + full effect (800ms)
           Duration textAnimationDuration =
               Duration(milliseconds: textDurationMs + 1000);
-              late AnimationController _gradientcontroller;
-  late Animation<double> _opacityAnimation;
+          late AnimationController _gradientcontroller;
+          late Animation<double> _opacityAnimation;
 
-              _gradientcontroller = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 2), // Adjust based on Lottie duration
-    );
+          _gradientcontroller = AnimationController(
+            vsync: this,
+            duration: Duration(seconds: 2), // Adjust based on Lottie duration
+          );
 
-    // Opacity Tween
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _gradientcontroller, curve: Curves.easeInOut),
-    );
+          // Opacity Tween
+          _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+            CurvedAnimation(
+                parent: _gradientcontroller, curve: Curves.easeInOut),
+          );
 
-    // Start the animation
-    _gradientcontroller.forward();
+          // Start the animation
+          _gradientcontroller.forward();
 
-    late AnimationController _imagecontroller;
-  double _opacity = 0.0; // Initial opacity
-    bool _applyBlur = false;
+          late AnimationController _imagecontroller;
+          double _opacity = 0.0; // Initial opacity
+          bool _applyBlur = false;
 
-  _imagecontroller = AnimationController(vsync: this);
+          _imagecontroller = AnimationController(vsync: this);
 
-    // Listen to the animation progress and update opacity
-    _imagecontroller.addListener(() {
-      setState(() {
-        _opacity = _imagecontroller.value; // Opacity follows animation progress
-      });
-    });
-    _imagecontroller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        setState(() {
-          _applyBlur = true;
-        });
-      }
-    });
-  
-
-
+          // Listen to the animation progress and update opacity
+          _imagecontroller.addListener(() {
+            setState(() {
+              _opacity =
+                  _imagecontroller.value; // Opacity follows animation progress
+            });
+          });
+          _imagecontroller.addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              setState(() {
+                _applyBlur = true;
+              });
+            }
+          });
 
           setState(() {
-            messages.add(
+            messages.insert(
+              0,
               StatefulBuilder(
                 builder: (context, setLocalState) {
+                  bool hasShownGradient = false; // Add this flag
+
                   Future.delayed(Duration(milliseconds: 2000), () {
                     setLocalState(() {
-                      _isBoxVisible = true; // Show box animation
-                      _isGlowVisible = false;
-                    });
-                  });
-
-                  Future.delayed(textAnimationDuration, () {
-                    setLocalState(() {
-                      _isGlowVisible = true; // Show JSON animation first
+                      _isBoxVisible = true;
+                      _isGlowVisible =
+                          !hasShownGradient; // Only show if not shown before
                     });
 
-                    // Add delay for image fade-in after text completes
-                    Future.delayed(Duration(milliseconds: 2000), () {
+                    // Add this to hide the glow after one animation
+                    Future.delayed(Duration(milliseconds: 800), () {
                       setLocalState(() {
-                        iconOpacity = 1.0; // Back to original direct fade-in
-                        repeatGlow = false;
                         _isGlowVisible = false;
+                        hasShownGradient = true; // Mark as shown
                       });
                     });
                   });
@@ -666,21 +663,30 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           alignment: Alignment.centerLeft,
                           child: Stack(
                             children: [
-                              AnimatedOpacity(
-                                duration: Duration(milliseconds: 800),
-                                opacity: !_isGlowVisible
-                                    ? 0.0
-                                    : 1.0, // Show JSON when _isGlowVisible is true
-                                child: Lottie.asset(
-                                  'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.8,
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.3,
-                                  fit: BoxFit.cover,
-                                  repeat: false,
+                              // Only show gradient animation if not shown before
+                              if (!hasShownGradient)
+                                AnimatedOpacity(
+                                  duration: Duration(milliseconds: 800),
+                                  opacity: !_isGlowVisible ? 0.0 : 1.0,
+                                  child: Lottie.asset(
+                                    'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.8,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.3,
+                                    fit: BoxFit.cover,
+                                    repeat: false,
+                                    onLoaded: (composition) {
+                                      Future.delayed(
+                                          Duration(milliseconds: 500), () {
+                                        setLocalState(() {
+                                          _isGlowVisible = false;
+                                          hasShownGradient = true;
+                                        });
+                                      });
+                                    },
+                                  ),
                                 ),
-                              ),
                               if (_isBoxVisible) ...[
                                 // Animated Lottie Box
                                 Lottie.asset(
@@ -780,137 +786,100 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                     EdgeInsets.only(top: 10),
                                                 child: Stack(
                                                   alignment: Alignment.center,
-                                                  // children: [
-                                                  //   // Background JSON animation
-                                                    
-                                                  //   // Card image with fade-in effect
-                                                  //   ClipRRect(
-                                                  //     borderRadius:
-                                                  //         BorderRadius
-                                                  //             .circular(12),
-                                                  //     child: Stack(
-                                                  //       children: [
-                                                  //         Container(
-                                                  //           child:
-                                                  //               Image.asset(
-                                                  //             'assets/images/login.jpg', // Replace with your image path
-                                                  //             width: MediaQuery.of(
-                                                  //                         context)
-                                                  //                     .size
-                                                  //                     .width *
-                                                  //                 0.7,
-                                                  //             height: 200,
-                                                  //             fit: BoxFit
-                                                  //                 .cover,
-                                                  //           ),
-                                                  //         ),
-                                                          
-                                                  //       ],
-                                                  //     ),
-                                                  //   ),
-
-                                                  //     Lottie.asset(
-                                                  //       'assets/animations/gradient.json',
-                                                  //       width: MediaQuery.of(
-                                                  //                   context)
-                                                  //               .size
-                                                  //               .width *
-                                                  //           0.7,
-                                                  //       height: 200,
-                                                  //       fit: BoxFit.cover,
-                                                  //       repeat: false
-                                                  //     ),
-                                                  //     Container(
-                                                  //             margin: EdgeInsets
-                                                  //                 .only(
-                                                  //               top: 130,
-                                                  //               left: 10,
-                                                  //               right: 50,
-                                                  //             ),
-                                                  //             padding: EdgeInsets
-                                                  //                 .only(
-                                                  //                     bottom:
-                                                  //                         10),
-                                                  //             child: Text(
-                                                  //               "Dolphines Doing a Backflip in the Ocean",
-                                                  //               style:
-                                                  //                   TextStyle(
-                                                  //                 color: Colors
-                                                  //                     .white,
-                                                  //                 fontSize: 20,
-                                                  //                 fontWeight:
-                                                  //                     FontWeight
-                                                  //                         .bold,
-                                                  //               ),
-                                                  //             ),
-                                                  //           ),
-                                                  // ],
-
                                                   children: [
-          // Card image with fade-in effect, opacity based on animation progress
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: AnimatedOpacity(
-              duration: Duration(milliseconds: 100), // Smooth transition
-              curve: Curves.easeInOut,
-              opacity: ((_opacity-0.5)<=0.0)?0:_opacity-0.5,
-              child: Image.asset(
-                'assets/images/login.jpg', // Replace with your image path
-                width: MediaQuery.of(context).size.width * 0.7,
-                height: 200,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          // if (_applyBlur)
-          //         Positioned(
-          //           bottom: 0,
-          //           left: 0,
-          //           right: 0,
-          //           height: 60, // Height of the blurred area
-          //           child: ClipRect(
-          //             child: BackdropFilter(
-          //               filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-          //               child: Container(
-          //                 color: Colors.transparent.withOpacity(0.1), // Slight overlay for visibility
-          //               ),
-          //             ),
-          //           ),
-          //         ),
+                                                    // Card image with fade-in effect
+                                                    ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                      child: AnimatedOpacity(
+                                                        duration: Duration(
+                                                            milliseconds: 100),
+                                                        curve: Curves.easeInOut,
+                                                        opacity: ((_opacity -
+                                                                    0.5) <=
+                                                                0.0)
+                                                            ? 0
+                                                            : _opacity - 0.5,
+                                                        child: Image.asset(
+                                                          'assets/images/login.jpg',
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.7,
+                                                          height: 200,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    ),
 
-          // Lottie animation over the image
-          Positioned.fill(
-            child: Lottie.asset(
-              'assets/animations/gradient.json',
-              fit: BoxFit.cover,
-              repeat: false,
-              controller: _imagecontroller,
-              onLoaded: (composition) {
-                _imagecontroller
-                  ..duration = composition.duration // Set animation duration
-                  ..forward(); // Start the animation
-              },
-            ),
-          ),
+                                                    // Lottie animation over the image
+                                                    Positioned.fill(
+                                                      child: Lottie.asset(
+                                                        'assets/animations/gradient.json',
+                                                        fit: BoxFit.cover,
+                                                        repeat: false,
+                                                        controller:
+                                                            _imagecontroller,
+                                                        onLoaded:
+                                                            (composition) {
+                                                          _imagecontroller
+                                                            ..duration =
+                                                                composition
+                                                                    .duration
+                                                            ..forward();
+                                                        },
+                                                      ),
+                                                    ),
 
-          // Overlay text
-          Positioned(
-            bottom: 10,
-            left: 10,
-            right: 50,
-            child: Text(
-              "Dolphins Doing a Backflip in the Ocean",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-
-
+                                                    // Updated text overlay with fade-in animation
+                                                    Positioned(
+                                                      bottom: 10,
+                                                      left: 10,
+                                                      right: 50,
+                                                      child: AnimatedOpacity(
+                                                        duration: Duration(
+                                                            milliseconds: 800),
+                                                        curve: Curves.easeIn,
+                                                        opacity: _opacity >= 0.8
+                                                            ? 1.0
+                                                            : 0.0, // Only show text when image is mostly faded in
+                                                        child: AnimatedBuilder(
+                                                          animation:
+                                                              _imagecontroller,
+                                                          builder:
+                                                              (context, child) {
+                                                            return Transform
+                                                                .translate(
+                                                              offset: Offset(
+                                                                  0,
+                                                                  _imagecontroller
+                                                                              .value <
+                                                                          0.8
+                                                                      ? 20
+                                                                      : 0), // Slide up animation
+                                                              child: Text(
+                                                                "Dolphins Doing a Backflip in the Ocean",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .left,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 20,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                               SizedBox(height: 20),
@@ -975,6 +944,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
             );
           });
+
+          // Scroll to top after adding the reply
+          _scrollToBottom();
 
           replyController.forward();
         }
@@ -1162,10 +1134,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       children: [
                         Expanded(
                           child: ListView.builder(
+                            controller: _scrollController,
+                            reverse: true,
                             itemCount: messages.length,
                             itemBuilder: (context, index) {
-                              return messages[
-                                  index]; // Normal top-to-bottom flow
+                              return messages[index];
                             },
                           ),
                         ),
