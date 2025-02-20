@@ -54,9 +54,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final String sentence =
       "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits. ";
 
-  // Add this ScrollController
-  final ScrollController _scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();
@@ -184,8 +181,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     _controller.dispose();
     _focusNode.dispose();
     _rippleController.dispose();
-    _animationController.dispose(); // Dispose of the animation controller
-    _scrollController.dispose(); // Add this line
+    _animationController.dispose();
     super.dispose();
     _ccontroller.dispose();
     _timer.cancel();
@@ -215,16 +211,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     });
   }
 
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        0.0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
-  }
-
   void _sendMessage(String response) {
     if (true) {
       final String messageText =
@@ -238,11 +224,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       );
 
       Animation<Offset> slideAnimation = Tween<Offset>(
-        begin: const Offset(0, 1),
+        begin:
+            const Offset(1.0, -3.0), // Changed to start from further top-right
         end: Offset.zero,
       ).animate(CurvedAnimation(
         parent: animationController,
-        curve: Curves.easeOut,
+        curve: Curves.easeOutQuint,
       ));
 
       setState(() {
@@ -293,304 +280,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           bool _isBoxVisible = false;
           int textDurationMs = (response.length * 10) +
               800; // Character delay (10ms) + full effect (800ms)
-          Duration textAnimationDuration =
-              Duration(milliseconds: textDurationMs + 1000);
 
-          setState(() {
-            messages.insert(
-              0,
-              StatefulBuilder(
-                builder: (context, setLocalState) {
-                  Future.delayed(Duration(milliseconds: 2000), () {
-                    setLocalState(() {
-                      _isBoxVisible = true;
-                      _isGlowVisible =
-                          true; // Show the glow animation initially
-                    });
-
-                    // Add this to hide the glow after one animation
-                    Future.delayed(Duration(milliseconds: 800), () {
-                      setLocalState(() {
-                        _isGlowVisible =
-                            false; // Hide the glow after one animation
-                      });
-                    });
-                  });
-
-                  return AnimatedBuilder(
-                    animation: colorAnimation,
-                    builder: (context, child) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Stack(
-                            children: [
-                              AnimatedOpacity(
-                                duration: Duration(milliseconds: 800),
-                                opacity: !_isGlowVisible ? 0.0 : 1.0,
-                                child: Lottie.asset(
-                                  'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.8,
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.3,
-                                  fit: BoxFit.cover,
-                                  repeat: false, // Make sure repeat is false
-                                ),
-                              ),
-                              if (_isBoxVisible) ...[
-                                // Animated Lottie Box
-                                Lottie.asset(
-                                  "assets/animations/Inner+Outerbox+Glow/Outerbox/Outerbox.json", // Replace with actual file path
-                                  width: MediaQuery.of(context).size.width *
-                                      0.87, // Match previous maxWidth
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.2,
-                                  fit: BoxFit.fill,
-                                  // controller: _boxAnimationController,
-                                  repeat: false,
-                                  // controller: _boxAnimationController, // Attach animation controller if needed
-                                ),
-
-                                Lottie.asset(
-                                  "assets/animations/Inner+Outerbox+Glow/Outer Glow/Outerbox.json", // Replace with actual file path
-                                  width: MediaQuery.of(context).size.width *
-                                      0.87, // Match previous maxWidth
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.2,
-                                  fit: BoxFit.fill,
-                                  // controller: _glowAnimationController,
-                                  //  repeat: true,
-                                  // controller: _boxAnimationController, // Attach animation controller if needed
-                                  repeat: repeatGlow,
-                                  // onLoaded: (composition) {
-                                  //   // Timer starts ONLY when the animation first loads
-                                  //   Future.delayed(textAnimationDuration, () {
-                                  //     setState(() {
-                                  //       repeatGlow =
-                                  //           false; // Stop repeating after 5 seconds
-                                  //     });
-                                  //   });
-                                  // },
-                                ),
-
-                                // Overlay text and icons inside the animated box
-                                Positioned.fill(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 12, left: 18, right: 12),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          // Wrap the Column in a Container with margin
-                                          margin: EdgeInsets.only(
-                                              left: 5, right: 10),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              TextAnimator(
-                                                "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits.",
-                                                incomingEffect:
-                                                    WidgetTransitionEffects(
-                                                        blur: const Offset(
-                                                            10, 10),
-                                                        duration:
-                                                            const Duration(
-                                                                milliseconds:
-                                                                    800)),
-                                                outgoingEffect:
-                                                    WidgetTransitionEffects(
-                                                        blur: const Offset(
-                                                            10, 10)),
-                                                atRestEffect:
-                                                    WidgetRestingEffects.wave(
-                                                        effectStrength: 0.2,
-                                                        duration: Duration(
-                                                            milliseconds: 750),
-                                                        numberOfPlays: 1),
-                                                style: GoogleFonts.lato(
-                                                    textStyle: TextStyle(
-                                                  fontFamily: "Original",
-                                                  letterSpacing: 1,
-                                                  fontSize: 14,
-                                                  color: Colors
-                                                      .white, // Ensure text is visible over the animation
-                                                )),
-                                                textAlign: TextAlign.left,
-                                                initialDelay: const Duration(
-                                                    milliseconds: 0),
-                                                spaceDelay: const Duration(
-                                                    milliseconds: 100),
-                                                characterDelay: const Duration(
-                                                    milliseconds: 10),
-                                                maxLines: 8,
-                                              ),
-
-                                              // Icons Row with Fade-In Animation
-                                              AnimatedOpacity(
-                                                duration:
-                                                    Duration(milliseconds: 100),
-                                                opacity: iconOpacity,
-                                                curve: Curves.easeIn,
-                                                child: Row(
-                                                  children: [
-                                                    IconButton(
-                                                      onPressed: () {},
-                                                      icon: FaIcon(
-                                                        FontAwesomeIcons.heart,
-                                                        color: Colors.white,
-                                                        size: 20,
-                                                      ),
-                                                    ),
-                                                    SizedBox(width: 5),
-                                                    IconButton(
-                                                      onPressed: () {},
-                                                      icon: FaIcon(
-                                                        FontAwesomeIcons.plus,
-                                                        color: Colors.white,
-                                                        size: 20,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ]
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            );
-          });
-
-          // Scroll to top after adding the reply
-          _scrollToBottom();
-
-          replyController.forward();
-        }
-      });
-    }
-  }
-
-  void _sendCard(String response) {
-    if (true) {
-      final String messageText =
-          !_controller.text.isEmpty ? _controller.text : voicetext;
-      _controller.clear();
-
-      // Create an animation controller for the user's message animation
-      AnimationController animationController = AnimationController(
-        vsync: this,
-        duration: const Duration(seconds: 1),
-      );
-
-      animationController.addListener(() {
-        if (animationController.value >= 0.65 && !isThresholdReached) {
-          setState(() {
-            isThresholdReached = true;
-          });
-          print("State changed at 85% progress");
-        }
-      });
-
-      AnimationController _sparkleController = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 1200),
-      );
-
-      Animation<Offset> slideAnimation = Tween<Offset>(
-        begin: const Offset(-1.5, 19), // Start from the bottom
-        end: Offset.zero, // End at its position
-      ).animate(CurvedAnimation(
-        parent: animationController,
-        curve: Curves.easeOut,
-      ));
-
-      // setState(() {
-      //   _isSendingMessage = true; // Set to true when sending message
-      // });
-
-      setState(() {
-        Future.delayed(Duration(milliseconds: 0), () {
-          _isSendingMessage = true;
-          // _isGlowVisible = true;
-        });
-
-        messages.insert(
-            0,
-            AnimatedMessageBubble(
-              message: messageText,
-              alignment: Alignment.centerRight,
-              animation: slideAnimation,
-              controller: animationController,
-              bubbleColor: Colors.white,
-              textColor: Colors.black,
-            ));
-      });
-
-      animationController.forward();
-      _sparkleController.forward();
-
-      // After the user's message animation completes, show the reply
-      animationController.addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          AnimationController replyController = AnimationController(
-            vsync: this,
-            duration: const Duration(seconds: 10),
-          );
-
-          Animation<Color?> colorAnimation = TweenSequence<Color?>(
-            [
-              TweenSequenceItem(
-                tween: ColorTween(begin: Colors.white10, end: Colors.white30)
-                    .chain(CurveTween(curve: Curves.easeIn)),
-                weight: 50.0,
-              ),
-              TweenSequenceItem(
-                tween: ColorTween(begin: Colors.white30, end: Colors.white10)
-                    .chain(CurveTween(curve: Curves.easeOut)),
-                weight: 50.0,
-              ),
-            ],
-          ).animate(replyController);
-
-          double iconOpacity = 0.0; // Initial opacity of icons
-          bool repeatGlow = true;
-          bool _isGlowVisible = true;
-          bool _isBoxVisible = false;
-          int textDurationMs = (response.length * 10) +
-              800; // Character delay (10ms) + full effect (800ms)
-          Duration textAnimationDuration =
-              Duration(milliseconds: textDurationMs + 1000);
           late AnimationController _gradientcontroller;
-          late Animation<double> _opacityAnimation;
 
           _gradientcontroller = AnimationController(
             vsync: this,
-            duration: Duration(seconds: 2), // Adjust based on Lottie duration
-          );
-
-          // Opacity Tween
-          _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-            CurvedAnimation(
-                parent: _gradientcontroller, curve: Curves.easeInOut),
+            duration:
+                Duration(milliseconds: 800), // Set to exact duration we want
           );
 
           // Start the animation
@@ -624,17 +320,25 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 builder: (context, setLocalState) {
                   Future.delayed(Duration(milliseconds: 2000), () {
                     setLocalState(() {
-                      _isBoxVisible = true; // Show box animation
-                      _isGlowVisible =
-                          true; // Show the glow animation initially
+                      _isBoxVisible = true;
+                      _isGlowVisible = true;
                     });
 
-                    // Add this to hide the glow after one animation
+                    // Single timer to hide the glow
                     Future.delayed(Duration(milliseconds: 800), () {
-                      setLocalState(() {
-                        _isGlowVisible =
-                            false; // Hide the glow after one animation
-                      });
+                      if (mounted) {
+                        // Check if widget is still mounted
+                        setLocalState(() {
+                          _isGlowVisible = false;
+
+                          // Show icons after glow is hidden
+                          Future.delayed(Duration(milliseconds: 500), () {
+                            setLocalState(() {
+                              iconOpacity = 1.0;
+                            });
+                          });
+                        });
+                      }
                     });
                   });
 
@@ -650,7 +354,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             children: [
                               AnimatedOpacity(
                                 duration: Duration(milliseconds: 800),
-                                opacity: !_isGlowVisible ? 0.0 : 1.0,
+                                opacity: _isGlowVisible
+                                    ? 1.0
+                                    : 0.0, // Simplified condition
                                 child: Lottie.asset(
                                   'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
                                   width:
@@ -658,7 +364,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                   height:
                                       MediaQuery.of(context).size.height * 0.3,
                                   fit: BoxFit.cover,
-                                  repeat: false, // Make sure repeat is false
+                                  repeat: false,
                                 ),
                               ),
                               if (_isBoxVisible) ...[
@@ -860,7 +566,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                               // Icons Row with Fade-In Animation
                                               AnimatedOpacity(
                                                 duration:
-                                                    Duration(milliseconds: 100),
+                                                    Duration(milliseconds: 500),
                                                 opacity: iconOpacity,
                                                 curve: Curves.easeIn,
                                                 child: Row(
@@ -918,11 +624,444 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
             );
           });
+        }
+      });
+    }
+  }
 
-          // Scroll to top after adding the reply
-          _scrollToBottom();
+  void _sendCard(String response) {
+    if (true) {
+      final String messageText =
+          !_controller.text.isEmpty ? _controller.text : voicetext;
+      _controller.clear();
 
-          replyController.forward();
+      // Create an animation controller for the user's message animation
+      AnimationController animationController = AnimationController(
+        vsync: this,
+        duration: const Duration(seconds: 1),
+      );
+
+      animationController.addListener(() {
+        if (animationController.value >= 0.65 && !isThresholdReached) {
+          setState(() {
+            isThresholdReached = true;
+          });
+          print("State changed at 85% progress");
+        }
+      });
+
+      AnimationController _sparkleController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 1200),
+      );
+
+      Animation<Offset> slideAnimation = Tween<Offset>(
+        begin:
+            const Offset(1.0, -3.0), // Changed to start from further top-right
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: animationController,
+        curve: Curves.easeOutQuint,
+      ));
+
+      // setState(() {
+      //   _isSendingMessage = true; // Set to true when sending message
+      // });
+
+      setState(() {
+        Future.delayed(Duration(milliseconds: 0), () {
+          _isSendingMessage = true;
+          // _isGlowVisible = true;
+        });
+
+        messages.insert(
+            0,
+            AnimatedMessageBubble(
+              message: messageText,
+              alignment: Alignment.centerRight,
+              animation: slideAnimation,
+              controller: animationController,
+              bubbleColor: Colors.white,
+              textColor: Colors.black,
+            ));
+      });
+
+      animationController.forward();
+      _sparkleController.forward();
+
+      // After the user's message animation completes, show the reply
+      animationController.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          AnimationController replyController = AnimationController(
+            vsync: this,
+            duration: const Duration(seconds: 10),
+          );
+
+          Animation<Color?> colorAnimation = TweenSequence<Color?>(
+            [
+              TweenSequenceItem(
+                tween: ColorTween(begin: Colors.white10, end: Colors.white30)
+                    .chain(CurveTween(curve: Curves.easeIn)),
+                weight: 50.0,
+              ),
+              TweenSequenceItem(
+                tween: ColorTween(begin: Colors.white30, end: Colors.white10)
+                    .chain(CurveTween(curve: Curves.easeOut)),
+                weight: 50.0,
+              ),
+            ],
+          ).animate(replyController);
+
+          double iconOpacity = 0.0; // Initial opacity of icons
+          bool repeatGlow = true;
+          bool _isGlowVisible = true;
+          bool _isBoxVisible = false;
+          int textDurationMs = (response.length * 10) +
+              800; // Character delay (10ms) + full effect (800ms)
+
+          late AnimationController _gradientcontroller;
+
+          _gradientcontroller = AnimationController(
+            vsync: this,
+            duration:
+                Duration(milliseconds: 800), // Set to exact duration we want
+          );
+
+          // Start the animation
+          _gradientcontroller.forward();
+
+          late AnimationController _imagecontroller;
+          double _opacity = 0.0; // Initial opacity
+          bool _applyBlur = false;
+
+          _imagecontroller = AnimationController(vsync: this);
+
+          // Listen to the animation progress and update opacity
+          _imagecontroller.addListener(() {
+            setState(() {
+              _opacity =
+                  _imagecontroller.value; // Opacity follows animation progress
+            });
+          });
+          _imagecontroller.addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              setState(() {
+                _applyBlur = true;
+              });
+            }
+          });
+
+          setState(() {
+            messages.insert(
+              0,
+              StatefulBuilder(
+                builder: (context, setLocalState) {
+                  Future.delayed(Duration(milliseconds: 2000), () {
+                    setLocalState(() {
+                      _isBoxVisible = true;
+                      _isGlowVisible = true;
+                    });
+
+                    // Single timer to hide the glow
+                    Future.delayed(Duration(milliseconds: 800), () {
+                      if (mounted) {
+                        // Check if widget is still mounted
+                        setLocalState(() {
+                          _isGlowVisible = false;
+
+                          // Show icons after glow is hidden
+                          Future.delayed(Duration(milliseconds: 500), () {
+                            setLocalState(() {
+                              iconOpacity = 1.0;
+                            });
+                          });
+                        });
+                      }
+                    });
+                  });
+
+                  return AnimatedBuilder(
+                    animation: colorAnimation,
+                    builder: (context, child) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Stack(
+                            children: [
+                              AnimatedOpacity(
+                                duration: Duration(milliseconds: 800),
+                                opacity: _isGlowVisible
+                                    ? 1.0
+                                    : 0.0, // Simplified condition
+                                child: Lottie.asset(
+                                  'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.8,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.3,
+                                  fit: BoxFit.cover,
+                                  repeat: false,
+                                ),
+                              ),
+                              if (_isBoxVisible) ...[
+                                // Animated Lottie Box
+                                Lottie.asset(
+                                  "assets/animations/Inner+Outerbox+Glow/Outerbox/Outerbox.json", // Replace with actual file path
+                                  width: MediaQuery.of(context).size.width *
+                                      0.87, // Match previous maxWidth
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.4,
+                                  fit: BoxFit.fill,
+                                  // controller: _boxAnimationController,
+                                  repeat: false,
+                                  // controller: _boxAnimationController, // Attach animation controller if needed
+                                ),
+
+                                Lottie.asset(
+                                  "assets/animations/Inner+Outerbox+Glow/Outer Glow/Outerbox.json", // Replace with actual file path
+                                  width: MediaQuery.of(context).size.width *
+                                      0.87, // Match previous maxWidth
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.4,
+                                  fit: BoxFit.fill,
+                                  // controller: _glowAnimationController,
+                                  //  repeat: true,
+                                  // controller: _boxAnimationController, // Attach animation controller if needed
+                                  repeat: repeatGlow,
+                                  // onLoaded: (composition) {
+                                  //   // Timer starts ONLY when the animation first loads
+                                  //   Future.delayed(textAnimationDuration, () {
+                                  //     setState(() {
+                                  //       repeatGlow =
+                                  //           false; // Stop repeating after 5 seconds
+                                  //     });
+                                  //   });
+                                  // },
+                                ),
+
+                                // Overlay text and icons inside the animated box
+                                Positioned.fill(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 12, left: 18, right: 12),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          // Wrap the Column in a Container with margin
+                                          margin: EdgeInsets.only(
+                                              top: 10, left: 5, right: 10),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              TextAnimator(
+                                                "Here is a reference to the card",
+                                                incomingEffect:
+                                                    WidgetTransitionEffects(
+                                                        blur: const Offset(
+                                                            10, 10),
+                                                        duration:
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    800)),
+                                                outgoingEffect:
+                                                    WidgetTransitionEffects(
+                                                        blur: const Offset(
+                                                            10, 10)),
+                                                atRestEffect:
+                                                    WidgetRestingEffects.wave(
+                                                        effectStrength: 0.2,
+                                                        duration: Duration(
+                                                            milliseconds: 750),
+                                                        numberOfPlays: 1),
+                                                style: GoogleFonts.lato(
+                                                    textStyle: TextStyle(
+                                                  fontFamily: "Original",
+                                                  letterSpacing: 1,
+                                                  fontSize: 14,
+                                                  color: Colors
+                                                      .white, // Ensure text is visible over the animation
+                                                )),
+                                                textAlign: TextAlign.left,
+                                                initialDelay: const Duration(
+                                                    milliseconds: 0),
+                                                spaceDelay: const Duration(
+                                                    milliseconds: 100),
+                                                characterDelay: const Duration(
+                                                    milliseconds: 10),
+                                                maxLines: 8,
+                                              ),
+
+                                              //card image
+                                              Container(
+                                                margin:
+                                                    EdgeInsets.only(top: 10),
+                                                child: Stack(
+                                                  alignment: Alignment.center,
+                                                  children: [
+                                                    // Card image with fade-in effect
+                                                    ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                      child: AnimatedOpacity(
+                                                        duration: Duration(
+                                                            milliseconds: 100),
+                                                        curve: Curves.easeInOut,
+                                                        opacity: ((_opacity -
+                                                                    0.5) <=
+                                                                0.0)
+                                                            ? 0
+                                                            : _opacity - 0.5,
+                                                        child: Image.asset(
+                                                          'assets/images/login.jpg',
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.7,
+                                                          height: 200,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    ),
+
+                                                    // Lottie animation over the image
+                                                    Positioned.fill(
+                                                      child: Lottie.asset(
+                                                        'assets/animations/gradient.json',
+                                                        fit: BoxFit.cover,
+                                                        repeat: false,
+                                                        controller:
+                                                            _imagecontroller,
+                                                        onLoaded:
+                                                            (composition) {
+                                                          _imagecontroller
+                                                            ..duration =
+                                                                composition
+                                                                    .duration
+                                                            ..forward();
+                                                        },
+                                                      ),
+                                                    ),
+
+                                                    // Updated text overlay with fade-in animation
+                                                    Positioned(
+                                                      bottom: 10,
+                                                      left: 10,
+                                                      right: 50,
+                                                      child: AnimatedOpacity(
+                                                        duration: Duration(
+                                                            milliseconds: 800),
+                                                        curve: Curves.easeIn,
+                                                        opacity: _opacity >= 0.8
+                                                            ? 1.0
+                                                            : 0.0, // Only show text when image is mostly faded in
+                                                        child: AnimatedBuilder(
+                                                          animation:
+                                                              _imagecontroller,
+                                                          builder:
+                                                              (context, child) {
+                                                            return Transform
+                                                                .translate(
+                                                              offset: Offset(
+                                                                  0,
+                                                                  _imagecontroller
+                                                                              .value <
+                                                                          0.8
+                                                                      ? 20
+                                                                      : 0), // Slide up animation
+                                                              child: Text(
+                                                                "Dolphins Doing a Backflip in the Ocean",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .left,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 20,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              SizedBox(height: 20),
+                                              // Icons Row with Fade-In Animation
+                                              AnimatedOpacity(
+                                                duration:
+                                                    Duration(milliseconds: 500),
+                                                opacity: iconOpacity,
+                                                curve: Curves.easeIn,
+                                                child: Row(
+                                                  children: [
+                                                    IconButton(
+                                                      onPressed: () {},
+                                                      icon: FaIcon(
+                                                        FontAwesomeIcons.heart,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 5),
+                                                    IconButton(
+                                                      onPressed: () {},
+                                                      icon: FaIcon(
+                                                        FontAwesomeIcons.plus,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 45),
+                                                    TextButton.icon(
+                                                      onPressed: () {},
+                                                      icon: Text(
+                                                        "View More",
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 16,
+                                                        ),
+                                                      ),
+                                                      label: Icon(
+                                                        Icons.arrow_forward,
+                                                        color: Colors.white,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ]
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            );
+          });
         }
       });
     }
@@ -1108,7 +1247,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       children: [
                         Expanded(
                           child: ListView.builder(
-                            controller: _scrollController,
                             reverse: true,
                             itemCount: messages.length,
                             itemBuilder: (context, index) {
