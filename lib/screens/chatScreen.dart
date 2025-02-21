@@ -1257,7 +1257,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             reverse: true,
                             itemCount: messages.length,
                             itemBuilder: (context, index) {
-                              return messages[index];
+                              return AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOutCubic,
+                                padding: EdgeInsets.only(
+                                  bottom: (index == 0 && _isLongPressing)
+                                      ? screenHeight * 0.15
+                                      : 0,
+                                ),
+                                child: messages[index],
+                              );
                             },
                           ),
                         ),
