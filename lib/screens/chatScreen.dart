@@ -54,6 +54,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final String sentence =
       "How about a rejuvenating walk outside? It's a great way to refresh your mind and uplift your spirits. ";
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -177,6 +179,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _videoController.dispose();
     _controller.dispose();
     _focusNode.dispose();
@@ -202,6 +205,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       _rippleController.reset();
       _rippleController.forward();
     });
+    _scrollToBottom();
   }
 
   void _onLongPressEnd(LongPressEndDetails details) {
@@ -213,6 +217,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       _mindcontroller.reset();
       _mindcontroller.forward();
     });
+    _scrollToBottom();
   }
 
   void _sendMessage(String response) {
@@ -253,6 +258,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               textColor: Colors.black,
             ));
       });
+      _scrollToBottom();
     }
 
     animationController.forward();
@@ -632,6 +638,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ),
           );
         });
+        _scrollToBottom();
       }
     });
   }
@@ -692,6 +699,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               textColor: Colors.black,
             ));
       });
+
+      _scrollToBottom();
 
       animationController.forward();
       _sparkleController.forward();
@@ -1069,6 +1078,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
             );
           });
+          _scrollToBottom();
         }
       });
     }
@@ -1095,11 +1105,23 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     // Set focus to the TextField when the message box is visible
     if (_isMessageBoxVisible) {
       Future.delayed(const Duration(milliseconds: 10), () {
-        FocusScope.of(context).requestFocus(_focusNode);
+        if (mounted) {
+          FocusScope.of(context).requestFocus(_focusNode);
+        }
       });
     } else {
       // Remove focus and close the keyboard when the message box is hidden
       _focusNode.unfocus();
+    }
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
   }
 
@@ -1254,6 +1276,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       children: [
                         Expanded(
                           child: ListView.builder(
+                            controller: _scrollController,
+                            padding: EdgeInsets.only(top: 20),
+                            physics: BouncingScrollPhysics(),
                             reverse: true,
                             itemCount: messages.length,
                             itemBuilder: (context, index) {
@@ -1522,22 +1547,35 @@ class AnimatedMessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return SlideTransition(
       position: animation,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        child: Align(
-          alignment: alignment,
-          child: Container(
-            constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.7),
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-            decoration: BoxDecoration(
-              color: bubbleColor,
-              borderRadius: BorderRadius.circular(25),
-            ),
-            child: Text(
-              message,
-              style: TextStyle(color: textColor),
-              softWrap: true,
+      child: FadeTransition(
+        opacity: CurvedAnimation(
+          parent: controller,
+          curve: Curves.easeInOut,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+          child: Align(
+            alignment: alignment,
+            child: Container(
+              constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.7),
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+              decoration: BoxDecoration(
+                color: bubbleColor,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 3,
+                    offset: Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: Text(
+                message,
+                style: TextStyle(color: textColor),
+                softWrap: true,
+              ),
             ),
           ),
         ),
