@@ -54,6 +54,7 @@ dependencies:
   widget_and_text_animator: ^1.1.5
   flutter_tts: ^4.2.2
   speech_to_text: ^7.0.0
+  permission_handler: ^11.4.0
 
 dev_dependencies:
   flutter_test:
@@ -110,6 +111,8 @@ flutter:
     - "assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json"
     - "assets/images/bg.jpeg"
     - "assets/animations/gradient.json"
+    - "assets/animations/data.json"
+    - "assets/images/black.jpg"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
