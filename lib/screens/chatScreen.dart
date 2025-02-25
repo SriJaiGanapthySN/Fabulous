@@ -302,7 +302,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       _rippleController.reset();
       _rippleController.forward();
       _startlisten();
+     
     });
+    
   }
 
   void _onLongPressEnd(LongPressEndDetails details) {
@@ -399,6 +401,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         late AnimationController _imagecontroller;
         double _opacity = 0.0;
         bool _applyBlur = false;
+        bool outerGlow = true;
 
         _imagecontroller = AnimationController(vsync: this);
 
@@ -446,6 +449,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                               if (context.mounted) {
                                 setLocalState(() {
                                   iconOpacity = 1.0;
+                                  repeatGlow = false;
                                 });
                               }
                             });
@@ -484,14 +488,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                 fit: BoxFit.fill,
                                 repeat: false,
                               ),
-                              Lottie.asset(
-                                "assets/animations/Inner+Outerbox+Glow/Outer Glow/Outerbox.json",
-                                width: MediaQuery.of(context).size.width * 0.87,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.4,
-                                fit: BoxFit.fill,
-                                repeat: repeatGlow,
-                              ),
+                              if (outerGlow)
+                                Lottie.asset(
+                                  "assets/animations/Inner+Outerbox+Glow/Outer Glow/Outerbox.json",
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.87,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.4,
+                                  fit: BoxFit.fill,
+                                  repeat: repeatGlow,
+                                ),
                               Positioned.fill(
                                 child: Padding(
                                   padding: const EdgeInsets.only(
@@ -637,46 +643,53 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                               ),
                                             ),
                                             SizedBox(height: 20),
-                                            AnimatedOpacity(
-                                              duration:
-                                                  Duration(milliseconds: 500),
-                                              opacity: iconOpacity,
-                                              curve: Curves.easeIn,
-                                              child: Row(
-                                                children: [
-                                                  IconButton(
-                                                    onPressed: () {},
-                                                    icon: FaIcon(
-                                                      FontAwesomeIcons.heart,
-                                                      color: Colors.white,
-                                                      size: 20,
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 5),
-                                                  IconButton(
-                                                    onPressed: () {},
-                                                    icon: FaIcon(
-                                                      FontAwesomeIcons.plus,
-                                                      color: Colors.white,
-                                                      size: 20,
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 45),
-                                                  TextButton.icon(
-                                                    onPressed: () {},
-                                                    icon: Text(
-                                                      "View More",
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 16,
+                                            Container(
+                                              margin: EdgeInsets.only(top: 1),
+                                              child: AnimatedOpacity(
+                                                duration:
+                                                    Duration(milliseconds: 500),
+                                                opacity: iconOpacity,
+                                                curve: Curves.easeIn,
+                                                child: SizedBox(
+                                                  height: 30,
+                                                  child: Row(
+                                                    children: [
+                                                      IconButton(
+                                                        onPressed: () {},
+                                                        icon: FaIcon(
+                                                          FontAwesomeIcons
+                                                              .heart,
+                                                          color: Colors.white,
+                                                          size: 10,
+                                                        ),
                                                       ),
-                                                    ),
-                                                    label: Icon(
-                                                      Icons.arrow_forward,
-                                                      color: Colors.white,
-                                                    ),
-                                                  )
-                                                ],
+                                                      SizedBox(width: 5),
+                                                      IconButton(
+                                                        onPressed: () {},
+                                                        icon: FaIcon(
+                                                          FontAwesomeIcons.plus,
+                                                          color: Colors.white,
+                                                          size: 10,
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 45),
+                                                      TextButton.icon(
+                                                        onPressed: () {},
+                                                        icon: Text(
+                                                          "View More",
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 8,
+                                                          ),
+                                                        ),
+                                                        label: Icon(
+                                                          Icons.arrow_forward,
+                                                          color: Colors.white,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ],
@@ -710,14 +723,25 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       checkquestion(messageText);
 
       // If it's a question, scroll up slightly
+      // if (isquestion && _scrollController.hasClients) {
+      //   double currentOffset = _scrollController.offset;
+      //   _scrollController.animateTo(
+      //     currentOffset + 50.0, // Scroll up by 50 pixels
+      //     duration: Duration(milliseconds: 300),
+      //     curve: Curves.easeOut,
+      //   );
+      // }
+
       if (isquestion && _scrollController.hasClients) {
-        double currentOffset = _scrollController.offset;
-        _scrollController.animateTo(
-          currentOffset + 50.0, // Scroll up by 50 pixels
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
+  double currentOffset = _scrollController.offset;
+  double halfScreenHeight = MediaQuery.of(context).size.height / 2;
+
+  _scrollController.animateTo(
+    currentOffset + halfScreenHeight, // Scroll by half of screen height
+    duration: Duration(milliseconds: 300),
+    curve: Curves.easeOut,
+  );
+}
 
       AnimationController animationController = AnimationController(
         vsync: this,
@@ -810,6 +834,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           late AnimationController _imagecontroller;
           double _opacity = 0.0;
           bool _applyBlur = false;
+          double opacityLevel = 1.0;
+          double quesOpacityLevel = 1.0;
+          bool _isQuesAnimVisible = true;
 
           _imagecontroller = AnimationController(vsync: this);
 
@@ -825,29 +852,49 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               });
             }
           });
+          void decreaseOpacity() async {
+            for (double i = 1.0; i >= 0.0; i -= 0.05) {
+              await Future.delayed(
+                  Duration(milliseconds: 100)); // Smooth transition
+              setState(() {
+                opacityLevel = i;
+              });
+            }
+          }
 
           setState(() {
             messages.add(
               StatefulBuilder(
                 builder: (context, setLocalState) {
-                  Future.delayed(Duration(milliseconds: isquestion ? 2000 : 0),
-                      () {
-                    setLocalState(() {
-                      _isBoxVisible = true;
-                    });
+                  Future.delayed(Duration(milliseconds: 2100), () {
+                    if (mounted) {
+                      setLocalState(() {
+                        // gow = false;
+                        decreaseOpacity();
 
-                    Future.delayed(Duration(milliseconds: 800), () {
-                      if (mounted) {
-                        setLocalState(() {
-                          _isGlowVisible = false;
-
-                          Future.delayed(Duration(milliseconds: 800), () {
-                            setLocalState(() {
-                              iconOpacity = 1.0;
-                            });
+                        Future.delayed(Duration(milliseconds: 500), () {
+                          setLocalState(() {
+                            _isGlowVisible = false;
                           });
                         });
-                      }
+                      });
+                    }
+                  });
+                  Future.delayed(
+                      Duration(milliseconds: isquestion ? 4200 : 2000), () {
+                    setLocalState(() {
+                      _isBoxVisible = true;
+                      Future.delayed(Duration(milliseconds: 800), () {
+                        setLocalState(() {
+                          iconOpacity = 1.0;
+                          repeatGlow = false;
+                          _isQuesAnimVisible = false;
+                        });
+                        isquestion? setState(() {
+                          // isquestion = false;
+                          isThresholdReached = false;
+                        }):null;
+                      });
                     });
                   });
 
@@ -870,14 +917,38 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           child: Stack(
                             children: [
                               if (_isGlowVisible && !isquestion)
-                                Lottie.asset(
-                                  'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.8,
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.3,
-                                  fit: BoxFit.cover,
-                                  repeat: false,
+                                AnimatedOpacity(
+                                  opacity: opacityLevel,
+                                  duration: Duration(milliseconds: 300),
+                                  child: Lottie.asset(
+                                    'assets/animations/All Lottie/Glowing Star/Image Preload Gradient.json',
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.8,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.3,
+                                    fit: BoxFit.cover,
+                                    repeat: true,
+                                  ),
+                                ),
+                              if (_isQuesAnimVisible && isquestion)
+                                AnimatedOpacity(
+                                  opacity: quesOpacityLevel,
+                                  duration: Duration(milliseconds: 300),
+                                  child: SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.8,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.4,
+                                    child: Lottie.asset(
+                                      "assets/animations/QnA/6. Everything combined/data.json",
+                                      // width:
+                                      //     MediaQuery.of(context).size.width * 0.8,
+                                      // height: MediaQuery.of(context).size.height *
+                                      //     0.5,
+                                      fit: BoxFit.fill,
+                                      repeat: false,
+                                    ),
+                                  ),
                                 ),
                               if (_isBoxVisible) ...[
                                 Lottie.asset(
@@ -1047,7 +1118,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                   ],
                                                 ),
                                               ),
-                                              SizedBox(height: 20),
+                                              // SizedBox(height: 20),
                                               AnimatedOpacity(
                                                 duration:
                                                     Duration(milliseconds: 500),
@@ -1164,24 +1235,28 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Lottie.asset(
-                  isquestion
-                      ? 'assets/animations/data.json'
-                      : 'assets/animations/All Lottie/BG Glow Gradient/3 in 1/BG Glow Gradient.json',
-                  fit: BoxFit.cover,
-                  repeat: false,
-                  onLoaded: (composition) {
-                    Future.delayed(
-                      composition.duration + Duration(milliseconds: 390),
-                      () {
-                        setState(() {
-                          _isSendingMessage = false;
-                          isThresholdReached = false;
-                        });
-                      },
-                    );
-                  },
-                ),
+                child: !isquestion
+                    ? Lottie.asset(
+                        // isquestion
+                        //     ? 'assets/animations/data.json'
+                        //     :
+                        // 'assets/animations/data.json',
+                        'assets/animations/All Lottie/BG Glow Gradient/3 in 1/BG Glow Gradient.json',
+                        fit: BoxFit.cover,
+                        repeat: false,
+                        onLoaded: (composition) {
+                          Future.delayed(
+                            composition.duration + Duration(milliseconds: 390),
+                            () {
+                              setState(() {
+                                _isSendingMessage = false;
+                                isThresholdReached = false;
+                              });
+                            },
+                          );
+                        },
+                      )
+                    : null,
               ),
             ),
           Column(
@@ -1435,6 +1510,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       ],
                     ),
                     if (_isLongPressing)
+                    
                       Positioned(
                         bottom: 0,
                         left: 0,

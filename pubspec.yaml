@@ -113,6 +113,7 @@ flutter:
     - "assets/animations/gradient.json"
     - "assets/animations/data.json"
     - "assets/images/black.jpg"
+    - "assets/animations/QnA/6. Everything combined/data.json"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
