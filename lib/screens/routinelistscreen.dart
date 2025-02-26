@@ -2,8 +2,8 @@ import 'package:fab/screens/habitPlay.dart';
 import 'package:fab/services/task_services.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:fab/compenents/routinelist.dart';
-import 'package:fab/compenents/routinelistheader.dart';
+import 'package:fab/components/routinelist.dart';
+import 'package:fab/components/routinelistheader.dart';
 import 'package:fab/screens/taskreveal.dart';
 
 class Routinelistscreen extends StatefulWidget {
@@ -35,7 +35,7 @@ class _RoutinelistscreenState extends State<Routinelistscreen> {
   @override
   void initState() {
     super.initState();
-    
+
     TaskServices().getUserHabits(widget.email).then((userHabits) {
       setState(() {
         _habits = userHabits;
@@ -89,7 +89,8 @@ class _RoutinelistscreenState extends State<Routinelistscreen> {
                       onTap: () => _selectTime(context),
                       child: Text(
                         _selectedTime.format(context),
-                        style: const TextStyle(fontSize: 18, color: Colors.white),
+                        style:
+                            const TextStyle(fontSize: 18, color: Colors.white),
                       ),
                     ),
                   ],
@@ -155,8 +156,8 @@ class _RoutinelistscreenState extends State<Routinelistscreen> {
           Navigator.push(
             context,
             // MaterialPageRoute(builder: (context) => Taskreveal(email: widget.email)),
-            MaterialPageRoute(builder: (context) => habitPlay(email: widget.email)),
-
+            MaterialPageRoute(
+                builder: (context) => habitPlay(email: widget.email)),
           );
         },
         label: const Text('Play', style: TextStyle(color: Colors.white)),

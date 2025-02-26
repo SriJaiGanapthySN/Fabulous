@@ -1,7 +1,7 @@
-import 'package:fab/compenents/calender.dart';
-import 'package:fab/compenents/custombutton.dart';
-import 'package:fab/compenents/dailycoaching.dart';
-import 'package:fab/compenents/routines.dart';
+import 'package:fab/components/calender.dart';
+import 'package:fab/components/custombutton.dart';
+import 'package:fab/components/dailycoaching.dart';
+import 'package:fab/components/routines.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {

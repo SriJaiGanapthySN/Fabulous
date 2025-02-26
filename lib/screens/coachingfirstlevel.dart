@@ -1,6 +1,6 @@
 import 'dart:ui'; // Import for the BackdropFilter
 
-import 'package:fab/compenents/coachingfirstleveltile.dart';
+import 'package:fab/components/coachingfirstleveltile.dart';
 import 'package:fab/screens/coachingscreenreveal.dart';
 import 'package:fab/screens/stackcard.dart';
 import 'package:fab/services/coaching_service.dart';
@@ -159,7 +159,12 @@ class _CoachingFirstLevelState extends State<CoachingFirstLevel> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                Coachingscreenreveal(email: widget.email,coachingSeriesId:  training["objectId"],coachingSeries: training,),
+                                                Coachingscreenreveal(
+                                              email: widget.email,
+                                              coachingSeriesId:
+                                                  training["objectId"],
+                                              coachingSeries: training,
+                                            ),
                                           ),
                                         );
                                       },

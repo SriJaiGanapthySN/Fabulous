@@ -1,5 +1,5 @@
-import 'package:fab/compenents/custombutton.dart';
-import 'package:fab/compenents/custombuttondiscover.dart';
+import 'package:fab/components/custombutton.dart';
+import 'package:fab/components/custombuttondiscover.dart';
 import 'package:fab/screens/addJourneyScreen.dart';
 import 'package:fab/screens/challengesscreen.dart';
 import 'package:fab/screens/coachingfirstlevel.dart';
@@ -14,7 +14,7 @@ class Discoverscreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double buttonWidth = (screenWidth / 2) - 20;  // Dynamic width with padding
+    double buttonWidth = (screenWidth / 2) - 20; // Dynamic width with padding
 
     return Scaffold(
       appBar: AppBar(
@@ -69,7 +69,8 @@ class Discoverscreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Guidedcoachingmenu(email: email),
+                          builder: (context) =>
+                              Guidedcoachingmenu(email: email),
                         ),
                       );
                     },
@@ -103,7 +104,9 @@ class Discoverscreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CoachingFirstLevel(email: email,),
+                          builder: (context) => CoachingFirstLevel(
+                            email: email,
+                          ),
                         ),
                       );
                     },

@@ -1,9 +1,9 @@
-import 'package:fab/compenents/coachingheader.dart';
+import 'package:fab/components/coachingheader.dart';
 import 'package:fab/screens/audio.dart';
 import 'package:fab/screens/coachingPlay.dart';
 import 'package:fab/services/coaching_service.dart';
 import 'package:flutter/material.dart';
-import '../compenents/contentcard.dart';
+import '../components/contentcard.dart';
 
 class Coachingscreenreveal extends StatefulWidget {
   final String email;
@@ -35,7 +35,8 @@ class _Coachingscreenreveal extends State<Coachingscreenreveal> {
 
   Future<void> _fetchMainCoaching() async {
     try {
-      coachingData = await _coachingService.getCoachings(widget.coachingSeriesId);
+      coachingData =
+          await _coachingService.getCoachings(widget.coachingSeriesId);
     } catch (error) {
       debugPrint("Error fetching coaching data: $error");
     } finally {
@@ -79,30 +80,30 @@ class _Coachingscreenreveal extends State<Coachingscreenreveal> {
                   // Dynamically generated coaching content cards
                   ...coachingData.map((coachingItem) {
                     return Column(
-          children: [
-            GestureDetector(
-              onTap: () {
-                // Navigate to a new screen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Coachingplay(
-                      email: widget.email,
-                      coachingSeries: widget.coachingSeries,
-                      coachingData: coachingItem,
-                      coachings: coachingData,
-                    ),
-                  ),
-                );
-              },
-              child: ContentCard(
-                coachingSeries: widget.coachingSeries,
-                coaching: coachingItem,
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-        );
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            // Navigate to a new screen
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Coachingplay(
+                                  email: widget.email,
+                                  coachingSeries: widget.coachingSeries,
+                                  coachingData: coachingItem,
+                                  coachings: coachingData,
+                                ),
+                              ),
+                            );
+                          },
+                          child: ContentCard(
+                            coachingSeries: widget.coachingSeries,
+                            coaching: coachingItem,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    );
                   }).toList(),
                 ],
               ),

@@ -1,7 +1,7 @@
-import 'package:fab/compenents/challengesgridtile.dart';
+import 'package:fab/components/challengesgridtile.dart';
 
-import 'package:fab/compenents/joinchallenge.dart';
-import 'package:fab/compenents/joinchallengetile.dart';
+import 'package:fab/components/joinchallenge.dart';
+import 'package:fab/components/joinchallengetile.dart';
 import 'package:fab/screens/challengerevealscreen.dart';
 
 import 'package:flutter/material.dart';
@@ -127,13 +127,13 @@ class _ChallengesscreenState extends State<Challengesscreen> {
                         url: 'assets/images/login.jpg',
                         title: 'Join Challenge',
                         onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Challengerevealscreen(),
-                        ),
-                      );
-                    },
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Challengerevealscreen(),
+                            ),
+                          );
+                        },
                       ),
                     ),
                     Joinchallengetile(

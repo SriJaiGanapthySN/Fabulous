@@ -1,4 +1,4 @@
-import 'package:fab/compenents/challengereveal.dart';
+import 'package:fab/components/challengereveal.dart';
 import 'package:flutter/material.dart';
 
 class Challengerevealscreen extends StatefulWidget {

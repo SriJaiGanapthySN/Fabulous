@@ -1,4 +1,4 @@
-import 'package:fab/compenents/mytextfield.dart';
+import 'package:fab/components/mytextfield.dart';
 import 'package:fab/screens/loginemail.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,7 +19,8 @@ class _SigninscreenState extends State<Signinscreen> {
 
   // Function to handle user sign up
   Future<void> _signUpWithEmailPassword() async {
-    String email = _emailController.text.trim(); // Trim to remove any extra spaces
+    String email =
+        _emailController.text.trim(); // Trim to remove any extra spaces
     String password = _passwordController.text.trim();
 
     // Check if email or password is empty
@@ -32,7 +33,8 @@ class _SigninscreenState extends State<Signinscreen> {
 
     try {
       // Create the user with Firebase Auth
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -42,23 +44,26 @@ class _SigninscreenState extends State<Signinscreen> {
         // Debugging: Print values to check if they are correct
         print("Sign up successful. Email: $email");
 
-try {
-    // Step 1: Add the user document to the 'testers' collection
-    await FirebaseFirestore.instance.collection('testers').doc(email).set({
-      'email': email,
-      'createdAt': Timestamp.now(),
-    });
+        try {
+          // Step 1: Add the user document to the 'testers' collection
+          await FirebaseFirestore.instance
+              .collection('testers')
+              .doc(email)
+              .set({
+            'email': email,
+            'createdAt': Timestamp.now(),
+          });
 
-    // Step 2: Add an empty document to the 'tasks' subcollection
-    // await FirebaseFirestore.instance.collection('testers').doc(email).collection('tasks').doc('initial').set({
-    //   // You can leave it empty or add placeholders if needed
-    //   'taskPlaceholder': 'This is an empty task placeholder',
-    // });
-    
-    print("User created and tasks successfully.");
-  } catch (e) {
-    print("Error: $e");
-  }
+          // Step 2: Add an empty document to the 'tasks' subcollection
+          // await FirebaseFirestore.instance.collection('testers').doc(email).collection('tasks').doc('initial').set({
+          //   // You can leave it empty or add placeholders if needed
+          //   'taskPlaceholder': 'This is an empty task placeholder',
+          // });
+
+          print("User created and tasks successfully.");
+        } catch (e) {
+          print("Error: $e");
+        }
 
         // Show confirmation in the form of a snack bar
         ScaffoldMessenger.of(context).showSnackBar(
@@ -128,7 +133,8 @@ try {
                       ),
                       style: ElevatedButton.styleFrom(
                         // primary: Colors.orange,
-                        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 40, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),

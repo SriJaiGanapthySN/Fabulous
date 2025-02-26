@@ -1,4 +1,4 @@
-import 'package:fab/compenents/mytextfield.dart';
+import 'package:fab/components/mytextfield.dart';
 import 'package:fab/screens/nacScreen.dart';
 import 'package:fab/screens/routinelistscreen.dart';
 import 'package:fab/screens/signinscreen.dart';

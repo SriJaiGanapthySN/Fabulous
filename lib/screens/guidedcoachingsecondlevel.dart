@@ -1,4 +1,4 @@
-import 'package:fab/compenents/guidedcoachingtile.dart';
+import 'package:fab/components/guidedcoachingtile.dart';
 import 'package:fab/screens/stackcard.dart';
 import 'package:fab/services/guided_activities.dart';
 import 'package:flutter/material.dart';

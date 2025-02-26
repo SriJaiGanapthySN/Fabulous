@@ -1,4 +1,4 @@
-import 'package:fab/compenents/mygridtile.dart';
+import 'package:fab/components/mygridtile.dart';
 import 'package:fab/screens/guidedcoachingsecondlevel.dart';
 import 'package:fab/services/guided_activities.dart';
 import 'package:flutter/material.dart';
