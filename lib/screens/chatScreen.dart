@@ -43,6 +43,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   bool _showContainer = false;
   double _scale = 0.0;
   bool _isSendingMessage = false;
+  bool isusersendingmessage = false;
   String voicetext = "";
   bool _shouldShowTextBox = false;
   bool _showMindText = true;
@@ -211,6 +212,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   void _startTextSwitching() {
     _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (!mounted) return;
       setState(() {
         displayText =
             (displayText == "Hold to Speak") ? "Tap to Chat" : "Hold to Speak";
@@ -302,14 +304,14 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       _rippleController.reset();
       _rippleController.forward();
       _startlisten();
-     
     });
-    
   }
 
   void _onLongPressEnd(LongPressEndDetails details) {
     setState(() {
-      _sendCard(voicetext);
+      if (voicetext.isNotEmpty) {
+        _sendCard(voicetext);
+      }
       _isLongPressing = false;
       _showMindText = true;
       _shouldShowTextBox = true;
@@ -722,26 +724,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
       checkquestion(messageText);
 
-      // If it's a question, scroll up slightly
-      // if (isquestion && _scrollController.hasClients) {
-      //   double currentOffset = _scrollController.offset;
-      //   _scrollController.animateTo(
-      //     currentOffset + 50.0, // Scroll up by 50 pixels
-      //     duration: Duration(milliseconds: 300),
-      //     curve: Curves.easeOut,
-      //   );
-      // }
-
       if (isquestion && _scrollController.hasClients) {
-  double currentOffset = _scrollController.offset;
-  double halfScreenHeight = MediaQuery.of(context).size.height / 2;
+        double currentOffset = _scrollController.offset;
+        double halfScreenHeight = MediaQuery.of(context).size.height / 2;
 
-  _scrollController.animateTo(
-    currentOffset + halfScreenHeight, // Scroll by half of screen height
-    duration: Duration(milliseconds: 300),
-    curve: Curves.easeOut,
-  );
-}
+        _scrollController.animateTo(
+          currentOffset + halfScreenHeight, // Scroll by half of screen height
+          duration: Duration(milliseconds: 10),
+          curve: Curves.easeOut,
+        );
+      }
 
       AnimationController animationController = AnimationController(
         vsync: this,
@@ -790,11 +782,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
       animationController.addStatusListener((status) {
         if (status == AnimationStatus.completed) {
-          // Reset isquestion after animation completes
+          if (!mounted) return;
           Future.delayed(Duration(milliseconds: 6300), () {
-            setState(() {
-              isquestion = false;
-            });
+            if (mounted) {
+              setState(() {
+                isquestion = false;
+              });
+            }
           });
 
           AnimationController replyController = AnimationController(
@@ -863,13 +857,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           }
 
           setState(() {
+            isusersendingmessage = true;
             messages.add(
               StatefulBuilder(
                 builder: (context, setLocalState) {
                   Future.delayed(Duration(milliseconds: 2100), () {
                     if (mounted) {
                       setLocalState(() {
-                        // gow = false;
                         decreaseOpacity();
 
                         Future.delayed(Duration(milliseconds: 500), () {
@@ -881,7 +875,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     }
                   });
                   Future.delayed(
-                      Duration(milliseconds: isquestion ? 4200 : 2000), () {
+                      Duration(milliseconds: isquestion ? 4800 : 2000), () {
                     setLocalState(() {
                       _isBoxVisible = true;
                       Future.delayed(Duration(milliseconds: 800), () {
@@ -890,10 +884,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           repeatGlow = false;
                           _isQuesAnimVisible = false;
                         });
-                        isquestion? setState(() {
-                          // isquestion = false;
-                          isThresholdReached = false;
-                        }):null;
+                        isquestion
+                            ? setState(() {
+                                isThresholdReached = false;
+                              })
+                            : null;
                       });
                     });
                   });
@@ -935,16 +930,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                   opacity: quesOpacityLevel,
                                   duration: Duration(milliseconds: 300),
                                   child: SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.8,
+                                    width: MediaQuery.of(context).size.width,
                                     height: MediaQuery.of(context).size.height *
-                                        0.4,
+                                        0.9,
                                     child: Lottie.asset(
                                       "assets/animations/QnA/6. Everything combined/data.json",
-                                      // width:
-                                      //     MediaQuery.of(context).size.width * 0.8,
-                                      // height: MediaQuery.of(context).size.height *
-                                      //     0.5,
                                       fit: BoxFit.fill,
                                       repeat: false,
                                     ),
@@ -1118,7 +1108,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                   ],
                                                 ),
                                               ),
-                                              // SizedBox(height: 20),
                                               AnimatedOpacity(
                                                 duration:
                                                     Duration(milliseconds: 500),
@@ -1221,13 +1210,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             child: AnimatedContainer(
               duration: Duration(milliseconds: 500),
               decoration: BoxDecoration(
-                color: isquestion ? Colors.black : Colors.transparent,
-                image: !isquestion
-                    ? DecorationImage(
-                        image: AssetImage('assets/images/bg.jpeg'),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
+                image: DecorationImage(
+                  image: AssetImage('assets/images/bg.jpeg'),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
@@ -1237,10 +1223,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                 child: !isquestion
                     ? Lottie.asset(
-                        // isquestion
-                        //     ? 'assets/animations/data.json'
-                        //     :
-                        // 'assets/animations/data.json',
                         'assets/animations/All Lottie/BG Glow Gradient/3 in 1/BG Glow Gradient.json',
                         fit: BoxFit.cover,
                         repeat: false,
@@ -1383,40 +1365,42 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           padding: const EdgeInsets.all(10.0),
                           child: Row(
                             children: [
-                              GestureDetector(
-                                onTap: _toggleMessageBoxVisibility,
-                                onLongPressStart: _onLongPressStart,
-                                onLongPressEnd: _onLongPressEnd,
-                                onLongPressDown: (_) {},
-                                onLongPressUp: () {},
-                                child: Container(
-                                    width: 56,
-                                    height: 56,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white12,
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 3),
-                                        ),
-                                      ],
-                                    ),
-                                    child:
-                                        _isMessageBoxVisible || _isLongPressing
-                                            ? Icon(
-                                                Icons.close,
-                                                color: Colors.white,
-                                              )
-                                            : Icon(
-                                                Icons.blur_circular,
-                                                color: Colors.white,
-                                                size: 45,
-                                              )),
-                              ),
+                              if (!_isSendingMessage)
+                                GestureDetector(
+                                  onTap: _toggleMessageBoxVisibility,
+                                  onLongPressStart: _onLongPressStart,
+                                  onLongPressEnd: _onLongPressEnd,
+                                  onLongPressDown: (_) {},
+                                  onLongPressUp: () {},
+                                  child: Container(
+                                      width: 56,
+                                      height: 56,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white12,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.1),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      child: _isMessageBoxVisible ||
+                                              _isLongPressing
+                                          ? Icon(
+                                              Icons.close,
+                                              color: Colors.white,
+                                            )
+                                          : Icon(
+                                              Icons.blur_circular,
+                                              color: Colors.white,
+                                              size: 45,
+                                            )),
+                                ),
                               const SizedBox(width: 8),
-                              if (_isMessageBoxVisible)
+                              if (_isMessageBoxVisible && !_isSendingMessage)
                                 Expanded(
                                   child: Container(
                                     decoration: BoxDecoration(
@@ -1450,7 +1434,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                   ),
                                 ),
                               const SizedBox(width: 8),
-                              if (_isMessageBoxVisible)
+                              if (_isMessageBoxVisible &&
+                                  _controller.text.isNotEmpty)
                                 IconButton(
                                   onPressed: () => _sendCard(_controller.text),
                                   icon: const Icon(Icons.send),
@@ -1510,7 +1495,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       ],
                     ),
                     if (_isLongPressing)
-                    
                       Positioned(
                         bottom: 0,
                         left: 0,
