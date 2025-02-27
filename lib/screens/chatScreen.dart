@@ -729,7 +729,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         double halfScreenHeight = MediaQuery.of(context).size.height / 2;
 
         _scrollController.animateTo(
-          currentOffset + halfScreenHeight, // Scroll by half of screen height
+          currentOffset + halfScreenHeight,
           duration: Duration(milliseconds: 10),
           curve: Curves.easeOut,
         );
@@ -740,22 +740,20 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         duration: const Duration(seconds: 1),
       );
 
-      animationController.addListener(() {
-        if (animationController.value >= 0.65 && !isThresholdReached) {
-          setState(() {
-            isThresholdReached = true;
-          });
-          print("State changed at 85% progress");
-        }
-      });
-
-      AnimationController _sparkleController = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 1200),
-      );
+      if (isquestion) {
+        animationController.addListener(() {
+          if (animationController.value >= 0.65 && !isThresholdReached) {
+            setState(() {
+              isThresholdReached = true;
+              _isSendingMessage = true;
+            });
+            print("State changed at 85% progress");
+          }
+        });
+      }
 
       Animation<Offset> slideAnimation = Tween<Offset>(
-        begin: const Offset(-10, 80),
+        begin: isquestion ? const Offset(0, 1) : const Offset(-10, 80),
         end: Offset.zero,
       ).animate(CurvedAnimation(
         parent: animationController,
@@ -778,7 +776,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       });
 
       animationController.forward();
-      _sparkleController.forward();
 
       animationController.addStatusListener((status) {
         if (status == AnimationStatus.completed) {
@@ -787,6 +784,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             if (mounted) {
               setState(() {
                 isquestion = false;
+                _isSendingMessage = false;
               });
             }
           });
@@ -932,7 +930,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                   child: SizedBox(
                                     width: MediaQuery.of(context).size.width,
                                     height: MediaQuery.of(context).size.height *
-                                        0.9,
+                                        0.7,
                                     child: Lottie.asset(
                                       "assets/animations/QnA/6. Everything combined/data.json",
                                       fit: BoxFit.fill,
@@ -1541,14 +1539,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                           fontSize: 20,
                                         ),
                                       ),
-                                      textAlign: TextAlign.center,
-                                      initialDelay:
-                                          const Duration(milliseconds: 100),
-                                      spaceDelay:
-                                          const Duration(milliseconds: 50),
-                                      characterDelay:
-                                          const Duration(milliseconds: 20),
-                                      maxLines: 3,
                                     ),
                                   ),
                                 ),
