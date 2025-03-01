@@ -1,32 +1,50 @@
-import 'package:fab/screens/audio.dart';
+import 'package:fab/screens/challenges/audio.dart';
 import 'package:fab/firebase_options.dart';
-import 'package:fab/screens/challengerevealscreen.dart';
+import 'package:fab/screens/challenges/challengerevealscreen.dart';
 
-import 'package:fab/screens/logingupinterfacescreen.dart';
-import 'package:fab/screens/notesscreen.dart';
-import 'package:fab/screens/routinelistscreen.dart';
-import 'package:fab/screens/taskreveal.dart';
+import 'package:fab/screens/auth/login/logingupinterfacescreen.dart';
+import 'package:fab/screens/ritual/notesscreen.dart';
+import 'package:fab/screens/ritual/routinelistscreen.dart';
+import 'package:fab/screens/ritual/taskreveal.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  Future<void> _initializeFirebase() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-            child: child!),
-        debugShowCheckedModeBanner: false,
-        home: Logingupinterfacescreen());
+    return FutureBuilder(
+      future: _initializeFirebase(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              body: Center(child: CircularProgressIndicator()), // Show loader
+            ),
+          );
+        }
+        return MaterialApp(
+          builder: (context, child) => MediaQuery(
+              data:
+                  MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+              child: child!),
+          debugShowCheckedModeBanner: false,
+          home: Logingupinterfacescreen(),
+        );
+      },
+    );
   }
 }

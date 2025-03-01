@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'chatScreen.dart';
-import 'routinelistscreen.dart'; // Import your Routinelistscreen
-import 'journeyscreen.dart'; // Import your Journeyscreen
-import 'discoverscreen.dart'; // Import your Discoverscreen
+import 'chat/chatScreen.dart';
+import 'ritual/routinelistscreen.dart'; // Import your Routinelistscreen
+import 'journeys/journeyscreen.dart'; // Import your Journeyscreen
+import 'discover/discoverscreen.dart'; // Import your Discoverscreen
 
 class MainScreen extends StatefulWidget {
   final String email;
@@ -41,9 +41,15 @@ class _MainScreenState extends State<MainScreen> {
             _currentIndex = index; // Update the selected tab
           });
         },
-        backgroundColor: _currentIndex == 0 ? Colors.transparent: Colors.white, // Set background color
-        selectedItemColor: _currentIndex == 0 ? Colors.black : Colors.blue, // Active icon/text color
-        unselectedItemColor: _currentIndex == 0 ? Colors.black54 : Colors.grey, // Inactive icon/text color
+        backgroundColor: _currentIndex == 0
+            ? Colors.transparent
+            : Colors.white, // Set background color
+        selectedItemColor: _currentIndex == 0
+            ? Colors.black
+            : Colors.blue, // Active icon/text color
+        unselectedItemColor: _currentIndex == 0
+            ? Colors.black54
+            : Colors.grey, // Inactive icon/text color
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
